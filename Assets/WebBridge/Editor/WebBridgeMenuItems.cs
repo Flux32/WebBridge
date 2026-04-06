@@ -12,7 +12,8 @@ namespace Modules.Road.Editor
         private const string EnableMockInBuildMenu = "Tools/WebBridge/Enable Mock In Build";
         private const string MockEditorPrefKey = "WebBridge_EnableMock";
         private const string MockDefineSymbol = "WEBBRIDGE_MOCK";
-        private const string PrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/WebBridge.prefab";
+        private const string PackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/WebBridge.prefab";
+        private const string AssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/WebBridge.prefab";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
 
         #region Enable Mock (Editor Play Mode)
@@ -102,10 +103,11 @@ namespace Modules.Road.Editor
         [MenuItem("GameObject/WebBridge", false, 10)]
         private static void CreateWebBridge(MenuCommand menuCommand)
         {
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PackagePrefabPath)
+                                ?? AssetDatabase.LoadAssetAtPath<GameObject>(AssetsPrefabPath);
             if (prefab == null)
             {
-                Debug.LogError($"[WebBridge] Prefab not found at: {PrefabPath}");
+                Debug.LogError($"[WebBridge] Prefab not found at: {PackagePrefabPath} or {AssetsPrefabPath}");
                 return;
             }
 
