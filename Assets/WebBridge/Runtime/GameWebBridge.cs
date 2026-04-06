@@ -82,13 +82,13 @@ namespace Modules.Road
         public WebGameStatePayload LastStepResult { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
 
-        public float MockLoseChance
+        private float MockLoseChance
         {
             get => _mockLoseChance;
             set => _mockLoseChance = Mathf.Clamp01(value);
         }
 
-        public float MockBonusStepTriggerChance
+        private float MockBonusStepTriggerChance
         {
             get => _mockBonusStepTriggerChance;
             set => _mockBonusStepTriggerChance = Mathf.Clamp01(value);

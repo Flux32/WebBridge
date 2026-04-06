@@ -14,6 +14,12 @@ namespace Modules.Road
         private static readonly MethodInfo SetMockDifficultyMethod = typeof(GameWebBridge)
             .GetMethod("SetMockDifficulty", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        private static readonly FieldInfo LoseChanceField = typeof(GameWebBridge)
+            .GetField("_mockLoseChance", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly FieldInfo BonusChanceField = typeof(GameWebBridge)
+            .GetField("_mockBonusStepTriggerChance", BindingFlags.NonPublic | BindingFlags.Instance);
+
         private Vector2 _buttonPosition;
         private bool _isPanelOpen;
         private bool _isDragging;
@@ -49,7 +55,7 @@ namespace Modules.Road
                 normal = { textColor = Color.white }
             };
 
-            Texture2D buttonBg = MakeTexture(1, 1, new Color(0.2f, 0.2f, 0.2f, 0.85f));
+            Texture2D buttonBg = MakeTexture(1, 1, new Color(0.15f, 0.35f, 0.85f, 0.9f));
             _buttonStyle.normal.background = buttonBg;
 
             _panelStyle = new GUIStyle(GUI.skin.box);
@@ -184,16 +190,18 @@ namespace Modules.Road
                 () => CycleDifficulty(bridge, 1));
             y += rowHeight + padding;
 
+            float loseChance = (float)LoseChanceField.GetValue(bridge);
             DrawRow(contentX, y, contentWidth, rowHeight, arrowWidth,
-                "Lose %", $"{bridge.MockLoseChance * 100f:F0}%",
-                () => bridge.MockLoseChance -= StepLoseChance,
-                () => bridge.MockLoseChance += StepLoseChance);
+                "Lose %", $"{loseChance * 100f:F0}%",
+                () => LoseChanceField.SetValue(bridge, Mathf.Clamp01(loseChance - StepLoseChance)),
+                () => LoseChanceField.SetValue(bridge, Mathf.Clamp01(loseChance + StepLoseChance)));
             y += rowHeight + padding;
 
+            float bonusChance = (float)BonusChanceField.GetValue(bridge);
             DrawRow(contentX, y, contentWidth, rowHeight, arrowWidth,
-                "Bonus %", $"{bridge.MockBonusStepTriggerChance * 100f:F0}%",
-                () => bridge.MockBonusStepTriggerChance -= StepBonusChance,
-                () => bridge.MockBonusStepTriggerChance += StepBonusChance);
+                "Bonus %", $"{bonusChance * 100f:F0}%",
+                () => BonusChanceField.SetValue(bridge, Mathf.Clamp01(bonusChance - StepBonusChance)),
+                () => BonusChanceField.SetValue(bridge, Mathf.Clamp01(bonusChance + StepBonusChance)));
         }
 
         private void DrawRow(
