@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1545737638635404230
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3065240742328190510}
+  - component: {fileID: 3686000498439639465}
+  - component: {fileID: 854343513921349944}
+  - component: {fileID: 3905055287020188001}
+  - component: {fileID: 3023990027768449991}
+  m_Layer: 0
+  m_Name: WebBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3065240742328190510
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404230}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3686000498439639465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d345b59c6b541f4a9fe9aea4b3fad4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.AudioWebBridge
+--- !u!114 &854343513921349944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 783241476237b4f9e8de8bde69fc95bb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.GameWebBridge
+  _mockCoefficients:
+  - 1.1
+  - 1.2
+  - 1.4
+  - 1.8
+  - 2.2
+  - 2.6
+  - 3.2
+  - 4.1
+  - 5.8
+  _mockBonusCounts:
+  - Difficult: easy
+    Count: 10
+    Price: 100
+    Currency: USD
+  - Difficult: medium
+    Count: 8
+    Price: 200
+    Currency: USD
+  - Difficult: hard
+    Count: 6
+    Price: 300
+    Currency: USD
+  _mockLoseChance: 0.3
+  _mockBonusStepTriggerChance: 0.45
+  _mockBonusStepsThreshold: 3
+  _mockBetAmount: 10
+  _mockWinDecimals: 2
+  _mockBonusPositions: 020000000300000004000000
+--- !u!114 &3905055287020188001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1aeb4a83f5be45728baff67e7b75ca4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.LayoutWebBridge
+  _hideDesktopBetBar: 0
+  _hideMobileBetBar: 0
+  _hideMobileLastWin: 0
+  _hideSettingsMenuButton: 0
+  _hideLogo: 0
+  _desktopBetBarInteractable: 1
+  _mobileBetBarInteractable: 1
+--- !u!114 &3023990027768449991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4434d4ddd38024f9a8347be1123ec1e0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.ScreenOrientationWebBridge
+  _mobileMaxAspectRatio: 1.1
+  _useMockAspectRatio: 0
+  _mockAspectRatio: 1

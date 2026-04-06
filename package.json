@@ -1,0 +1,18 @@
+{
+  "name": "com.pixi.webbridge",
+  "version": "1.0.0",
+  "displayName": "WebBridge",
+  "description": "WebBridge components for React-Unity communication. Provides ScreenOrientationWebBridge, GameWebBridge, LayoutWebBridge and AudioWebBridge.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "keywords": [
+    "webbridge",
+    "react",
+    "webgl"
+  ],
+  "author": {
+    "name": "Pixi"
+  }
+}
