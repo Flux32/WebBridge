@@ -29,10 +29,6 @@ namespace Modules.Road
         private static readonly char[] CoeffSeparator = { ',' };
 
         [Header("Mock")]
-        [SerializeField] private float[] _mockCoefficients =
-        {
-            1.1f, 1.2f, 1.4f, 1.8f, 2.2f, 2.6f, 3.2f, 4.1f, 5.8f
-        };
         [SerializeField] private MockBonusCount[] _mockBonusCounts =
         {
             new MockBonusCount { Difficult = "easy", Count = 10, Price = "100", Currency = "USD" },
@@ -49,6 +45,7 @@ namespace Modules.Road
         private readonly List<int> _mockBonusStepsCollected = new List<int>();
         private System.Random _mockRandom;
         private int _mockMoveIndex;
+        private string _currentMockDifficulty;
         private bool _mockInitialized;
         private bool _hasExternalGameConfigReceived;
         private Coroutine _initialWebSyncCoroutine;
@@ -65,12 +62,14 @@ namespace Modules.Road
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
         public event Action BuyBonusButtonClicked;
+        public event Action<string> MockDifficultyChanged;
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
         public WebGameConfigPayload LastGameConfig { get; private set; }
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
+        public string CurrentMockDifficulty => _currentMockDifficulty;
 
         public float MockLoseChance
         {
@@ -106,6 +105,15 @@ namespace Modules.Road
                 InitializeMockIfNeeded();
             else
                 BeginInitialWebSyncAfterSceneLoad();
+        }
+
+        private void Update()
+        {
+            if (!IsMockEnabled)
+                return;
+
+            if (Input.GetKeyDown(KeyCode.D))
+                CycleMockDifficulty();
         }
 
         private void OnDestroy()
@@ -652,10 +660,19 @@ namespace Modules.Road
 
             _mockInitialized = true;
             _mockRandom = new System.Random();
+            _currentMockDifficulty = MockConfig.Instance.DefaultDifficulty;
 
             WebGameConfigPayload mockConfig = BuildMockGameConfig();
             ApplyGameConfig(mockConfig, true);
             ApplyGameState(CreateMockGameStatePayload());
+        }
+
+        private void CycleMockDifficulty()
+        {
+            _currentMockDifficulty = MockConfig.Instance.GetNextDifficulty(_currentMockDifficulty);
+            Debug.Log($"[GameWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            ApplyGameConfig(BuildMockGameConfig(), true);
+            MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }
 
         private WebGameConfigPayload BuildMockGameConfig()
@@ -670,10 +687,7 @@ namespace Modules.Road
 
         private float[] ResolveMockCoefficients()
         {
-            if (_mockCoefficients != null && _mockCoefficients.Length > 0)
-                return _mockCoefficients.ToArray();
-
-            return Array.Empty<float>();
+            return MockConfig.Instance.GetCoefficients(_currentMockDifficulty);
         }
 
         private Dictionary<string, int> BuildMockBonusCounts()
