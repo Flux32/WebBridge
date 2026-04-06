@@ -7,13 +7,13 @@ Unity package for React-Unity communication in WebGL builds. Provides a set of s
 Add to `Packages/manifest.json`:
 
 ```json
-"com.pixi.webbridge": "https://github.com/<user>/WebBridge.git"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git"
 ```
 
 Or for a specific version:
 
 ```json
-"com.pixi.webbridge": "https://github.com/<user>/WebBridge.git#v1.0.0"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git#v1.0.0"
 ```
 
 **Dependencies**: `com.unity.nuget.newtonsoft-json` (resolved automatically).
