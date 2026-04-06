@@ -16,8 +16,8 @@ namespace Modules.Road.Editor
         private const string AssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/WebBridge.prefab";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
         private const string MockConfigMenu = "Tools/WebBridge/MockConfig";
-        private const string MockConfigDefaultPath = "Assets/WebBridge/Resources/MockConfig.asset";
-        private const string MockConfigResourcesFolder = "Assets/WebBridge/Resources";
+        private const string MockConfigDefaultPath = "Assets/Resources/MockConfig.asset";
+        private const string MockConfigResourcesFolder = "Assets/Resources";
 
         #region Enable Mock (Editor Play Mode)
 
@@ -117,7 +117,7 @@ namespace Modules.Road.Editor
             else
             {
                 if (!AssetDatabase.IsValidFolder(MockConfigResourcesFolder))
-                    AssetDatabase.CreateFolder("Assets/WebBridge", "Resources");
+                    AssetDatabase.CreateFolder("Assets", "Resources");
 
                 asset = ScriptableObject.CreateInstance<MockConfig>();
                 AssetDatabase.CreateAsset(asset, MockConfigDefaultPath);
