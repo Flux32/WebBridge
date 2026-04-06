@@ -19,6 +19,7 @@ MonoBehaviour:
       <length>k__BackingField: 2
       m_Loop: 0
       m_ZeroValue: 0
+      m_Range: 1
       m_Curve:
         serializedVersion: 2
         m_Curve:
