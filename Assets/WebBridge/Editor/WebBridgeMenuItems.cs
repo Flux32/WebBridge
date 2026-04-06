@@ -13,6 +13,7 @@ namespace Modules.Road.Editor
         private const string MockEditorPrefKey = "WebBridge_EnableMock";
         private const string MockDefineSymbol = "WEBBRIDGE_MOCK";
         private const string PrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/WebBridge.prefab";
+        private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
 
         #region Enable Mock (Editor Play Mode)
 
@@ -82,6 +83,16 @@ namespace Modules.Road.Editor
         private static NamedBuildTarget GetActiveBuildTarget()
         {
             return NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+        }
+
+        #endregion
+
+        #region Sound Keys
+
+        [MenuItem(SoundKeysMenu, false, 102)]
+        private static void OpenSoundKeys()
+        {
+            SoundKeysWindow.Open();
         }
 
         #endregion

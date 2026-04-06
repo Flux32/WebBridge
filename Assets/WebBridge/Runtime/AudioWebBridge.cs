@@ -27,16 +27,16 @@ namespace Modules.Road
                 Instance = null;
         }
 
-        public void PlaySound(Sounds sound)
+        public void PlaySound(string soundKey)
         {
-            Debug.Log($"Play sound: {sound}");
-            WebBridgeUtils.Send(PlaySoundMessageBase + (int)sound);
+            Debug.Log($"Play sound: {soundKey}");
+            WebBridgeUtils.Send(PlaySoundMessageBase + soundKey);
         }
 
-        public void PlayMusic(Sounds sound)
+        public void PlayMusic(string soundKey)
         {
-            Debug.Log($"Play music: {sound}");
-            WebBridgeUtils.Send(PlayMusicMessageBase + (int)sound);
+            Debug.Log($"Play music: {soundKey}");
+            WebBridgeUtils.Send(PlayMusicMessageBase + soundKey);
         }
     }
 }
