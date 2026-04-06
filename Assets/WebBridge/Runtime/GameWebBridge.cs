@@ -66,6 +66,17 @@ namespace Modules.Road
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
+        private void SetMockDifficulty(string difficulty)
+        {
+            if (!IsMockEnabled || string.IsNullOrWhiteSpace(difficulty))
+                return;
+
+            _currentMockDifficulty = difficulty;
+            Debug.Log($"[GameWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            ApplyGameConfig(BuildMockGameConfig(), true);
+            MockDifficultyChanged?.Invoke(_currentMockDifficulty);
+        }
+
         public WebGameConfigPayload LastGameConfig { get; private set; }
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
@@ -102,9 +113,16 @@ namespace Modules.Road
             _hasExternalGameConfigReceived = IsMockEnabled;
 
             if (IsMockEnabled)
+            {
                 InitializeMockIfNeeded();
+
+                if (GetComponent<MockDebugIMGUI>() == null)
+                    gameObject.AddComponent<MockDebugIMGUI>();
+            }
             else
+            {
                 BeginInitialWebSyncAfterSceneLoad();
+            }
         }
 
         private void Update()

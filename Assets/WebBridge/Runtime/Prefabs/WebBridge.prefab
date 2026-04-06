@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 854343513921349944}
   - component: {fileID: 3905055287020188001}
   - component: {fileID: 3023990027768449991}
+  - component: {fileID: 4585219058565406564}
   m_Layer: 0
   m_Name: WebBridge
   m_TagString: Untagged
@@ -45,7 +46,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81d345b59c6b541f4a9fe9aea4b3fad4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.AudioWebBridge
 --- !u!114 &854343513921349944
 MonoBehaviour:
@@ -57,18 +58,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 783241476237b4f9e8de8bde69fc95bb, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.GameWebBridge
-  _mockCoefficients:
-  - 1.1
-  - 1.2
-  - 1.4
-  - 1.8
-  - 2.2
-  - 2.6
-  - 3.2
-  - 4.1
-  - 5.8
   _mockBonusCounts:
   - Difficult: easy
     Count: 10
@@ -98,7 +89,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1aeb4a83f5be45728baff67e7b75ca4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.LayoutWebBridge
   _hideDesktopBetBar: 0
   _hideMobileBetBar: 0
@@ -117,8 +108,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4434d4ddd38024f9a8347be1123ec1e0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.ScreenOrientationWebBridge
   _mobileMaxAspectRatio: 1.1
   _useMockAspectRatio: 0
   _mockAspectRatio: 1
+--- !u!114 &4585219058565406564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b12439fdd36b41db94f4d2eb06e041a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.MockDebugIMGUI
