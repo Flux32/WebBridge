@@ -16,8 +16,6 @@ namespace Modules.Road.Editor
         private const string AssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/WebBridge.prefab";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
         private const string MockConfigMenu = "Tools/WebBridge/MockConfig";
-        private const string MockConfigDefaultPath = "Assets/Resources/MockConfig.asset";
-        private const string MockConfigResourcesFolder = "Assets/Resources";
 
         #region Enable Mock (Editor Play Mode)
 
@@ -106,26 +104,7 @@ namespace Modules.Road.Editor
         [MenuItem(MockConfigMenu, false, 103)]
         private static void OpenMockConfig()
         {
-            string[] guids = AssetDatabase.FindAssets("t:MockConfig");
-            MockConfig asset;
-
-            if (guids.Length > 0)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                asset = AssetDatabase.LoadAssetAtPath<MockConfig>(path);
-            }
-            else
-            {
-                if (!AssetDatabase.IsValidFolder(MockConfigResourcesFolder))
-                    AssetDatabase.CreateFolder("Assets", "Resources");
-
-                asset = ScriptableObject.CreateInstance<MockConfig>();
-                AssetDatabase.CreateAsset(asset, MockConfigDefaultPath);
-                AssetDatabase.SaveAssets();
-            }
-
-            EditorUtility.FocusProjectWindow();
-            Selection.activeObject = asset;
+            MockConfigWindow.Open();
         }
 
         #endregion
