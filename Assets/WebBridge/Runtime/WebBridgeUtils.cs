@@ -136,8 +136,8 @@ namespace Modules.Road
                 ? state.BonusStepTriggered.Value.ToString()
                 : "null";
             string status = string.IsNullOrWhiteSpace(state.Status) ? "null" : state.Status;
-            string step = state.Step.HasValue ? state.Step.Value.ToString() : "null";
-            return $"status={status}; step={step}; isWinMain={isWinMain}; coinsTriggered={coinsTriggered}; coinsCollected={coins}; bonusGame={bonusGame}";
+            string lineNumber = state.Step.HasValue ? state.Step.Value.ToString() : "null";
+            return $"status={status}; lineNumber={lineNumber}; isWinMain={isWinMain}; coinsTriggered={coinsTriggered}; coinsCollected={coins}; bonusGame={bonusGame}";
         }
 
         public static string FormatIntArray(IReadOnlyList<int> values)

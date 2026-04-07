@@ -438,8 +438,30 @@ namespace Modules.Road
         private void ApplyGameState(WebGameStatePayload state)
         {
             Debug.Log($"[BridgeDebug][Unity] Parsed game state: {WebBridgeUtils.BuildStateDebugInfo(state)}");
+
+            if (ShouldRestore(state))
+            {
+                ApplyRestore(LastGameConfig, state);
+                return;
+            }
+
             LastGameState = state;
             GameStateReceived?.Invoke(state);
+        }
+
+        private bool ShouldRestore(WebGameStatePayload state)
+        {
+            if (IsRestoring || state == null || LastStepResult != null)
+                return false;
+
+            if (!state.Step.HasValue || state.Step.Value <= 0)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(state.Status))
+                return false;
+
+            string status = state.Status.Trim().ToLowerInvariant();
+            return status == "in-game";
         }
 
         private void ApplyRestore(WebGameConfigPayload config, WebGameStatePayload state)

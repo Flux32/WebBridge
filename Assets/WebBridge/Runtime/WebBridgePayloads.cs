@@ -33,7 +33,7 @@ namespace Modules.Road
         [JsonProperty("status")]
         public string Status;
 
-        [JsonProperty("step")]
+        [JsonProperty("lineNumber")]
         public int? Step;
 
         [JsonProperty("coinsCollected")]
