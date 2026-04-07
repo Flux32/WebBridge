@@ -27,6 +27,9 @@ namespace Modules.Road
 
         [JsonProperty("maxBetAmount")]
         public float? MaxBetAmount;
+
+        [JsonProperty("balance")]
+        public float? Balance;
     }
 
     [Preserve]

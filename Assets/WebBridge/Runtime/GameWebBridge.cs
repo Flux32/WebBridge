@@ -66,6 +66,7 @@ namespace Modules.Road
         public event Action BuyBonusButtonClicked;
         public event Action<WebGameStatePayload> GameRestored;
         public event Action<string> MockDifficultyChanged;
+        public event Action<float> BalanceReceived;
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
@@ -84,6 +85,7 @@ namespace Modules.Road
         public WebGameConfigPayload LastGameConfig { get; private set; }
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
+        public float? LastBalance { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
 
         private float MockLoseChance
@@ -460,6 +462,12 @@ namespace Modules.Road
             Debug.Log($"[BridgeDebug][Unity] Parsed game config: {WebBridgeUtils.BuildConfigDebugInfo(config)}");
             LastGameConfig = config;
             GameConfigReceived?.Invoke(config);
+
+            if (config.Balance.HasValue)
+            {
+                LastBalance = config.Balance.Value;
+                BalanceReceived?.Invoke(config.Balance.Value);
+            }
 
             if (updateCoefficients && config.Coefficients != null)
                 CoefficientsReceived?.Invoke(config.Coefficients);
