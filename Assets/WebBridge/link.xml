@@ -1,0 +1,3 @@
+<linker>
+    <assembly fullname="WebBridge.Runtime" preserve="all" />
+</linker>
