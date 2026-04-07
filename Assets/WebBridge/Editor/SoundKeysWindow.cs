@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -47,6 +50,11 @@ namespace Modules.Road.Editor
             }
             EditorGUILayout.EndHorizontal();
 
+            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_soundFolderPathProperty.stringValue));
+            if (GUILayout.Button("Scan"))
+                ScanFolder();
+            EditorGUI.EndDisabledGroup();
+
             EditorGUILayout.Space();
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
@@ -55,6 +63,43 @@ namespace Modules.Road.Editor
 
             if (_serializedObject.ApplyModifiedProperties())
                 AssetDatabase.SaveAssetIfDirty(_asset);
+        }
+
+        private void ScanFolder()
+        {
+            string folderPath = _soundFolderPathProperty.stringValue;
+            if (!Directory.Exists(folderPath))
+            {
+                EditorUtility.DisplayDialog("Scan", $"Folder not found:\n{folderPath}", "OK");
+                return;
+            }
+
+            HashSet<string> existing = new();
+            for (int i = 0; i < _keysProperty.arraySize; i++)
+                existing.Add(_keysProperty.GetArrayElementAtIndex(i).stringValue);
+
+            string[] files = Directory.GetFiles(folderPath, "*.mp3");
+            int added = 0;
+
+            foreach (string file in files.OrderBy(f => f))
+            {
+                string key = Path.GetFileNameWithoutExtension(file);
+                if (existing.Contains(key))
+                    continue;
+
+                _keysProperty.InsertArrayElementAtIndex(_keysProperty.arraySize);
+                _keysProperty.GetArrayElementAtIndex(_keysProperty.arraySize - 1).stringValue = key;
+                existing.Add(key);
+                added++;
+            }
+
+            if (added > 0)
+            {
+                _serializedObject.ApplyModifiedProperties();
+                AssetDatabase.SaveAssetIfDirty(_asset);
+            }
+
+            Debug.Log($"[SoundKeys] Scan complete: found {files.Length} mp3 files, added {added} new keys.");
         }
 
         private void LoadOrCreateAsset()
