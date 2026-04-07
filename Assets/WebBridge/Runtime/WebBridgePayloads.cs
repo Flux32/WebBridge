@@ -155,6 +155,16 @@ namespace Modules.Road
         public bool HideMobileBetBar;
     }
 
+    [Serializable]
+    public class WebGameRestorePayload
+    {
+        [JsonProperty("config")]
+        public WebGameConfigPayload Config;
+
+        [JsonProperty("state")]
+        public WebGameStatePayload State;
+    }
+
     public class StepResultAction
     {
         public bool IsWin;

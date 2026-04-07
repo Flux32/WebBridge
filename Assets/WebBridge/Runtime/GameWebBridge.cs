@@ -62,6 +62,7 @@ namespace Modules.Road
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
         public event Action BuyBonusButtonClicked;
+        public event Action<WebGameStatePayload> GameRestored;
         public event Action<string> MockDifficultyChanged;
 
         public Func<bool> CanProcessMockSpin { get; set; }
@@ -77,6 +78,7 @@ namespace Modules.Road
             MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }
 
+        public bool IsRestoring { get; private set; }
         public WebGameConfigPayload LastGameConfig { get; private set; }
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
@@ -268,6 +270,23 @@ namespace Modules.Road
             ApplyStepResult(stepResult);
         }
 
+        public void RestoreGame(string payload)
+        {
+            if (IsMockEnabled)
+            {
+                RestoreMockGame();
+                return;
+            }
+
+            Debug.Log($"[BridgeDebug][React->Unity] RestoreGame raw: {payload}");
+            WebGameRestorePayload restorePayload =
+                WebBridgeUtils.DeserializePayload<WebGameRestorePayload>(payload, nameof(RestoreGame));
+            if (restorePayload == null)
+                return;
+
+            ApplyRestore(restorePayload.Config, restorePayload.State);
+        }
+
         public void RequestGameState()
         {
             if (IsMockEnabled)
@@ -421,6 +440,25 @@ namespace Modules.Road
             Debug.Log($"[BridgeDebug][Unity] Parsed game state: {WebBridgeUtils.BuildStateDebugInfo(state)}");
             LastGameState = state;
             GameStateReceived?.Invoke(state);
+        }
+
+        private void ApplyRestore(WebGameConfigPayload config, WebGameStatePayload state)
+        {
+            IsRestoring = true;
+            _hasExternalGameConfigReceived = true;
+
+            if (config != null)
+                ApplyGameConfig(config, true);
+
+            if (state != null)
+            {
+                LastStepResult = state;
+                ApplyGameState(state);
+            }
+
+            Debug.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={WebBridgeUtils.BuildStateDebugInfo(state)}");
+            GameRestored?.Invoke(state);
+            IsRestoring = false;
         }
 
         private void ApplyStepResult(WebGameStatePayload stepResult)
@@ -683,6 +721,34 @@ namespace Modules.Road
             WebGameConfigPayload mockConfig = BuildMockGameConfig();
             ApplyGameConfig(mockConfig, true);
             ApplyGameState(CreateMockGameStatePayload());
+        }
+
+        private void RestoreMockGame()
+        {
+            InitializeMockIfNeeded();
+
+            int totalSteps = ResolveMockCoefficients()?.Length ?? 6;
+            int restoreStep = Mathf.Max(1, totalSteps / 2);
+
+            _mockMoveIndex = restoreStep;
+            _mockBonusStepsCollected.Clear();
+
+            for (int i = 1; i <= restoreStep && _mockBonusStepsCollected.Count < _mockBonusStepsThreshold; i++)
+            {
+                if (_mockRandom.NextDouble() <= _mockBonusStepTriggerChance)
+                    _mockBonusStepsCollected.Add(i);
+            }
+
+            WebGameStatePayload restoredState = new WebGameStatePayload
+            {
+                Status = "in-game",
+                BonusStepsCollected = _mockBonusStepsCollected.ToArray(),
+                BonusStepTriggered = false,
+                BonusGame = null,
+                IsWinMain = null
+            };
+
+            ApplyRestore(BuildMockGameConfig(), restoredState);
         }
 
         private void CycleMockDifficulty()
