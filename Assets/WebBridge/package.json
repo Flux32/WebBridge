@@ -5,7 +5,8 @@
   "description": "WebBridge components for React-Unity communication. Provides ScreenOrientationWebBridge, GameWebBridge, LayoutWebBridge and AudioWebBridge.",
   "unity": "6000.0",
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.modules.unitywebrequestaudio": "1.0.0"
   },
   "keywords": [
     "webbridge",
