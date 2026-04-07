@@ -248,6 +248,34 @@ namespace Modules.Road
             ApplyGameState(state);
         }
 
+        public void CreateStep(string payload)
+        {
+            if (IsMockEnabled)
+            {
+                InitializeMockIfNeeded();
+
+                if (CanProcessMockSpin != null && !CanProcessMockSpin())
+                    return;
+
+                ApplyStepResult(CreateMockStepResult());
+                return;
+            }
+
+            Debug.Log($"[BridgeDebug][React->Unity] CreateStep raw: {payload}");
+            WebGameStatePayload state =
+                WebBridgeUtils.DeserializePayload<WebGameStatePayload>(payload, nameof(CreateStep));
+            if (state == null)
+                return;
+
+            if (ShouldRestore(state))
+            {
+                ApplyRestore(LastGameConfig, state);
+                return;
+            }
+
+            ApplyStepResult(state);
+        }
+
         public void ApplyStepResult(string payload)
         {
             if (IsMockEnabled)
