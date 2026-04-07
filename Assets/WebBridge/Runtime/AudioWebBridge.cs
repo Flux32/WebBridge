@@ -88,7 +88,7 @@ namespace Modules.Road
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"[AudioWebBridge] Failed to load '{soundKey}': {request.error}");
+                Debug.LogError($"[AudioWebBridge] Failed to load '{soundKey}' from {filePath}: {request.error}");
                 yield break;
             }
 
