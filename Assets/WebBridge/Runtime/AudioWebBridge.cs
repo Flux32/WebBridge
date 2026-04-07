@@ -68,6 +68,12 @@ namespace Modules.Road
 #if UNITY_EDITOR
         private IEnumerator LoadAndPlay(string soundKey, bool isMusic)
         {
+            if (string.IsNullOrEmpty(soundKey))
+            {
+                Debug.LogError("[AudioWebBridge] Sound key is empty. Assign a valid key in the component.");
+                yield break;
+            }
+
             if (_clipCache.TryGetValue(soundKey, out AudioClip cached))
             {
                 Play(cached, isMusic);
