@@ -742,6 +742,7 @@ namespace Modules.Road
             WebGameStatePayload restoredState = new WebGameStatePayload
             {
                 Status = "in-game",
+                Step = restoreStep,
                 BonusStepsCollected = _mockBonusStepsCollected.ToArray(),
                 BonusStepTriggered = false,
                 BonusGame = null,
