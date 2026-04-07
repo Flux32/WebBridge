@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     [Serializable]
     public class WebGameConfigPayload
     {
@@ -27,6 +29,7 @@ namespace Modules.Road
         public float? MaxBetAmount;
     }
 
+    [Preserve]
     [Serializable]
     public class WebGameStatePayload
     {
@@ -49,6 +52,7 @@ namespace Modules.Road
         public bool? IsWinMain;
     }
 
+    [Preserve]
     [Serializable]
     public class WebBonusGamePayload
     {
@@ -62,6 +66,7 @@ namespace Modules.Road
         public int[] BonusPositions;
     }
 
+    [Preserve]
     [Serializable]
     public class WebBonusPurchasePayload
     {
@@ -78,6 +83,7 @@ namespace Modules.Road
         public WebBonusGamePayload BonusGame;
     }
 
+    [Preserve]
     [Serializable]
     public class WebBetActionMessage
     {
@@ -88,6 +94,7 @@ namespace Modules.Road
         public WebBetActionPayload Payload;
     }
 
+    [Preserve]
     [Serializable]
     public class WebBetActionPayload
     {
@@ -104,6 +111,7 @@ namespace Modules.Road
         public string BonusType;
     }
 
+    [Preserve]
     [Serializable]
     public class WebBonusShopModePayload
     {
@@ -113,6 +121,7 @@ namespace Modules.Road
         public int BonusAmount;
     }
 
+    [Preserve]
     [Serializable]
     public class WebUiVisibilityPayload
     {
@@ -138,6 +147,7 @@ namespace Modules.Road
         public bool MobileBetBarInteractable;
     }
 
+    [Preserve]
     [Serializable]
     public class WebMobileBetBarViewportPayload
     {
@@ -148,6 +158,7 @@ namespace Modules.Road
         public float HeightEndViewport;
     }
 
+    [Preserve]
     [Serializable]
     public class WebBetBarHideStatePayload
     {
@@ -158,6 +169,7 @@ namespace Modules.Road
         public bool HideMobileBetBar;
     }
 
+    [Preserve]
     [Serializable]
     public class WebGameRestorePayload
     {
@@ -168,6 +180,7 @@ namespace Modules.Road
         public WebGameStatePayload State;
     }
 
+    [Preserve]
     public class StepResultAction
     {
         public bool IsWin;

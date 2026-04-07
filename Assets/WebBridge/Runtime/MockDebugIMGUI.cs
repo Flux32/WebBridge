@@ -1,9 +1,11 @@
 using System;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     public class MockDebugIMGUI : MonoBehaviour
     {
         private const float ButtonSize = 60f;

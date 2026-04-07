@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 #endif
 
+using UnityEngine.Scripting;
+
 namespace Modules.Road
 {
+    [Preserve]
     public class AudioWebBridge : MonoBehaviour
     {
         private const string PlaySoundMessageBase = "PlaySound_";

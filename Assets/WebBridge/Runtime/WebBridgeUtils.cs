@@ -6,9 +6,11 @@ using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     public static class WebBridgeUtils
     {
         private const string MockEditorPrefKey = "WebBridge_EnableMock";

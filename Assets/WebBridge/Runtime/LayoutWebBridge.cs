@@ -1,9 +1,11 @@
 using System;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     public class LayoutWebBridge : MonoBehaviour
     {
         private const string UiVisibilityMessageBase = "UiVisibility_";

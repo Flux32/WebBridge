@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     [CreateAssetMenu(fileName = "MockConfig", menuName = "WebBridge/Mock Config")]
     public class MockConfig : ScriptableObject
     {

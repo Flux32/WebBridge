@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     [CreateAssetMenu(fileName = "SoundKeys", menuName = "WebBridge/Sound Keys")]
     public class SoundKeys : ScriptableObject
     {

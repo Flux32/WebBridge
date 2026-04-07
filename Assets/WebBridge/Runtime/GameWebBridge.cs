@@ -6,9 +6,11 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    [Preserve]
     public class GameWebBridge : MonoBehaviour
     {
         [Serializable]
