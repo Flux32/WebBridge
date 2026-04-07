@@ -10,6 +10,7 @@ namespace Modules.Road.Editor
         private SoundKeys _asset;
         private SerializedObject _serializedObject;
         private SerializedProperty _keysProperty;
+        private SerializedProperty _soundFolderPathProperty;
         private Vector2 _scrollPosition;
 
         public static void Open()
@@ -34,6 +35,19 @@ namespace Modules.Road.Editor
             }
 
             _serializedObject.Update();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(_soundFolderPathProperty, new GUIContent("Sound Folder Path"));
+            if (GUILayout.Button("Browse", GUILayout.Width(60)))
+            {
+                string selected = EditorUtility.OpenFolderPanel("Select Sound Folder",
+                    _soundFolderPathProperty.stringValue, "");
+                if (!string.IsNullOrEmpty(selected))
+                    _soundFolderPathProperty.stringValue = selected;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
             EditorGUILayout.PropertyField(_keysProperty, new GUIContent("Sound Keys"), true);
@@ -61,6 +75,7 @@ namespace Modules.Road.Editor
 
             _serializedObject = new SerializedObject(_asset);
             _keysProperty = _serializedObject.FindProperty("_keys");
+            _soundFolderPathProperty = _serializedObject.FindProperty("_soundFolderPath");
         }
     }
 }
