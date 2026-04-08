@@ -54,7 +54,7 @@ namespace Modules.Road
                 return;
 
             _lastMockOrientation = orientation;
-            ChangeOrientation(orientation);
+            ChangeOrientation((int)orientation);
         }
 
         private ScreenOrientationType CalculateMockOrientation()
@@ -66,10 +66,11 @@ namespace Modules.Road
         }
 #endif
 
-        public void ChangeOrientation(ScreenOrientationType orientation)
+        public void ChangeOrientation(int orientation)
         {
-            _currentOrientation = orientation;
-            OrientationChanged?.Invoke(orientation);
+            var type = orientation > 0 ? ScreenOrientationType.Mobile : ScreenOrientationType.Desktop;
+            _currentOrientation = type;
+            OrientationChanged?.Invoke(type);
         }
     }
 }
