@@ -4,17 +4,26 @@ using UnityEngine.Scripting;
 
 namespace Modules.Road
 {
+    public enum ScreenOrientationType
+    {
+        Desktop = 0,
+        Mobile = 1
+    }
+
     [Preserve]
     public class ScreenOrientationWebBridge : MonoBehaviour
     {
         [Header("Mock")]
         [SerializeField, Min(0.01f)] private float _mockMobileAspectRatio = 1.1f;
 
-        private int _lastMockOrientation = -1;
+        private ScreenOrientationType? _lastMockOrientation;
+        private ScreenOrientationType _currentOrientation;
 
         public static ScreenOrientationWebBridge Instance { get; private set; }
 
-        public event Action<int> OrientationChanged;
+        public ScreenOrientationType CurrentOrientation => _currentOrientation;
+
+        public event Action<ScreenOrientationType> OrientationChanged;
 
         private void Awake()
         {
@@ -40,7 +49,7 @@ namespace Modules.Road
             if (!WebBridgeUtils.IsMockEnabled)
                 return;
 
-            int orientation = CalculateMockOrientation();
+            ScreenOrientationType orientation = CalculateMockOrientation();
             if (orientation == _lastMockOrientation)
                 return;
 
@@ -48,15 +57,18 @@ namespace Modules.Road
             ChangeOrientation(orientation);
         }
 
-        private int CalculateMockOrientation()
+        private ScreenOrientationType CalculateMockOrientation()
         {
             float aspectRatio = Screen.width / (float)Mathf.Max(1, Screen.height);
-            return aspectRatio <= _mockMobileAspectRatio ? 1 : 0;
+            return aspectRatio <= _mockMobileAspectRatio
+                ? ScreenOrientationType.Mobile
+                : ScreenOrientationType.Desktop;
         }
 #endif
 
-        public void ChangeOrientation(int orientation)
+        public void ChangeOrientation(ScreenOrientationType orientation)
         {
+            _currentOrientation = orientation;
             OrientationChanged?.Invoke(orientation);
         }
     }
