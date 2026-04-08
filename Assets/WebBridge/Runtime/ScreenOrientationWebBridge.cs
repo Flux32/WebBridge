@@ -7,27 +7,14 @@ namespace Modules.Road
     [Preserve]
     public class ScreenOrientationWebBridge : MonoBehaviour
     {
-        [Header("UI Layout")]
-        [SerializeField, Min(0.01f)] private float _mobileMaxAspectRatio = 1.1f;
-
         [Header("Mock")]
-        [SerializeField] private bool _useMockAspectRatio;
-        [SerializeField, Min(0.01f)] private float _mockAspectRatio = 1f;
+        [SerializeField, Min(0.01f)] private float _mockMobileAspectRatio = 1.1f;
 
-        private int? _lastOrientationPayload;
+        private int _lastMockOrientation = -1;
 
         public static ScreenOrientationWebBridge Instance { get; private set; }
 
-        public event Action<bool> OrientationChanged;
-        public event Action<int> OrientationRawChanged;
-
-        public bool IsMobileUi => (_useMockAspectRatio || !_lastOrientationPayload.HasValue)
-            ? CalculateIsMobileUiByAspect(GetEffectiveAspectRatio())
-            : _lastOrientationPayload.Value > 0;
-
-        public bool UseMockAspectRatio => _useMockAspectRatio;
-        public float MockAspectRatio => _mockAspectRatio;
-        public float CurrentAspectRatio => GetEffectiveAspectRatio();
+        public event Action<int> OrientationChanged;
 
         private void Awake()
         {
@@ -41,57 +28,36 @@ namespace Modules.Road
             Instance = this;
         }
 
-        private void Start()
-        {
-            OrientationChanged?.Invoke(IsMobileUi);
-        }
-
         private void OnDestroy()
         {
             if (Instance == this)
                 Instance = null;
         }
 
+#if UNITY_EDITOR
+        private void Update()
+        {
+            if (!WebBridgeUtils.IsMockEnabled)
+                return;
+
+            int orientation = CalculateMockOrientation();
+            if (orientation == _lastMockOrientation)
+                return;
+
+            _lastMockOrientation = orientation;
+            ChangeOrientation(orientation);
+        }
+
+        private int CalculateMockOrientation()
+        {
+            float aspectRatio = Screen.width / (float)Mathf.Max(1, Screen.height);
+            return aspectRatio <= _mockMobileAspectRatio ? 1 : 0;
+        }
+#endif
+
         public void ChangeOrientation(int orientation)
         {
-            _lastOrientationPayload = orientation <= 0 ? 0 : 1;
-            OrientationChanged?.Invoke(IsMobileUi);
-            OrientationRawChanged?.Invoke(orientation);
-        }
-
-        public void SetUseMockAspectRatio(bool useMockAspectRatio)
-        {
-            if (_useMockAspectRatio == useMockAspectRatio)
-                return;
-
-            _useMockAspectRatio = useMockAspectRatio;
-            OrientationChanged?.Invoke(IsMobileUi);
-        }
-
-        public void SetMockAspectRatio(float aspectRatio)
-        {
-            float normalizedAspectRatio = Mathf.Max(0.01f, aspectRatio);
-            if (Mathf.Approximately(_mockAspectRatio, normalizedAspectRatio))
-                return;
-
-            _mockAspectRatio = normalizedAspectRatio;
-            OrientationChanged?.Invoke(IsMobileUi);
-        }
-
-        private float GetEffectiveAspectRatio()
-        {
-            if (_useMockAspectRatio)
-                return Mathf.Max(0.01f, _mockAspectRatio);
-
-            int height = Mathf.Max(1, Screen.height);
-            int width = Mathf.Max(1, Screen.width);
-            return width / (float)height;
-        }
-
-        private bool CalculateIsMobileUiByAspect(float aspectRatio)
-        {
-            float threshold = Mathf.Max(0.01f, _mobileMaxAspectRatio);
-            return aspectRatio <= threshold;
+            OrientationChanged?.Invoke(orientation);
         }
     }
 }
