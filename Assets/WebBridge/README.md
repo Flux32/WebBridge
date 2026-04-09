@@ -165,12 +165,15 @@ SetHideMobileBetBar(bool isHidden)
 SetHideMobileLastWin(bool isHidden)
 SetHideSettingsMenuButton(bool isHidden)
 SetHideLogo(bool isHidden)
+SetHideBottomBalancePanel(bool isHidden)
+HideBottomBalancePanel()
+ShowBottomBalancePanel()
 SetBetBarInteractable(bool isInteractable)
 SetMobileBetBarInteractable(bool isInteractable)
 SyncUiVisibility()
 ```
 
-**Properties:** `IsDesktopBetBarHidden`, `IsMobileBetBarHidden`, `IsMobileLastWinHidden`, `IsSettingsMenuButtonHidden`, `IsLogoHidden`, `MobileBetBarViewportWidth`, `MobileBetBarViewportHeightEnd`
+**Properties:** `IsDesktopBetBarHidden`, `IsMobileBetBarHidden`, `IsMobileLastWinHidden`, `IsSettingsMenuButtonHidden`, `IsLogoHidden`, `IsBottomBalancePanelHidden`, `MobileBetBarViewportWidth`, `MobileBetBarViewportHeightEnd`
 
 ### ScreenOrientationWebBridge
 

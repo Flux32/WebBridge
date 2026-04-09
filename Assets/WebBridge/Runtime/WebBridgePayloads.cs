@@ -143,6 +143,9 @@ namespace Modules.Road
         [JsonProperty("hideLogo")]
         public bool HideLogo;
 
+        [JsonProperty("hideBottomBalancePanel")]
+        public bool HideBottomBalancePanel;
+
         [JsonProperty("desktopBetBarInteractable")]
         public bool DesktopBetBarInteractable;
 

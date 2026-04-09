@@ -96,6 +96,7 @@ MonoBehaviour:
   _hideMobileLastWin: 0
   _hideSettingsMenuButton: 0
   _hideLogo: 0
+  _hideBottomBalancePanel: 1
   _desktopBetBarInteractable: 1
   _mobileBetBarInteractable: 1
 --- !u!114 &3023990027768449991

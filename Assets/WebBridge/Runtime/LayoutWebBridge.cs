@@ -16,6 +16,7 @@ namespace Modules.Road
         [SerializeField] private bool _hideMobileLastWin;
         [SerializeField] private bool _hideSettingsMenuButton;
         [SerializeField] private bool _hideLogo;
+        [SerializeField] private bool _hideBottomBalancePanel = true;
         [SerializeField] private bool _desktopBetBarInteractable = true;
         [SerializeField] private bool _mobileBetBarInteractable = true;
 
@@ -31,6 +32,7 @@ namespace Modules.Road
         public bool IsMobileLastWinHidden => _hideMobileLastWin;
         public bool IsSettingsMenuButtonHidden => _hideSettingsMenuButton;
         public bool IsLogoHidden => _hideLogo;
+        public bool IsBottomBalancePanelHidden => _hideBottomBalancePanel;
 
         private void Awake()
         {
@@ -134,6 +136,25 @@ namespace Modules.Road
             SyncUiVisibility();
         }
 
+        public void SetHideBottomBalancePanel(bool isHidden)
+        {
+            if (_hideBottomBalancePanel == isHidden)
+                return;
+
+            _hideBottomBalancePanel = isHidden;
+            SyncUiVisibility();
+        }
+
+        public void HideBottomBalancePanel()
+        {
+            SetHideBottomBalancePanel(true);
+        }
+
+        public void ShowBottomBalancePanel()
+        {
+            SetHideBottomBalancePanel(false);
+        }
+
         public void SetBetBarInteractable(bool isInteractable)
         {
             if (_desktopBetBarInteractable == isInteractable)
@@ -169,6 +190,7 @@ namespace Modules.Road
                 HideMobileLastWin = _hideMobileLastWin,
                 HideSettingsMenuButton = _hideSettingsMenuButton,
                 HideLogo = _hideLogo,
+                HideBottomBalancePanel = _hideBottomBalancePanel,
                 DesktopBetBarInteractable = _desktopBetBarInteractable,
                 MobileBetBarInteractable = _mobileBetBarInteractable
             };
