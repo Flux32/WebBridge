@@ -163,6 +163,9 @@ namespace Modules.Road
         [JsonProperty("heightEndViewport")]
         public float HeightEndViewport;
 
+        [JsonProperty("heightEndWithoutBonusViewport")]
+        public float HeightEndWithoutBonusViewport;
+
         [JsonProperty("bonusButtonRight")]
         public WebViewportPoint BonusButtonRight;
 
