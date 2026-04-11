@@ -27,6 +27,8 @@ namespace Modules.Road
 
         public float MobileBetBarViewportWidth { get; private set; }
         public float MobileBetBarViewportHeightEnd { get; private set; }
+        public Vector2 MobileBetBarBonusButtonRight { get; private set; }
+        public Vector2 MobileBetBarRight { get; private set; }
         public bool IsDesktopBetBarHidden => _hideDesktopBetBar;
         public bool IsMobileBetBarHidden => _hideMobileBetBar;
         public bool IsMobileLastWinHidden => _hideMobileLastWin;
@@ -67,11 +69,18 @@ namespace Modules.Road
 
             float width = Mathf.Clamp01(viewport.WidthViewport);
             float heightEnd = Mathf.Clamp01(viewport.HeightEndViewport);
+            Vector2 bonusButtonRight = ClampViewportPoint(viewport.BonusButtonRight);
+            Vector2 betBarRight = ClampViewportPoint(viewport.BetBarRight);
+
             bool hasChanged = !Mathf.Approximately(MobileBetBarViewportWidth, width)
-                              || !Mathf.Approximately(MobileBetBarViewportHeightEnd, heightEnd);
+                              || !Mathf.Approximately(MobileBetBarViewportHeightEnd, heightEnd)
+                              || MobileBetBarBonusButtonRight != bonusButtonRight
+                              || MobileBetBarRight != betBarRight;
 
             MobileBetBarViewportWidth = width;
             MobileBetBarViewportHeightEnd = heightEnd;
+            MobileBetBarBonusButtonRight = bonusButtonRight;
+            MobileBetBarRight = betBarRight;
 
             if (!hasChanged)
                 return;
@@ -79,8 +88,18 @@ namespace Modules.Road
             MobileBetBarViewportChanged?.Invoke(new WebMobileBetBarViewportPayload
             {
                 WidthViewport = width,
-                HeightEndViewport = heightEnd
+                HeightEndViewport = heightEnd,
+                BonusButtonRight = new WebViewportPoint { X = bonusButtonRight.x, Y = bonusButtonRight.y },
+                BetBarRight = new WebViewportPoint { X = betBarRight.x, Y = betBarRight.y }
             });
+        }
+
+        private static Vector2 ClampViewportPoint(WebViewportPoint point)
+        {
+            if (point == null)
+                return Vector2.zero;
+
+            return new Vector2(Mathf.Clamp01(point.X), Mathf.Clamp01(point.Y));
         }
 
         public void SetHideDesktopBetBar(bool isHidden)

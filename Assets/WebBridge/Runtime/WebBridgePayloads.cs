@@ -162,6 +162,23 @@ namespace Modules.Road
 
         [JsonProperty("heightEndViewport")]
         public float HeightEndViewport;
+
+        [JsonProperty("bonusButtonRight")]
+        public WebViewportPoint BonusButtonRight;
+
+        [JsonProperty("betBarRight")]
+        public WebViewportPoint BetBarRight;
+    }
+
+    [Preserve]
+    [Serializable]
+    public class WebViewportPoint
+    {
+        [JsonProperty("x")]
+        public float X;
+
+        [JsonProperty("y")]
+        public float Y;
     }
 
     [Preserve]

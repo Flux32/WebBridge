@@ -173,7 +173,7 @@ SetMobileBetBarInteractable(bool isInteractable)
 SyncUiVisibility()
 ```
 
-**Properties:** `IsDesktopBetBarHidden`, `IsMobileBetBarHidden`, `IsMobileLastWinHidden`, `IsSettingsMenuButtonHidden`, `IsLogoHidden`, `IsBottomBalancePanelHidden`, `MobileBetBarViewportWidth`, `MobileBetBarViewportHeightEnd`
+**Properties:** `IsDesktopBetBarHidden`, `IsMobileBetBarHidden`, `IsMobileLastWinHidden`, `IsSettingsMenuButtonHidden`, `IsLogoHidden`, `IsBottomBalancePanelHidden`, `MobileBetBarViewportWidth`, `MobileBetBarViewportHeightEnd`, `MobileBetBarBonusButtonRight`, `MobileBetBarRight`
 
 ### ScreenOrientationWebBridge
 
