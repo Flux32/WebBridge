@@ -51,7 +51,6 @@ namespace Modules.Road
         private bool _mockInitialized;
         private bool _hasExternalGameConfigReceived;
         private Coroutine _initialWebSyncCoroutine;
-        private WebGameStatePayload _pendingRestoreState;
 
         public static GameWebBridge Instance { get; private set; }
 
@@ -278,13 +277,6 @@ namespace Modules.Road
 
             if (ShouldRestore(state))
             {
-                if (LastGameConfig == null)
-                {
-                    Debug.Log("[BridgeDebug][Unity] CreateStep restore deferred: LastGameConfig not yet received.");
-                    _pendingRestoreState = state;
-                    return;
-                }
-
                 ApplyRestore(LastGameConfig, state);
                 return;
             }
@@ -353,6 +345,21 @@ namespace Modules.Road
             }
 
             WebBridgeUtils.Send("RequestGameConfig");
+        }
+
+        // Просит React прислать атомарный RestoreGame(config+state), если есть
+        // активная игра. Используется для устранения гонки между загрузкой Unity
+        // и пушом состояния со стороны React: подписчики GameRestored обязаны
+        // быть на месте до вызова этого метода.
+        public void RequestActiveGameState()
+        {
+            if (IsMockEnabled)
+            {
+                InitializeMockIfNeeded();
+                return;
+            }
+
+            WebBridgeUtils.Send("RequestActiveGameState");
         }
 
         public void PurchaseBonusMode(
@@ -483,14 +490,6 @@ namespace Modules.Road
 
             if (updateCoefficients && config.Coefficients != null)
                 CoefficientsReceived?.Invoke(config.Coefficients);
-
-            if (_pendingRestoreState != null && !IsRestoring)
-            {
-                WebGameStatePayload pending = _pendingRestoreState;
-                _pendingRestoreState = null;
-                Debug.Log("[BridgeDebug][Unity] Flushing deferred restore state after config arrived.");
-                ApplyRestore(null, pending);
-            }
         }
 
         private void ApplyGameState(WebGameStatePayload state)
@@ -499,13 +498,6 @@ namespace Modules.Road
 
             if (ShouldRestore(state))
             {
-                if (LastGameConfig == null)
-                {
-                    Debug.Log("[BridgeDebug][Unity] ApplyGameState restore deferred: LastGameConfig not yet received.");
-                    _pendingRestoreState = state;
-                    return;
-                }
-
                 ApplyRestore(LastGameConfig, state);
                 return;
             }
