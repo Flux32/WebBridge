@@ -76,6 +76,8 @@ namespace Modules.Road
         private GUIStyle _valueStyle;
         private GUIStyle _actionButtonStyle;
         private GUIStyle _hintStyle;
+        private GUIStyle _scenarioButtonStyle;
+        private GUIStyle _scenarioSelectedButtonStyle;
         private bool _stylesInitialized;
 
         private void Awake()
@@ -147,6 +149,22 @@ namespace Modules.Road
                 wordWrap = true,
                 normal = { textColor = new Color(0.75f, 0.75f, 0.75f) },
             };
+
+            _scenarioButtonStyle = new GUIStyle(GUI.skin.button)
+            {
+                fontSize = 14,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(12, 12, 4, 4),
+            };
+
+            _scenarioSelectedButtonStyle = new GUIStyle(_scenarioButtonStyle)
+            {
+                normal = { textColor = Color.white, background = MakeTexture(1, 1, new Color(0.2f, 0.55f, 0.95f, 1f)) },
+                hover = { textColor = Color.white, background = MakeTexture(1, 1, new Color(0.25f, 0.6f, 1f, 1f)) },
+                active = { textColor = Color.white, background = MakeTexture(1, 1, new Color(0.15f, 0.45f, 0.85f, 1f)) },
+                focused = { textColor = Color.white, background = MakeTexture(1, 1, new Color(0.2f, 0.55f, 0.95f, 1f)) },
+            };
         }
 
         private void OnGUI()
@@ -214,11 +232,19 @@ namespace Modules.Road
             float headerHeight = 40f;
             float actionsHeight = 46f;
             float hintHeight = 48f;
-            int rows = 3;
+            float scenarioLabelHeight = 24f;
+            float scenarioButtonHeight = 34f;
+            float scenarioGap = 6f;
+            float scenarioBlockHeight = scenarioLabelHeight
+                                        + scenarioButtonHeight * Scenarios.Length
+                                        + scenarioGap * (Scenarios.Length - 1);
+
             float panelHeight = padding * 2
                                 + headerHeight
-                                + rowHeight * rows + padding * rows
-                                + actionsHeight + padding
+                                + rowHeight + padding            // Difficulty
+                                + scenarioBlockHeight + padding  // Scenario block
+                                + rowHeight + padding            // Nonce
+                                + actionsHeight + padding        // Apply / Off
                                 + hintHeight;
 
             float panelX = Mathf.Clamp(_buttonPosition.x - panelWidth - 10f, 0f, Screen.width - panelWidth);
@@ -242,11 +268,23 @@ namespace Modules.Road
                 () => _difficultyIndex = (_difficultyIndex + 1) % Difficulties.Length);
             y += rowHeight + padding;
 
-            DrawRow(contentX, y, contentWidth, rowHeight, arrowWidth,
-                "Scenario", ScenarioLabel(Scenarios[_scenarioIndex]),
-                () => _scenarioIndex = (_scenarioIndex - 1 + Scenarios.Length) % Scenarios.Length,
-                () => _scenarioIndex = (_scenarioIndex + 1) % Scenarios.Length);
-            y += rowHeight + padding;
+            GUI.Label(new Rect(contentX, y, contentWidth, scenarioLabelHeight), "Scenario", _labelStyle);
+            y += scenarioLabelHeight;
+
+            for (int i = 0; i < Scenarios.Length; i++)
+            {
+                bool isSelected = i == _scenarioIndex;
+                GUIStyle style = isSelected ? _scenarioSelectedButtonStyle : _scenarioButtonStyle;
+                string prefix = isSelected ? "●  " : "○  ";
+                Rect buttonRect = new Rect(contentX, y, contentWidth, scenarioButtonHeight);
+                if (GUI.Button(buttonRect, prefix + ScenarioLabel(Scenarios[i]), style))
+                    _scenarioIndex = i;
+
+                y += scenarioButtonHeight;
+                if (i < Scenarios.Length - 1)
+                    y += scenarioGap;
+            }
+            y += padding;
 
             int? resolvedNonce = ResolveNonce();
             string nonceDisplay = resolvedNonce.HasValue
