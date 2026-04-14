@@ -101,6 +101,7 @@ namespace Modules.Road
         }
 
         private bool IsMockEnabled => WebBridgeUtils.IsMockEnabled;
+        private bool IsCheatsEnabled => WebBridgeUtils.IsCheatsEnabled;
 
         private void Awake()
         {
@@ -129,6 +130,9 @@ namespace Modules.Road
             {
                 BeginInitialWebSyncAfterSceneLoad();
             }
+
+            if (IsCheatsEnabled && GetComponent<CheatDebugIMGUI>() == null)
+                gameObject.AddComponent<CheatDebugIMGUI>();
         }
 
         private void Update()

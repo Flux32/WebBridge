@@ -10,8 +10,12 @@ namespace Modules.Road.Editor
     {
         private const string EnableMockMenu = "Tools/WebBridge/Enable Mock";
         private const string EnableMockInBuildMenu = "Tools/WebBridge/Enable Mock In Build";
+        private const string EnableCheatsMenu = "Tools/WebBridge/Enable Cheats";
+        private const string EnableCheatsInBuildMenu = "Tools/WebBridge/Enable Cheats In Build";
         private const string MockEditorPrefKey = "WebBridge_EnableMock";
+        private const string CheatsEditorPrefKey = "WebBridge_EnableCheats";
         private const string MockDefineSymbol = "WEBBRIDGE_MOCK";
+        private const string CheatsDefineSymbol = "WEBBRIDGE_CHEATS";
         private const string PackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/WebBridge.prefab";
         private const string AssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/WebBridge.prefab";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
@@ -50,6 +54,44 @@ namespace Modules.Road.Editor
         private static bool ToggleEnableMockInBuildValidate()
         {
             Menu.SetChecked(EnableMockInBuildMenu, HasDefineSymbol(MockDefineSymbol));
+            return true;
+        }
+
+        #endregion
+
+        #region Enable Cheats (Editor Play Mode)
+
+        [MenuItem(EnableCheatsMenu, false, 110)]
+        private static void ToggleEnableCheats()
+        {
+            bool current = EditorPrefs.GetBool(CheatsEditorPrefKey, false);
+            EditorPrefs.SetBool(CheatsEditorPrefKey, !current);
+        }
+
+        [MenuItem(EnableCheatsMenu, true)]
+        private static bool ToggleEnableCheatsValidate()
+        {
+            Menu.SetChecked(EnableCheatsMenu, EditorPrefs.GetBool(CheatsEditorPrefKey, false));
+            return true;
+        }
+
+        #endregion
+
+        #region Enable Cheats In Build (Define Symbol)
+
+        [MenuItem(EnableCheatsInBuildMenu, false, 111)]
+        private static void ToggleEnableCheatsInBuild()
+        {
+            if (HasDefineSymbol(CheatsDefineSymbol))
+                RemoveDefineSymbol(CheatsDefineSymbol);
+            else
+                AddDefineSymbol(CheatsDefineSymbol);
+        }
+
+        [MenuItem(EnableCheatsInBuildMenu, true)]
+        private static bool ToggleEnableCheatsInBuildValidate()
+        {
+            Menu.SetChecked(EnableCheatsInBuildMenu, HasDefineSymbol(CheatsDefineSymbol));
             return true;
         }
 

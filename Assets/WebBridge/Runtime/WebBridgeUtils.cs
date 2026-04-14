@@ -14,6 +14,7 @@ namespace Modules.Road
     public static class WebBridgeUtils
     {
         private const string MockEditorPrefKey = "WebBridge_EnableMock";
+        private const string CheatsEditorPrefKey = "WebBridge_EnableCheats";
 
         public static bool IsMockEnabled
         {
@@ -23,6 +24,20 @@ namespace Modules.Road
                 return true;
 #elif UNITY_EDITOR
                 return UnityEditor.EditorPrefs.GetBool(MockEditorPrefKey, false);
+#else
+                return false;
+#endif
+            }
+        }
+
+        public static bool IsCheatsEnabled
+        {
+            get
+            {
+#if WEBBRIDGE_CHEATS
+                return true;
+#elif UNITY_EDITOR
+                return UnityEditor.EditorPrefs.GetBool(CheatsEditorPrefKey, false);
 #else
                 return false;
 #endif
