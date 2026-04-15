@@ -55,7 +55,7 @@ void OnEnable()
 
 void OnStepResult(StepResultAction action)
 {
-    // action.IsWin, action.BonusStepTriggered, action.AutoCashoutAmount
+    // action.IsWin, action.BonusStepTriggered
 }
 
 void OnCoefficients(float[] coefficients)
@@ -220,7 +220,6 @@ class StepResultAction
 {
     bool IsWin;
     bool BonusStepTriggered;
-    string AutoCashoutAmount;  // null if no auto-cashout
 }
 ```
 

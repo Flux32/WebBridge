@@ -211,6 +211,5 @@ namespace Modules.Road
     {
         public bool IsWin;
         public bool BonusStepTriggered;
-        public string AutoCashoutAmount;
     }
 }

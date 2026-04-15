@@ -580,16 +580,14 @@ namespace Modules.Road
                 $"[BridgeDebug][Unity] Step resolved for DoSpin: isWinMain={isWinMain.Value}; " +
                 $"finalBonusStepTriggered={bonusStepTriggered}; hasBonusGame={stepResult.BonusGame != null}");
 
-            string autoCashoutAmount = null;
-            if (ShouldAutoCashoutOnMockFinish(stepResult))
-                autoCashoutAmount = BuildMockAutoCashoutAmount();
-
             StepResultActionReady?.Invoke(new StepResultAction
             {
                 IsWin = isWinMain.Value,
-                BonusStepTriggered = bonusStepTriggered,
-                AutoCashoutAmount = autoCashoutAmount
+                BonusStepTriggered = bonusStepTriggered
             });
+
+            if (ShouldAutoCashoutOnMockFinish(stepResult))
+                CashoutRequested?.Invoke(BuildMockAutoCashoutAmount());
         }
 
         private static bool? ResolveStepResultWinState(WebGameStatePayload stepResult)
