@@ -47,6 +47,15 @@ namespace Modules.Road
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void SendToReact(string msg);
+
+        [DllImport("__Internal")]
+        private static extern void WebBridge_SaveToLocalStorage(string key, string value);
+
+        [DllImport("__Internal")]
+        private static extern IntPtr WebBridge_LoadFromLocalStorage(string key);
+
+        [DllImport("__Internal")]
+        private static extern void WebBridge_RemoveFromLocalStorage(string key);
 #endif
 
         public static void Send(string message)
@@ -55,6 +64,38 @@ namespace Modules.Road
             SendToReact(message);
 #endif
             Debug.Log("[Unity -> React] " + message);
+        }
+
+        public static void SaveToLocalStorage(string key, string value)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebBridge_SaveToLocalStorage(key, value);
+#else
+            Debug.Log($"[WebBridgeStorage] Save '{key}': {value}");
+#endif
+        }
+
+        public static string LoadFromLocalStorage(string key)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            IntPtr ptr = WebBridge_LoadFromLocalStorage(key);
+            if (ptr == IntPtr.Zero)
+                return null;
+            string result = Marshal.PtrToStringUTF8(ptr);
+            return result;
+#else
+            Debug.Log($"[WebBridgeStorage] Load '{key}' (editor stub → null)");
+            return null;
+#endif
+        }
+
+        public static void RemoveFromLocalStorage(string key)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebBridge_RemoveFromLocalStorage(key);
+#else
+            Debug.Log($"[WebBridgeStorage] Remove '{key}'");
+#endif
         }
 
         public static T DeserializePayload<T>(string payload, string methodName)

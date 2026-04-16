@@ -67,6 +67,47 @@ namespace Modules.Road
 
         [JsonProperty("bonusPositions")]
         public int[] BonusPositions;
+
+        [JsonProperty("completedIterations")]
+        public int? CompletedIterations;
+
+        [JsonProperty("accumulatedCoefficient")]
+        public float? AccumulatedCoefficient;
+
+        [JsonProperty("accumulatedWin")]
+        public float? AccumulatedWin;
+
+        [JsonProperty("betAmount")]
+        public float? BetAmount;
+
+        [JsonProperty("bonusCurrency")]
+        public string BonusCurrency;
+    }
+
+    [Preserve]
+    [Serializable]
+    public class WebBonusAutoPlayProgress
+    {
+        [JsonProperty("positions")]
+        public int[] Positions;
+
+        [JsonProperty("completedIterations")]
+        public int CompletedIterations;
+
+        [JsonProperty("totalIterations")]
+        public int TotalIterations;
+
+        [JsonProperty("accumulatedCoefficient")]
+        public float AccumulatedCoefficient;
+
+        [JsonProperty("accumulatedWin")]
+        public float AccumulatedWin;
+
+        [JsonProperty("betAmount")]
+        public float BetAmount;
+
+        [JsonProperty("currency")]
+        public string Currency;
     }
 
     [Preserve]

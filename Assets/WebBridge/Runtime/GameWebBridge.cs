@@ -65,6 +65,7 @@ namespace Modules.Road
         public event Action<string> BonusModePurchaseFailed;
         public event Action BuyBonusButtonClicked;
         public event Action<WebGameStatePayload> GameRestored;
+        public event Action<WebBonusAutoPlayProgress> BonusAutoPlayRestoreReady;
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
 
@@ -436,6 +437,85 @@ namespace Modules.Road
             return Array.Empty<int>();
         }
 
+        private const string BonusProgressStorageKey = "bonus_progress";
+
+        public void SaveBonusAutoPlayProgress(WebBonusAutoPlayProgress progress)
+        {
+            if (progress == null)
+                return;
+
+            try
+            {
+                string json = JsonConvert.SerializeObject(progress);
+                WebBridgeUtils.SaveToLocalStorage(BonusProgressStorageKey, json);
+                Debug.Log($"[GameWebBridge] Bonus progress saved: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[GameWebBridge] Failed to save bonus progress: {e.Message}");
+            }
+        }
+
+        public void ClearBonusAutoPlayProgress()
+        {
+            WebBridgeUtils.RemoveFromLocalStorage(BonusProgressStorageKey);
+            Debug.Log("[GameWebBridge] Bonus progress cleared");
+        }
+
+        private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
+        {
+            if (state?.BonusGame == null)
+                return null;
+
+            int[] positions = state.BonusGame.BonusPositions;
+            if (positions == null || positions.Length == 0)
+                return null;
+
+            // Primary source: restore payload fields (populated by React from localStorage)
+            if (state.BonusGame.CompletedIterations.HasValue)
+            {
+                int completed = state.BonusGame.CompletedIterations.Value;
+                int total = positions.Length;
+                if (completed >= total)
+                    return null;
+
+                return new WebBonusAutoPlayProgress
+                {
+                    Positions = positions,
+                    CompletedIterations = completed,
+                    TotalIterations = total,
+                    AccumulatedCoefficient = state.BonusGame.AccumulatedCoefficient ?? 0f,
+                    AccumulatedWin = state.BonusGame.AccumulatedWin ?? 0f,
+                    BetAmount = state.BonusGame.BetAmount ?? 0f,
+                    Currency = state.BonusGame.BonusCurrency
+                };
+            }
+
+            // Fallback: read directly from localStorage
+            try
+            {
+                string json = WebBridgeUtils.LoadFromLocalStorage(BonusProgressStorageKey);
+                if (string.IsNullOrWhiteSpace(json))
+                    return null;
+
+                WebBonusAutoPlayProgress progress =
+                    JsonConvert.DeserializeObject<WebBonusAutoPlayProgress>(json);
+
+                if (progress == null || progress.Positions == null || progress.Positions.Length == 0)
+                    return null;
+
+                if (progress.CompletedIterations >= progress.TotalIterations)
+                    return null;
+
+                return progress;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[GameWebBridge] Failed to load bonus progress from localStorage: {e.Message}");
+                return null;
+            }
+        }
+
         public IReadOnlyList<WebBonusShopModePayload> ResolveBonusModesForShop()
         {
             List<WebBonusShopModePayload> result = new List<WebBonusShopModePayload>();
@@ -537,6 +617,14 @@ namespace Modules.Road
 
             Debug.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={WebBridgeUtils.BuildStateDebugInfo(state)}");
             GameRestored?.Invoke(state);
+
+            WebBonusAutoPlayProgress bonusProgress = ResolveBonusAutoPlayProgress(state);
+            if (bonusProgress != null)
+            {
+                Debug.Log($"[GameWebBridge] Bonus autoplay restore: iteration {bonusProgress.CompletedIterations}/{bonusProgress.TotalIterations}");
+                BonusAutoPlayRestoreReady?.Invoke(bonusProgress);
+            }
+
             IsRestoring = false;
         }
 
