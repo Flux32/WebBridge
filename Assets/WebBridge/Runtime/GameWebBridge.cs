@@ -464,51 +464,46 @@ namespace Modules.Road
 
         private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
         {
-            if (state?.BonusGame == null)
+            // Primary source: restore payload fields from BonusGame (populated by React from localStorage)
+            if (state?.BonusGame != null)
             {
-                Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: state.BonusGame is null, skip");
-                return null;
-            }
+                int[] positions = state.BonusGame.BonusPositions;
+                Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: BonusGame present, " +
+                           $"positions={positions?.Length}, " +
+                           $"CompletedIterations={state.BonusGame.CompletedIterations}, " +
+                           $"BetAmount={state.BonusGame.BetAmount}, " +
+                           $"BonusCurrency={state.BonusGame.BonusCurrency}");
 
-            int[] positions = state.BonusGame.BonusPositions;
-            if (positions == null || positions.Length == 0)
-            {
-                Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: BonusPositions is null or empty, skip");
-                return null;
-            }
-
-            Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: BonusPositions.Length={positions.Length}, " +
-                       $"CompletedIterations={state.BonusGame.CompletedIterations}, " +
-                       $"AccumulatedCoefficient={state.BonusGame.AccumulatedCoefficient}, " +
-                       $"BetAmount={state.BonusGame.BetAmount}, " +
-                       $"BonusCurrency={state.BonusGame.BonusCurrency}");
-
-            // Primary source: restore payload fields (populated by React from localStorage)
-            if (state.BonusGame.CompletedIterations.HasValue)
-            {
-                int completed = state.BonusGame.CompletedIterations.Value;
-                int total = positions.Length;
-                if (completed >= total)
+                if (positions != null && positions.Length > 0 && state.BonusGame.CompletedIterations.HasValue)
                 {
-                    Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: completed({completed}) >= total({total}), skip");
-                    return null;
+                    int completed = state.BonusGame.CompletedIterations.Value;
+                    int total = positions.Length;
+                    if (completed >= total)
+                    {
+                        Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: completed({completed}) >= total({total}), skip");
+                        return null;
+                    }
+
+                    Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: using payload source, completed={completed}/{total}");
+                    return new WebBonusAutoPlayProgress
+                    {
+                        Positions = positions,
+                        CompletedIterations = completed,
+                        TotalIterations = total,
+                        AccumulatedCoefficient = state.BonusGame.AccumulatedCoefficient ?? 0f,
+                        AccumulatedWin = state.BonusGame.AccumulatedWin ?? 0f,
+                        BetAmount = state.BonusGame.BetAmount ?? 0f,
+                        Currency = state.BonusGame.BonusCurrency
+                    };
                 }
-
-                Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: using payload source, completed={completed}/{total}");
-                return new WebBonusAutoPlayProgress
-                {
-                    Positions = positions,
-                    CompletedIterations = completed,
-                    TotalIterations = total,
-                    AccumulatedCoefficient = state.BonusGame.AccumulatedCoefficient ?? 0f,
-                    AccumulatedWin = state.BonusGame.AccumulatedWin ?? 0f,
-                    BetAmount = state.BonusGame.BetAmount ?? 0f,
-                    Currency = state.BonusGame.BonusCurrency
-                };
+            }
+            else
+            {
+                Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: state.BonusGame is null");
             }
 
-            // Fallback: read directly from localStorage
-            Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: no CompletedIterations in payload, trying localStorage fallback");
+            // Fallback: read directly from localStorage (covers case when backend has no bonusGame)
+            Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: trying localStorage fallback");
             try
             {
                 string json = WebBridgeUtils.LoadFromLocalStorage(BonusProgressStorageKey);
