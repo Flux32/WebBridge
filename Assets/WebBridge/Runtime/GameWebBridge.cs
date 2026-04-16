@@ -484,7 +484,8 @@ namespace Modules.Road
                         return null;
                     }
 
-                    Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: using payload source, completed={completed}/{total}");
+                    int currentStep = state.BonusGame.CurrentStep ?? 0;
+                    Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: using payload source, completed={completed}/{total}, currentStep={currentStep}");
                     return new WebBonusAutoPlayProgress
                     {
                         Positions = positions,
@@ -493,7 +494,8 @@ namespace Modules.Road
                         AccumulatedCoefficient = state.BonusGame.AccumulatedCoefficient ?? 0f,
                         AccumulatedWin = state.BonusGame.AccumulatedWin ?? 0f,
                         BetAmount = state.BonusGame.BetAmount ?? 0f,
-                        Currency = state.BonusGame.BonusCurrency
+                        Currency = state.BonusGame.BonusCurrency,
+                        CurrentStep = currentStep
                     };
                 }
             }

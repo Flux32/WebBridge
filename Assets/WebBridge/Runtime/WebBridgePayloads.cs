@@ -82,6 +82,9 @@ namespace Modules.Road
 
         [JsonProperty("bonusCurrency")]
         public string BonusCurrency;
+
+        [JsonProperty("currentStep")]
+        public int? CurrentStep;
     }
 
     [Preserve]
