@@ -68,10 +68,9 @@ namespace Modules.Road
 
         public static void SaveToLocalStorage(string key, string value)
         {
+            Debug.Log($"[WebBridgeStorage] Save '{key}': {value}");
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebBridge_SaveToLocalStorage(key, value);
-#else
-            Debug.Log($"[WebBridgeStorage] Save '{key}': {value}");
 #endif
         }
 
@@ -80,8 +79,12 @@ namespace Modules.Road
 #if UNITY_WEBGL && !UNITY_EDITOR
             IntPtr ptr = WebBridge_LoadFromLocalStorage(key);
             if (ptr == IntPtr.Zero)
+            {
+                Debug.Log($"[WebBridgeStorage] Load '{key}': null (ptr=0)");
                 return null;
+            }
             string result = Marshal.PtrToStringUTF8(ptr);
+            Debug.Log($"[WebBridgeStorage] Load '{key}': {result ?? "null"}");
             return result;
 #else
             Debug.Log($"[WebBridgeStorage] Load '{key}' (editor stub → null)");
@@ -91,10 +94,9 @@ namespace Modules.Road
 
         public static void RemoveFromLocalStorage(string key)
         {
+            Debug.Log($"[WebBridgeStorage] Remove '{key}'");
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebBridge_RemoveFromLocalStorage(key);
-#else
-            Debug.Log($"[WebBridgeStorage] Remove '{key}'");
 #endif
         }
 
