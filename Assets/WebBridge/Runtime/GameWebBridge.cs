@@ -446,7 +446,11 @@ namespace Modules.Road
             return Array.Empty<int>();
         }
 
-        private const string BonusProgressStorageKey = "bonus_progress";
+        // Persistence of bonus progress is now owned by React (the frontend has full
+        // currency/balance context). Unity just notifies React on every update via the
+        // BonusProgressSave_/BonusProgressClear messages; React enriches and stores.
+        private const string BonusProgressSaveMessagePrefix = "BonusProgressSave_";
+        private const string BonusProgressClearMessage = "BonusProgressClear";
 
         public void SaveBonusAutoPlayProgress(WebBonusAutoPlayProgress progress)
         {
@@ -456,19 +460,19 @@ namespace Modules.Road
             try
             {
                 string json = JsonConvert.SerializeObject(progress);
-                WebBridgeUtils.SaveToLocalStorage(BonusProgressStorageKey, json);
-                Debug.Log($"[GameWebBridge] Bonus progress saved: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
+                WebBridgeUtils.Send($"{BonusProgressSaveMessagePrefix}{json}");
+                Debug.Log($"[GameWebBridge] Bonus progress sent to React: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[GameWebBridge] Failed to save bonus progress: {e.Message}");
+                Debug.LogWarning($"[GameWebBridge] Failed to send bonus progress: {e.Message}");
             }
         }
 
         public void ClearBonusAutoPlayProgress()
         {
-            WebBridgeUtils.RemoveFromLocalStorage(BonusProgressStorageKey);
-            Debug.Log("[GameWebBridge] Bonus progress cleared");
+            WebBridgeUtils.Send(BonusProgressClearMessage);
+            Debug.Log("[GameWebBridge] Bonus progress clear sent to React");
         }
 
         public void NotifyBonusActive(string modeId)
@@ -531,38 +535,9 @@ namespace Modules.Road
                 Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: state.BonusGame is null");
             }
 
-            // Fallback: read directly from localStorage (covers case when backend has no bonusGame)
-            Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: trying localStorage fallback");
-            try
-            {
-                string json = WebBridgeUtils.LoadFromLocalStorage(BonusProgressStorageKey);
-                Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: localStorage raw = {json ?? "null"}");
-                if (string.IsNullOrWhiteSpace(json))
-                    return null;
-
-                WebBonusAutoPlayProgress progress =
-                    JsonConvert.DeserializeObject<WebBonusAutoPlayProgress>(json);
-
-                if (progress == null || progress.Positions == null || progress.Positions.Length == 0)
-                {
-                    Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: localStorage deserialized but positions empty");
-                    return null;
-                }
-
-                if (progress.CompletedIterations >= progress.TotalIterations)
-                {
-                    Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: localStorage completed({progress.CompletedIterations}) >= total({progress.TotalIterations}), skip");
-                    return null;
-                }
-
-                Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: using localStorage fallback, completed={progress.CompletedIterations}/{progress.TotalIterations}");
-                return progress;
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[GameWebBridge] Failed to load bonus progress from localStorage: {e.Message}");
-                return null;
-            }
+            // No localStorage fallback — React is the single source of truth and delivers
+            // bonus progress via the RestoreGame payload's state.BonusGame.
+            return null;
         }
 
         public IReadOnlyList<WebBonusShopModePayload> ResolveBonusModesForShop()
