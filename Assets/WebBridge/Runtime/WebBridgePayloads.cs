@@ -114,6 +114,9 @@ namespace Modules.Road
 
         [JsonProperty("currentStep")]
         public int CurrentStep;
+
+        [JsonProperty("difficulty")]
+        public string Difficulty;
     }
 
     [Preserve]
