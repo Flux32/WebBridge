@@ -521,7 +521,8 @@ namespace Modules.Road
                         BetAmount = state.BonusGame.BetAmount ?? 0f,
                         Currency = state.BonusGame.BonusCurrency,
                         CurrentStep = currentStep,
-                        BonusCoefficients = state.BonusGame.BonusCoefficients
+                        BonusCoefficients = state.BonusGame.BonusCoefficients,
+                        Difficulty = state.BonusGame.Difficulty
                     };
                 }
             }

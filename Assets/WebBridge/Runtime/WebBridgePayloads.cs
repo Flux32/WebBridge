@@ -88,6 +88,9 @@ namespace Modules.Road
 
         [JsonProperty("bonusCoefficients")]
         public string BonusCoefficients;
+
+        [JsonProperty("difficulty")]
+        public string Difficulty;
     }
 
     [Preserve]
