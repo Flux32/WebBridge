@@ -89,6 +89,12 @@ namespace Modules.Road
         public float? LastBalance { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
 
+        // Gameplay-controlled gate: while true, inbound coefficient updates from
+        // React (UpdateCoeffs / ApplyGameConfig) are ignored for road regeneration.
+        // SpinsBonus toggles this around its enter/exit transitions so that the
+        // road never shows the wrong coefficients during an active bonus round.
+        public bool SuppressCoefficientUpdates { get; set; }
+
         private float MockLoseChance
         {
             get => _mockLoseChance;
@@ -231,6 +237,9 @@ namespace Modules.Road
             }
 
             float[] coeffArray = coefficients.ToArray();
+            if (SuppressCoefficientUpdates)
+                return;
+
             CoefficientsReceived?.Invoke(coeffArray);
         }
 
@@ -462,6 +471,22 @@ namespace Modules.Road
             Debug.Log("[GameWebBridge] Bonus progress cleared");
         }
 
+        public void NotifyBonusActive(string modeId)
+        {
+            if (string.IsNullOrWhiteSpace(modeId))
+            {
+                Debug.LogWarning("[GameWebBridge] NotifyBonusActive ignored. Mode id is empty.");
+                return;
+            }
+
+            WebBridgeUtils.Send($"BonusActive_{modeId}");
+        }
+
+        public void NotifyBonusCleared()
+        {
+            WebBridgeUtils.Send("BonusCleared");
+        }
+
         private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
         {
             // Primary source: restore payload fields from BonusGame (populated by React from localStorage)
@@ -495,7 +520,8 @@ namespace Modules.Road
                         AccumulatedWin = state.BonusGame.AccumulatedWin ?? 0f,
                         BetAmount = state.BonusGame.BetAmount ?? 0f,
                         Currency = state.BonusGame.BonusCurrency,
-                        CurrentStep = currentStep
+                        CurrentStep = currentStep,
+                        BonusCoefficients = state.BonusGame.BonusCoefficients
                     };
                 }
             }
@@ -590,7 +616,7 @@ namespace Modules.Road
                 BalanceReceived?.Invoke(config.Balance.Value);
             }
 
-            if (updateCoefficients && config.Coefficients != null)
+            if (updateCoefficients && config.Coefficients != null && !SuppressCoefficientUpdates)
                 CoefficientsReceived?.Invoke(config.Coefficients);
         }
 
@@ -776,7 +802,8 @@ namespace Modules.Road
             {
                 BonusPositions = source.BonusPositions.ToArray(),
                 BonusTotalCoefficient = source.BonusTotalCoefficient,
-                BonusTotalWin = source.BonusTotalWin
+                BonusTotalWin = source.BonusTotalWin,
+                BonusCoefficients = source.BonusCoefficients
             };
         }
 

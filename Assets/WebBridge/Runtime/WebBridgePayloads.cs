@@ -85,6 +85,9 @@ namespace Modules.Road
 
         [JsonProperty("currentStep")]
         public int? CurrentStep;
+
+        [JsonProperty("bonusCoefficients")]
+        public string BonusCoefficients;
     }
 
     [Preserve]
@@ -117,6 +120,9 @@ namespace Modules.Road
 
         [JsonProperty("difficulty")]
         public string Difficulty;
+
+        [JsonProperty("bonusCoefficients")]
+        public string BonusCoefficients;
     }
 
     [Preserve]
