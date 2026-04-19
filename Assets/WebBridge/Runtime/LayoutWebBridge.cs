@@ -20,6 +20,9 @@ namespace Modules.Road
         [SerializeField] private bool _desktopBetBarInteractable = true;
         [SerializeField] private bool _mobileBetBarInteractable = true;
 
+        private int _batchDepth;
+        private bool _syncPending;
+
         public static LayoutWebBridge Instance { get; private set; }
 
         public event Action<WebMobileBetBarViewportPayload> MobileBetBarViewportChanged;
@@ -205,8 +208,35 @@ namespace Modules.Road
             SyncUiVisibility();
         }
 
+        public void BeginBatch()
+        {
+            _batchDepth++;
+        }
+
+        public void EndBatch()
+        {
+            if (_batchDepth == 0)
+            {
+                Debug.LogWarning($"[{nameof(LayoutWebBridge)}] EndBatch called without matching BeginBatch.");
+                return;
+            }
+
+            _batchDepth--;
+            if (_batchDepth > 0 || !_syncPending)
+                return;
+
+            _syncPending = false;
+            SyncUiVisibility();
+        }
+
         public void SyncUiVisibility()
         {
+            if (_batchDepth > 0)
+            {
+                _syncPending = true;
+                return;
+            }
+
             WebUiVisibilityPayload payload = new WebUiVisibilityPayload
             {
                 HideDesktopBetBar = _hideDesktopBetBar,
