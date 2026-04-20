@@ -66,8 +66,12 @@ namespace Modules.Road
                 if (string.IsNullOrEmpty(entry.Key))
                     continue;
 
-                _translations[entry.Key] = entry.Value ?? string.Empty;
+                string value = entry.Value ?? string.Empty;
+                _translations[entry.Key] = value;
+                Debug.Log($"[TranslationsWebBridge] {entry.Key}: {value}");
             }
+
+            Debug.Log($"[TranslationsWebBridge] Applied {_translations.Count} translation(s).");
 
             HasTranslations = true;
             TranslationsChanged?.Invoke();
