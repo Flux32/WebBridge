@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -66,7 +67,7 @@ namespace Modules.Road
                 if (string.IsNullOrEmpty(entry.Key))
                     continue;
 
-                string value = entry.Value ?? string.Empty;
+                string value = SanitizeInvisibles(entry.Value ?? string.Empty);
                 _translations[entry.Key] = value;
                 Debug.Log($"[TranslationsWebBridge] {entry.Key}: {value}");
             }
@@ -96,6 +97,40 @@ namespace Modules.Road
         public void RequestTranslations()
         {
             WebBridgeUtils.Send(RequestTranslationsMessage);
+        }
+
+        // Tolgee DevTools, некоторые WYSIWYG-редакторы и CMS добавляют невидимые
+        // zero-width / BiDi управляющие символы (ZWSP, ZWNJ, ZWJ, LRM, RLM, BOM,
+        // LRE/RLE/PDF, LRO/RLO). В DOM они не видны, но TMP рисует tofu-квадраты
+        // для шрифтов без соответствующих глифов. Вырезаем на входе.
+        private static string SanitizeInvisibles(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            StringBuilder sb = null;
+            for (int i = 0; i < input.Length; i++)
+            {
+                char c = input[i];
+                bool isInvisible =
+                    (c >= '\u200B' && c <= '\u200F') ||
+                    (c >= '\u202A' && c <= '\u202E') ||
+                    c == '\uFEFF';
+
+                if (isInvisible)
+                {
+                    if (sb == null)
+                    {
+                        sb = new StringBuilder(input.Length);
+                        sb.Append(input, 0, i);
+                    }
+                    continue;
+                }
+
+                sb?.Append(c);
+            }
+
+            return sb == null ? input : sb.ToString();
         }
     }
 }
