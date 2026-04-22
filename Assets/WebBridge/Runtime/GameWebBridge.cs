@@ -502,6 +502,11 @@ namespace Modules.Road
             WebBridgeUtils.Send("BonusCleared");
         }
 
+        public void NotifyCloseBonusShop()
+        {
+            WebBridgeUtils.Send("CloseBonusShop");
+        }
+
         private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
         {
             // Primary source: restore payload fields from BonusGame (populated by React from localStorage)
