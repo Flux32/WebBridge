@@ -22,9 +22,7 @@ namespace Modules.Road
             public string Currency;
         }
 
-        private const string BetActionName = "play";
         private const string DefaultBetCurrency = "USD";
-        private const string DefaultBonusType = "default";
         private const int InitialWebSyncAttempts = 10;
         private const float InitialWebSyncRetryIntervalSeconds = 0.5f;
 
@@ -375,21 +373,13 @@ namespace Modules.Road
             WebBridgeUtils.Send("RequestActiveGameState");
         }
 
-        public void PurchaseBonusMode(
-            string modeId,
-            string betAmount,
-            string currency = DefaultBetCurrency,
-            string bonusType = DefaultBonusType)
+        public void PurchaseBonusMode(string modeId)
         {
             if (string.IsNullOrWhiteSpace(modeId))
             {
                 Debug.LogWarning("[GameWebBridge] PurchaseBonusMode ignored. Mode id is empty.");
                 return;
             }
-
-            string resolvedBetAmount = string.IsNullOrWhiteSpace(betAmount) ? "0" : betAmount;
-            string resolvedCurrency = string.IsNullOrWhiteSpace(currency) ? DefaultBetCurrency : currency;
-            string resolvedBonusType = string.IsNullOrWhiteSpace(bonusType) ? DefaultBonusType : bonusType;
 
             if (IsMockEnabled)
             {
@@ -402,19 +392,7 @@ namespace Modules.Road
                 return;
             }
 
-            WebBetActionMessage message = new WebBetActionMessage
-            {
-                Action = BetActionName,
-                Payload = new WebBetActionPayload
-                {
-                    BetAmount = resolvedBetAmount,
-                    Currency = resolvedCurrency,
-                    Difficulty = modeId,
-                    BonusType = resolvedBonusType
-                }
-            };
-
-            WebBridgeUtils.Send(JsonConvert.SerializeObject(message));
+            WebBridgeUtils.Send($"PurchaseBonusMode_{modeId}");
         }
 
         public void onOpenBonusShop()

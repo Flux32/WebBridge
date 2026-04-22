@@ -147,34 +147,6 @@ namespace Modules.Road
 
     [Preserve]
     [Serializable]
-    public class WebBetActionMessage
-    {
-        [JsonProperty("action")]
-        public string Action;
-
-        [JsonProperty("payload")]
-        public WebBetActionPayload Payload;
-    }
-
-    [Preserve]
-    [Serializable]
-    public class WebBetActionPayload
-    {
-        [JsonProperty("betAmount")]
-        public string BetAmount;
-
-        [JsonProperty("currency")]
-        public string Currency;
-
-        [JsonProperty("difficulty")]
-        public string Difficulty;
-
-        [JsonProperty("bonusType")]
-        public string BonusType;
-    }
-
-    [Preserve]
-    [Serializable]
     public class WebBonusShopModePayload
     {
         public string ModeName;
