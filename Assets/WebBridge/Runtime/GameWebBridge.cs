@@ -63,7 +63,8 @@ namespace Modules.Road
         public event Action<string> CashoutRequested;
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
-        public event Action BuyBonusButtonClicked;
+        public event Action OpenBonusShop;
+        public event Action CloseBonusShop;
         public event Action<WebGameStatePayload> GameRestored;
         public event Action<WebBonusAutoPlayProgress> BonusAutoPlayRestoreReady;
         public event Action<string> MockDifficultyChanged;
@@ -414,14 +415,24 @@ namespace Modules.Road
             WebBridgeUtils.Send(JsonConvert.SerializeObject(message));
         }
 
-        public void onBuyBonusButtonClicked()
+        public void onOpenBonusShop()
         {
-            BuyBonusButtonClicked?.Invoke();
+            OpenBonusShop?.Invoke();
         }
 
-        public void OnBuyBonusButtonClicked()
+        public void OnOpenBonusShop()
         {
-            BuyBonusButtonClicked?.Invoke();
+            OpenBonusShop?.Invoke();
+        }
+
+        public void onCloseBonusShop()
+        {
+            CloseBonusShop?.Invoke();
+        }
+
+        public void OnCloseBonusShop()
+        {
+            CloseBonusShop?.Invoke();
         }
 
         public void ApplyBonusPurchaseResult(string payload)
