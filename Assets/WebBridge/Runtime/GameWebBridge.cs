@@ -69,6 +69,7 @@ namespace Modules.Road
         public event Action<WebBonusAutoPlayProgress> BonusAutoPlayRestoreReady;
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
+        public event Action<float> ShopBetSizeChanged;
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
@@ -88,6 +89,7 @@ namespace Modules.Road
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
         public float? LastBalance { get; private set; }
+        public float? LastShopBetSize { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
 
         // Gameplay-controlled gate: while true, inbound coefficient updates from
@@ -505,6 +507,24 @@ namespace Modules.Road
         public void NotifyCloseBonusShop()
         {
             WebBridgeUtils.Send("CloseBonusShop");
+        }
+
+        public void UpdateShopBetSize(string payload)
+        {
+            if (string.IsNullOrWhiteSpace(payload))
+                return;
+
+            if (!float.TryParse(payload.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
+            {
+                Debug.LogWarning($"[GameWebBridge] UpdateShopBetSize: failed to parse '{payload}'");
+                return;
+            }
+
+            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f)
+                return;
+
+            LastShopBetSize = value;
+            ShopBetSizeChanged?.Invoke(value);
         }
 
         private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
