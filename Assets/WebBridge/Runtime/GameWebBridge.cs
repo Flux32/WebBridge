@@ -49,6 +49,7 @@ namespace Modules.Road
         private bool _mockInitialized;
         private bool _hasExternalGameConfigReceived;
         private Coroutine _initialWebSyncCoroutine;
+        private float[] _lastRaisedCoefficients;
 
         public static GameWebBridge Instance { get; private set; }
 
@@ -241,7 +242,7 @@ namespace Modules.Road
             if (SuppressCoefficientUpdates)
                 return;
 
-            CoefficientsReceived?.Invoke(coeffArray);
+            RaiseCoefficientsIfChanged(coeffArray);
         }
 
         public void ApplyGameConfig(string payload)
@@ -607,7 +608,33 @@ namespace Modules.Road
             }
 
             if (updateCoefficients && config.Coefficients != null && !SuppressCoefficientUpdates)
-                CoefficientsReceived?.Invoke(config.Coefficients);
+                RaiseCoefficientsIfChanged(config.Coefficients);
+        }
+
+        private void RaiseCoefficientsIfChanged(float[] coefficients)
+        {
+            if (coefficients == null)
+                return;
+
+            if (CoefficientsEqual(_lastRaisedCoefficients, coefficients))
+                return;
+
+            _lastRaisedCoefficients = (float[])coefficients.Clone();
+            CoefficientsReceived?.Invoke(coefficients);
+        }
+
+        private static bool CoefficientsEqual(float[] a, float[] b)
+        {
+            if (a == null || b == null)
+                return false;
+            if (a.Length != b.Length)
+                return false;
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (!Mathf.Approximately(a[i], b[i]))
+                    return false;
+            }
+            return true;
         }
 
         private void ApplyGameState(WebGameStatePayload state)
