@@ -14,8 +14,10 @@ namespace Modules.Road
 
         public bool IsTransitionScreenOpen { get; private set; }
 
-        public event Action TransitionScreenOpened;
-        public event Action TransitionScreenClosed;
+        public event Action TransitionScreenOpenStarted;
+        public event Action TransitionScreenOpenFinished;
+        public event Action TransitionScreenCloseStarted;
+        public event Action TransitionScreenCloseFinished;
 
         private void Awake()
         {
@@ -42,7 +44,7 @@ namespace Modules.Road
 
             IsTransitionScreenOpen = true;
             WebBridgeUtils.Send(OpenTransitionScreenMessage);
-            TransitionScreenOpened?.Invoke();
+            TransitionScreenOpenStarted?.Invoke();
         }
 
         public void CloseTransitionScreen()
@@ -52,7 +54,21 @@ namespace Modules.Road
 
             IsTransitionScreenOpen = false;
             WebBridgeUtils.Send(CloseTransitionScreenMessage);
-            TransitionScreenClosed?.Invoke();
+            TransitionScreenCloseStarted?.Invoke();
+        }
+
+        // Called from React via SendMessage when the `in` animation completes
+        // (gates fully closed).
+        public void OnTransitionScreenOpenFinished()
+        {
+            TransitionScreenOpenFinished?.Invoke();
+        }
+
+        // Called from React via SendMessage when the `out` animation completes
+        // (gates fully opened, overlay unmounted).
+        public void OnTransitionScreenCloseFinished()
+        {
+            TransitionScreenCloseFinished?.Invoke();
         }
     }
 }
