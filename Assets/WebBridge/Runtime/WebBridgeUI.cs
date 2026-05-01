@@ -45,6 +45,10 @@ namespace Modules.Road
             IsTransitionScreenOpen = true;
             WebBridgeUtils.Send(OpenTransitionScreenMessage);
             TransitionScreenOpenStarted?.Invoke();
+
+#if UNITY_EDITOR
+            OnTransitionScreenOpenFinished();
+#endif
         }
 
         public void CloseTransitionScreen()
@@ -55,17 +59,17 @@ namespace Modules.Road
             IsTransitionScreenOpen = false;
             WebBridgeUtils.Send(CloseTransitionScreenMessage);
             TransitionScreenCloseStarted?.Invoke();
-        }
 
-        // Called from React via SendMessage when the `in` animation completes
-        // (gates fully closed).
+#if UNITY_EDITOR
+            OnTransitionScreenCloseFinished();
+#endif
+        }
+        
         public void OnTransitionScreenOpenFinished()
         {
             TransitionScreenOpenFinished?.Invoke();
         }
-
-        // Called from React via SendMessage when the `out` animation completes
-        // (gates fully opened, overlay unmounted).
+        
         public void OnTransitionScreenCloseFinished()
         {
             TransitionScreenCloseFinished?.Invoke();
