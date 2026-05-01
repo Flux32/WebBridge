@@ -467,15 +467,9 @@ namespace Modules.Road
             Debug.Log("[GameWebBridge] Bonus progress clear sent to React");
         }
 
-        public void NotifyBonusActive(string modeId)
+        public void NotifyBonusActive()
         {
-            if (string.IsNullOrWhiteSpace(modeId))
-            {
-                Debug.LogWarning("[GameWebBridge] NotifyBonusActive ignored. Mode id is empty.");
-                return;
-            }
-
-            WebBridgeUtils.Send($"BonusActive_{modeId}");
+            WebBridgeUtils.Send("BonusActive");
         }
 
         public void NotifyBonusCleared()
