@@ -9,6 +9,7 @@ namespace Modules.Road
     public class LayoutWebBridge : MonoBehaviour
     {
         private const string UiVisibilityMessageBase = "UiVisibility_";
+        private const string RequestBetBarViewportMetricsMessage = "RequestBetBarViewportMetrics";
 
         [Header("Web UI")]
         [SerializeField] private bool _hideDesktopBetBar;
@@ -56,6 +57,11 @@ namespace Modules.Road
         {
             SyncUiVisibility();
             NotifyBetBarHideStateChanged();
+        }
+        
+        public void RequestBetBarViewportMetrics()
+        {
+            WebBridgeUtils.Send(RequestBetBarViewportMetricsMessage);
         }
 
         private void OnDestroy()
