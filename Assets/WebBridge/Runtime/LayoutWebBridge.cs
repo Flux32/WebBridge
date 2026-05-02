@@ -34,6 +34,11 @@ namespace Modules.Road
         public float MobileBetBarViewportWithoutBonusHeightEnd { get; private set; }
         public Vector2 MobileBetBarBonusButtonRight { get; private set; }
         public Vector2 MobileBetBarRight { get; private set; }
+        public Vector2 MobileBetBarBonusProgressIndicatorTopLeft { get; private set; }
+        public Vector2 MobileBetBarBonusProgressIndicatorTopRight { get; private set; }
+        public Vector2 MobileBetBarBonusProgressIndicatorBottomLeft { get; private set; }
+        public Vector2 MobileBetBarBonusProgressIndicatorBottomRight { get; private set; }
+        public bool HasMobileBetBarBonusProgressIndicator { get; private set; }
         public bool IsDesktopBetBarHidden => _hideDesktopBetBar;
         public bool IsMobileBetBarHidden => _hideMobileBetBar;
         public bool IsMobileLastWinHidden => _hideMobileLastWin;
@@ -83,17 +88,44 @@ namespace Modules.Road
             Vector2 bonusButtonRight = ClampViewportPoint(viewport.BonusButtonRight);
             Vector2 betBarRight = ClampViewportPoint(viewport.BetBarRight);
 
+            Vector2 bonusIndicatorTopLeft = Vector2.zero;
+            Vector2 bonusIndicatorTopRight = Vector2.zero;
+            Vector2 bonusIndicatorBottomLeft = Vector2.zero;
+            Vector2 bonusIndicatorBottomRight = Vector2.zero;
+            bool hasBonusIndicator = false;
+            if (viewport.BonusProgressIndicator != null)
+            {
+                bonusIndicatorTopLeft = ClampViewportPoint(viewport.BonusProgressIndicator.TopLeft);
+                bonusIndicatorTopRight = ClampViewportPoint(viewport.BonusProgressIndicator.TopRight);
+                bonusIndicatorBottomLeft = ClampViewportPoint(viewport.BonusProgressIndicator.BottomLeft);
+                bonusIndicatorBottomRight = ClampViewportPoint(viewport.BonusProgressIndicator.BottomRight);
+                hasBonusIndicator = bonusIndicatorTopLeft != Vector2.zero
+                                    || bonusIndicatorTopRight != Vector2.zero
+                                    || bonusIndicatorBottomLeft != Vector2.zero
+                                    || bonusIndicatorBottomRight != Vector2.zero;
+            }
+
             bool hasChanged = !Mathf.Approximately(MobileBetBarViewportWidth, width)
                               || !Mathf.Approximately(MobileBetBarViewportHeightEnd, heightEnd)
                               || !Mathf.Approximately(MobileBetBarViewportWithoutBonusHeightEnd, heightEndWithoutBonus)
                               || MobileBetBarBonusButtonRight != bonusButtonRight
-                              || MobileBetBarRight != betBarRight;
+                              || MobileBetBarRight != betBarRight
+                              || HasMobileBetBarBonusProgressIndicator != hasBonusIndicator
+                              || MobileBetBarBonusProgressIndicatorTopLeft != bonusIndicatorTopLeft
+                              || MobileBetBarBonusProgressIndicatorTopRight != bonusIndicatorTopRight
+                              || MobileBetBarBonusProgressIndicatorBottomLeft != bonusIndicatorBottomLeft
+                              || MobileBetBarBonusProgressIndicatorBottomRight != bonusIndicatorBottomRight;
 
             MobileBetBarViewportWidth = width;
             MobileBetBarViewportHeightEnd = heightEnd;
             MobileBetBarViewportWithoutBonusHeightEnd = heightEndWithoutBonus;
             MobileBetBarBonusButtonRight = bonusButtonRight;
             MobileBetBarRight = betBarRight;
+            MobileBetBarBonusProgressIndicatorTopLeft = bonusIndicatorTopLeft;
+            MobileBetBarBonusProgressIndicatorTopRight = bonusIndicatorTopRight;
+            MobileBetBarBonusProgressIndicatorBottomLeft = bonusIndicatorBottomLeft;
+            MobileBetBarBonusProgressIndicatorBottomRight = bonusIndicatorBottomRight;
+            HasMobileBetBarBonusProgressIndicator = hasBonusIndicator;
 
             if (!hasChanged)
                 return;
@@ -104,7 +136,16 @@ namespace Modules.Road
                 HeightEndViewport = heightEnd,
                 HeightEndWithoutBonusViewport = heightEndWithoutBonus,
                 BonusButtonRight = new WebViewportPoint { X = bonusButtonRight.x, Y = bonusButtonRight.y },
-                BetBarRight = new WebViewportPoint { X = betBarRight.x, Y = betBarRight.y }
+                BetBarRight = new WebViewportPoint { X = betBarRight.x, Y = betBarRight.y },
+                BonusProgressIndicator = hasBonusIndicator
+                    ? new WebViewportRect
+                    {
+                        TopLeft = new WebViewportPoint { X = bonusIndicatorTopLeft.x, Y = bonusIndicatorTopLeft.y },
+                        TopRight = new WebViewportPoint { X = bonusIndicatorTopRight.x, Y = bonusIndicatorTopRight.y },
+                        BottomLeft = new WebViewportPoint { X = bonusIndicatorBottomLeft.x, Y = bonusIndicatorBottomLeft.y },
+                        BottomRight = new WebViewportPoint { X = bonusIndicatorBottomRight.x, Y = bonusIndicatorBottomRight.y }
+                    }
+                    : null
             });
         }
 

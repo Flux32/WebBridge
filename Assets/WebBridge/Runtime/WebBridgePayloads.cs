@@ -202,6 +202,9 @@ namespace Modules.Road
 
         [JsonProperty("betBarRight")]
         public WebViewportPoint BetBarRight;
+
+        [JsonProperty("bonusProgressIndicator")]
+        public WebViewportRect BonusProgressIndicator;
     }
 
     [Preserve]
@@ -213,6 +216,23 @@ namespace Modules.Road
 
         [JsonProperty("y")]
         public float Y;
+    }
+
+    [Preserve]
+    [Serializable]
+    public class WebViewportRect
+    {
+        [JsonProperty("topLeft")]
+        public WebViewportPoint TopLeft;
+
+        [JsonProperty("topRight")]
+        public WebViewportPoint TopRight;
+
+        [JsonProperty("bottomLeft")]
+        public WebViewportPoint BottomLeft;
+
+        [JsonProperty("bottomRight")]
+        public WebViewportPoint BottomRight;
     }
 
     [Preserve]
