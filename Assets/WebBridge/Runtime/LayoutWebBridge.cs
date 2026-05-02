@@ -130,6 +130,7 @@ namespace Modules.Road
             if (!hasChanged)
                 return;
 
+            Debug.Log($"[LayoutWebBridge] viewport hasIndicator={hasBonusIndicator} TL={bonusIndicatorTopLeft} TR={bonusIndicatorTopRight} BL={bonusIndicatorBottomLeft} BR={bonusIndicatorBottomRight}");
             MobileBetBarViewportChanged?.Invoke(new WebMobileBetBarViewportPayload
             {
                 WidthViewport = width,
