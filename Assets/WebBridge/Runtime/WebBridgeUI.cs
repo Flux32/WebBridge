@@ -69,7 +69,7 @@ namespace Modules.Road
         {
             TransitionScreenOpenFinished?.Invoke();
         }
-        
+
         public void OnTransitionScreenCloseFinished()
         {
             TransitionScreenCloseFinished?.Invoke();

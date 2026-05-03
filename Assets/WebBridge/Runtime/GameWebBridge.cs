@@ -60,6 +60,9 @@ namespace Modules.Road
         public event Action<float[]> CoefficientsReceived;
         public event Action<int> SpinRequested;
         public event Action<string> CashoutRequested;
+        // Fires when React-side CashoutModal has fully closed and Unity is
+        // free to restart the round.
+        public event Action RestartRequested;
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
         public event Action OpenBonusShop;
@@ -212,9 +215,13 @@ namespace Modules.Road
             SpinRequested?.Invoke(win);
         }
 
-        public void DoCashout(string amount)
+        // Called from React (App.tsx) once the CashoutModal has fully closed.
+        // Pure restart trigger — the actual cashout was already settled via
+        // DoCashout(amount). Player.HandleRestartRequested picks this up and
+        // restarts the round.
+        public void RestartRound()
         {
-            CashoutRequested?.Invoke(amount);
+            RestartRequested?.Invoke();
         }
 
         public void UpdateCoeffs(string payload)
@@ -738,7 +745,12 @@ namespace Modules.Road
             });
 
             if (ShouldAutoCashoutOnMockFinish(stepResult))
+            {
+                // Mock auto-cashout flow: settle the win, then signal restart
+                // (matches the real React path of DoCashout → RestartRound).
                 CashoutRequested?.Invoke(BuildMockAutoCashoutAmount());
+                RestartRequested?.Invoke();
+            }
         }
 
         private static bool? ResolveStepResultWinState(WebGameStatePayload stepResult)
