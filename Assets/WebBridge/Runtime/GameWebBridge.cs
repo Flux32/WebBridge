@@ -479,6 +479,14 @@ namespace Modules.Road
             WebBridgeUtils.Send("BonusActive");
         }
 
+        public void NotifyBonusEnded()
+        {
+            // React opens the TransitionScreen on this signal (bonus end
+            // gates close → midpoint UI restore → game state revert →
+            // gates open).
+            WebBridgeUtils.Send("BonusEnded");
+        }
+
         public void NotifyBonusCleared()
         {
             WebBridgeUtils.Send("BonusCleared");
