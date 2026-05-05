@@ -93,11 +93,7 @@ namespace Modules.Road
         public float? LastBalance { get; private set; }
         public float? LastShopBetSize { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
-
-        // Gameplay-controlled gate: while true, inbound coefficient updates from
-        // React (UpdateCoeffs / ApplyGameConfig) are ignored for road regeneration.
-        // SpinsBonus toggles this around its enter/exit transitions so that the
-        // road never shows the wrong coefficients during an active bonus round.
+        
         public bool SuppressCoefficientUpdates { get; set; }
 
         private float MockLoseChance
@@ -214,11 +210,7 @@ namespace Modules.Road
 
             SpinRequested?.Invoke(win);
         }
-
-        // Called from React (App.tsx) once the CashoutModal has fully closed.
-        // Pure restart trigger — the actual cashout was already settled via
-        // DoCashout(amount). Player.HandleRestartRequested picks this up and
-        // restarts the round.
+        
         public void RestartRound()
         {
             RestartRequested?.Invoke();
@@ -365,11 +357,7 @@ namespace Modules.Road
 
             WebBridgeUtils.Send("RequestGameConfig");
         }
-
-        // Просит React прислать атомарный RestoreGame(config+state), если есть
-        // активная игра. Используется для устранения гонки между загрузкой Unity
-        // и пушом состояния со стороны React: подписчики GameRestored обязаны
-        // быть на месте до вызова этого метода.
+        
         public void RequestActiveGameState()
         {
             if (IsMockEnabled)
@@ -444,10 +432,7 @@ namespace Modules.Road
 
             return Array.Empty<int>();
         }
-
-        // Persistence of bonus progress is now owned by React (the frontend has full
-        // currency/balance context). Unity just notifies React on every update via the
-        // BonusProgressSave_/BonusProgressClear messages; React enriches and stores.
+        
         private const string BonusProgressSaveMessagePrefix = "BonusProgressSave_";
         private const string BonusProgressClearMessage = "BonusProgressClear";
 
@@ -517,7 +502,6 @@ namespace Modules.Road
 
         private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
         {
-            // Primary source: restore payload fields from BonusGame (populated by React from localStorage)
             if (state?.BonusGame != null)
             {
                 int[] positions = state.BonusGame.BonusPositions;
@@ -558,9 +542,6 @@ namespace Modules.Road
             {
                 Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: state.BonusGame is null");
             }
-
-            // No localStorage fallback — React is the single source of truth and delivers
-            // bonus progress via the RestoreGame payload's state.BonusGame.
             return null;
         }
 
@@ -681,7 +662,10 @@ namespace Modules.Road
             _hasExternalGameConfigReceived = true;
 
             if (config != null)
+            {
+                _lastRaisedCoefficients = null;
                 ApplyGameConfig(config, true);
+            }
 
             if (state != null)
             {
