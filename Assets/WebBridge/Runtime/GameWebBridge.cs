@@ -65,10 +65,7 @@ namespace Modules.Road
         public event Action RestartRequested;
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
-        public event Action OpenBonusShop;
-        public event Action CloseBonusShop;
         public event Action<WebGameStatePayload> GameRestored;
-        public event Action<WebBonusAutoPlayProgress> BonusAutoPlayRestoreReady;
         // Unified bonus entry point. Fires from `StartBonus(payload)` — used by
         // both fresh purchase (completedIterations=0, accumulated*=0) and F5
         // restore (values populated from React-owned localStorage). SpinsBonus
@@ -201,6 +198,13 @@ namespace Modules.Road
 #endif
         }
 
+#if UNITY_EDITOR
+        // Editor-only debug entry: triggers a spin without going through the
+        // React→backend→`ApplyStepResult` pipeline. In mock-режиме делает
+        // фейковый степ локально, в обычном — fires `SpinRequested` для
+        // подписчиков (PepeRoad's `WebBridgeGameConnector` subscribed). Все
+        // call sites (MegaGrabBridge / PepeRoad RoadController на KeyCode.Space)
+        // тоже `#if UNITY_EDITOR`, поэтому в билд этот путь не попадает.
         public void DoSpin(int win)
         {
             if (IsMockEnabled)
@@ -216,6 +220,7 @@ namespace Modules.Road
 
             SpinRequested?.Invoke(win);
         }
+#endif
         
         public void RestartRound()
         {
@@ -394,26 +399,6 @@ namespace Modules.Road
             BonusStartRequested?.Invoke(parsed);
         }
 
-        public void onOpenBonusShop()
-        {
-            OpenBonusShop?.Invoke();
-        }
-
-        public void OnOpenBonusShop()
-        {
-            OpenBonusShop?.Invoke();
-        }
-
-        public void onCloseBonusShop()
-        {
-            CloseBonusShop?.Invoke();
-        }
-
-        public void OnCloseBonusShop()
-        {
-            CloseBonusShop?.Invoke();
-        }
-
         public void ApplyBonusPurchaseResult(string payload)
         {
             WebBonusPurchasePayload purchaseResult =
@@ -480,11 +465,6 @@ namespace Modules.Road
             WebBridgeUtils.Send("BonusCleared");
         }
 
-        public void NotifyCloseBonusShop()
-        {
-            WebBridgeUtils.Send("CloseBonusShop");
-        }
-
         public void UpdateShopBetSize(string payload)
         {
             if (string.IsNullOrWhiteSpace(payload))
@@ -501,51 +481,6 @@ namespace Modules.Road
 
             LastShopBetSize = value;
             ShopBetSizeChanged?.Invoke(value);
-        }
-
-        private WebBonusAutoPlayProgress ResolveBonusAutoPlayProgress(WebGameStatePayload state)
-        {
-            if (state?.BonusGame != null)
-            {
-                int[] positions = state.BonusGame.BonusPositions;
-                Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: BonusGame present, " +
-                           $"positions={positions?.Length}, " +
-                           $"CompletedIterations={state.BonusGame.CompletedIterations}, " +
-                           $"BetAmount={state.BonusGame.BetAmount}, " +
-                           $"BonusCurrency={state.BonusGame.BonusCurrency}");
-
-                if (positions != null && positions.Length > 0 && state.BonusGame.CompletedIterations.HasValue)
-                {
-                    int completed = state.BonusGame.CompletedIterations.Value;
-                    int total = positions.Length;
-                    if (completed >= total)
-                    {
-                        Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: completed({completed}) >= total({total}), skip");
-                        return null;
-                    }
-
-                    int currentStep = state.BonusGame.CurrentStep ?? 0;
-                    Debug.Log($"[GameWebBridge] ResolveBonusAutoPlayProgress: using payload source, completed={completed}/{total}, currentStep={currentStep}");
-                    return new WebBonusAutoPlayProgress
-                    {
-                        Positions = positions,
-                        CompletedIterations = completed,
-                        TotalIterations = total,
-                        AccumulatedCoefficient = state.BonusGame.AccumulatedCoefficient ?? 0f,
-                        AccumulatedWin = state.BonusGame.AccumulatedWin ?? 0f,
-                        BetAmount = state.BonusGame.BetAmount ?? 0f,
-                        Currency = state.BonusGame.BonusCurrency,
-                        CurrentStep = currentStep,
-                        BonusCoefficients = state.BonusGame.BonusCoefficients,
-                        Difficulty = state.BonusGame.Difficulty
-                    };
-                }
-            }
-            else
-            {
-                Debug.Log("[GameWebBridge] ResolveBonusAutoPlayProgress: state.BonusGame is null");
-            }
-            return null;
         }
 
         public IReadOnlyList<WebBonusShopModePayload> ResolveBonusModesForShop()

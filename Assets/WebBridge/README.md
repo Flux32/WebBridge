@@ -124,8 +124,6 @@ With mock enabled, `GameWebBridge` reads its serialized fields:
 | `CashoutRequested` | `string` | Cashout request with amount |
 | `BonusModePurchased` | `string, int` | Bonus purchased (modeId, positionsCount) |
 | `BonusModePurchaseFailed` | `string` | Bonus purchase failed (modeId) |
-| `OpenBonusShop` | - | BUY BONUS button pressed — bonus shop should open |
-| `CloseBonusShop` | - | Close button pressed in bonus shop — shop should close |
 
 **React -> Unity methods** (called via `SendMessage`):
 
@@ -134,11 +132,10 @@ ApplyGameConfig(string json)
 ApplyGameState(string json)
 ApplyStepResult(string json)
 ApplyBonusPurchaseResult(string json)
+StartBonus(string json)
 UpdateCoeffs(string csv)
 DoSpin(int win)
 DoCashout(string amount)
-OnOpenBonusShop()
-OnCloseBonusShop()
 ```
 
 **Properties:**
