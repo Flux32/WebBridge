@@ -69,6 +69,12 @@ namespace Modules.Road
         public event Action CloseBonusShop;
         public event Action<WebGameStatePayload> GameRestored;
         public event Action<WebBonusAutoPlayProgress> BonusAutoPlayRestoreReady;
+        // Unified bonus entry point. Fires from `StartBonus(payload)` — used by
+        // both fresh purchase (completedIterations=0, accumulated*=0) and F5
+        // restore (values populated from React-owned localStorage). SpinsBonus
+        // subscribes to this and runs a single setup path (no separate restore
+        // vs purchase branches).
+        public event Action<WebBonusStartPayload> BonusStartRequested;
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
         public event Action<float> ShopBetSizeChanged;
@@ -369,26 +375,23 @@ namespace Modules.Road
             WebBridgeUtils.Send("RequestActiveGameState");
         }
 
-        public void PurchaseBonusMode(string modeId)
+        // Единая точка входа в бонус с React-стороны. Используется и при свежей
+        // покупке (после showYouWinFreeGames+открытия TransitionScreen), и при
+        // F5-восстановлении (после того же UX). payload содержит всё нужное
+        // SpinsBonus для запуска: positions, completedIterations, accumulated*,
+        // bet, currency, difficulty, bonusCoefficients, bonusTotalCoefficient,
+        // bonusTotalWin, modeId.
+        public void StartBonus(string payload)
         {
-            if (string.IsNullOrWhiteSpace(modeId))
+            Debug.Log($"[BridgeDebug][React->Unity] StartBonus raw: {payload}");
+            WebBonusStartPayload parsed =
+                WebBridgeUtils.DeserializePayload<WebBonusStartPayload>(payload, nameof(StartBonus));
+            if (parsed == null)
             {
-                Debug.LogWarning("[GameWebBridge] PurchaseBonusMode ignored. Mode id is empty.");
+                Debug.LogWarning("[GameWebBridge] StartBonus payload parse failed.");
                 return;
             }
-
-            if (IsMockEnabled)
-            {
-                HandleBonusPurchaseResult(new WebBonusPurchasePayload
-                {
-                    ModeId = modeId,
-                    IsPurchased = true,
-                    BonusGame = CreateMockBonusGamePayload(modeId)
-                });
-                return;
-            }
-
-            WebBridgeUtils.Send($"PurchaseBonusMode_{modeId}");
+            BonusStartRequested?.Invoke(parsed);
         }
 
         public void onOpenBonusShop()
@@ -676,16 +679,11 @@ namespace Modules.Road
             Debug.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={WebBridgeUtils.BuildStateDebugInfo(state)}");
             GameRestored?.Invoke(state);
 
-            WebBonusAutoPlayProgress bonusProgress = ResolveBonusAutoPlayProgress(state);
-            if (bonusProgress != null)
-            {
-                Debug.Log($"[GameWebBridge] Bonus autoplay restore: iteration {bonusProgress.CompletedIterations}/{bonusProgress.TotalIterations}, subscribers={BonusAutoPlayRestoreReady != null}");
-                BonusAutoPlayRestoreReady?.Invoke(bonusProgress);
-            }
-            else
-            {
-                Debug.Log("[GameWebBridge] ApplyRestore: no bonus autoplay progress to restore");
-            }
+            // Bonus auto-play start is NOT triggered from here anymore. React
+            // owns the F5-bonus UX (regular game first → YouWinFreeGames →
+            // TransitionScreen) and explicitly calls `StartBonus(payload)`
+            // when it's time to enter the bonus. The state.BonusGame fields
+            // are still useful for re-hydrating `LastStepResult` above.
 
             IsRestoring = false;
         }
@@ -799,7 +797,10 @@ namespace Modules.Road
             };
             LastGameState = LastStepResult;
 
-            BonusModePurchased?.Invoke(modeId, bonusGame.BonusPositions.Length);
+            // Bonus actual entry happens via the unified `StartBonus(payload)`
+            // channel — React sends it after showing YouWinFreeGames and
+            // opening the TransitionScreen. We only persist LastStepResult
+            // here so the rest of the bridge sees the bonus baseline.
         }
 
         private static WebBonusGamePayload BuildBonusGamePayloadForPurchase(WebBonusGamePayload source)

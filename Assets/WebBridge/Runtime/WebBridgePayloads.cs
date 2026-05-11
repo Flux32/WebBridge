@@ -128,6 +128,52 @@ namespace Modules.Road
         public string BonusCoefficients;
     }
 
+    // Unified payload for `StartBonus(payload)` — covers both fresh purchase
+    // (completedIterations=0, accumulated*=0) and F5 restore (values from
+    // saved progress). Mirrors WebBonusAutoPlayProgress field names plus
+    // the bonus-game metadata (bonusTotalCoefficient/bonusTotalWin/modeId)
+    // so SpinsBonus has everything in one place.
+    [Preserve]
+    [Serializable]
+    public class WebBonusStartPayload
+    {
+        [JsonProperty("modeId")]
+        public string ModeId;
+
+        [JsonProperty("positions")]
+        public int[] Positions;
+
+        [JsonProperty("bonusCoefficients")]
+        public string BonusCoefficients;
+
+        [JsonProperty("difficulty")]
+        public string Difficulty;
+
+        [JsonProperty("betAmount")]
+        public float BetAmount;
+
+        [JsonProperty("currency")]
+        public string Currency;
+
+        [JsonProperty("bonusTotalCoefficient")]
+        public float BonusTotalCoefficient;
+
+        [JsonProperty("bonusTotalWin")]
+        public string BonusTotalWin;
+
+        [JsonProperty("completedIterations")]
+        public int CompletedIterations;
+
+        [JsonProperty("accumulatedCoefficient")]
+        public float AccumulatedCoefficient;
+
+        [JsonProperty("accumulatedWin")]
+        public float AccumulatedWin;
+
+        [JsonProperty("currentStep")]
+        public int CurrentStep;
+    }
+
     [Preserve]
     [Serializable]
     public class WebBonusPurchasePayload

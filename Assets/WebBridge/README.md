@@ -295,7 +295,6 @@ Messages sent to React:
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |
 | `RequestGameState` | `GameWebBridge.RequestGameState` |
-| `{"action":"play","payload":{...}}` | `GameWebBridge.PurchaseBonusMode` |
 
 ## License
 
