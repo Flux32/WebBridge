@@ -130,7 +130,6 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `BonusStartRequested` | `WebBonusStartPayload` | Единая точка входа в бонус: и при свежей покупке, и при F5-восстановлении |
 | `MockDifficultyChanged` | `string` | Сменилась сложность в mock-режиме |
 | `BalanceReceived` | `float` | Получен баланс игрока (из конфига) |
-| `ShopBetSizeChanged` | `float` | Изменился размер ставки в магазине бонусов |
 | `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
 
 #### Методы React → Unity (через `SendMessage`)
@@ -146,7 +145,6 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `RestartRound(payload)` | `"<reason>\|<amount>"` напр. `"cashout\|$5.00"` | Перезапустить раунд |
 | `StartBonus(json)` | JSON `WebBonusStartPayload` | Войти в бонус (покупка или F5-рестор) |
 | `ApplyBonusPurchaseResult(json)` | JSON `WebBonusPurchasePayload` | Результат покупки бонуса |
-| `UpdateShopBetSize(value)` | строка-число | Размер ставки в магазине бонусов |
 | `ApplyWhiteLabel(int)` | `1` / `0` | Ответ React на `RequestWhiteLabel`: 1 = white-label, 0 = брендированная |
 | `DoSpin(int win)` | `1` / `0` | **Только в редакторе** (`#if UNITY_EDITOR`). Отладочный спин без бэкенда |
 
@@ -191,7 +189,6 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 | `LastGameState` | `WebGameStatePayload` | Последнее состояние |
 | `LastStepResult` | `WebGameStatePayload` | Последний результат хода |
 | `LastBalance` | `float?` | Последний баланс |
-| `LastShopBetSize` | `float?` | Последняя ставка магазина |
 | `CurrentIsWhiteLabel` | `bool?` | Кешированный флаг white-label (доступен и тем, кто подписался после ответа) |
 | `CurrentMockDifficulty` | `string` | Текущая сложность в mock |
 | `IsRestoring` | `bool` | Идёт ли восстановление |
@@ -697,7 +694,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
   `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
-  `ApplyBonusPurchaseResult`, `UpdateShopBetSize`, `ApplyWhiteLabel`.
+  `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.

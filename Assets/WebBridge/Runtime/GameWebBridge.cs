@@ -76,7 +76,6 @@ namespace Modules.Road
         public event Action<WebBonusStartPayload> BonusStartRequested;
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
-        public event Action<float> ShopBetSizeChanged;
         // Fires with the white-label flag React reports (from its runtime manifest) in response
         // to RequestWhiteLabel. true = white-label (no branding), false = branded. The game can
         // swap branded art (e.g. the base block logo) accordingly. Cached in CurrentIsWhiteLabel
@@ -101,7 +100,6 @@ namespace Modules.Road
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
         public float? LastBalance { get; private set; }
-        public float? LastShopBetSize { get; private set; }
         public bool? CurrentIsWhiteLabel { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
         
@@ -522,24 +520,6 @@ namespace Modules.Road
         public void NotifyBonusCleared()
         {
             WebBridgeUtils.Send("BonusCleared");
-        }
-
-        public void UpdateShopBetSize(string payload)
-        {
-            if (string.IsNullOrWhiteSpace(payload))
-                return;
-
-            if (!float.TryParse(payload.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
-            {
-                Debug.LogWarning($"[GameWebBridge] UpdateShopBetSize: failed to parse '{payload}'");
-                return;
-            }
-
-            if (float.IsNaN(value) || float.IsInfinity(value) || value < 0f)
-                return;
-
-            LastShopBetSize = value;
-            ShopBetSizeChanged?.Invoke(value);
         }
 
         public IReadOnlyList<WebBonusShopModePayload> ResolveBonusModesForShop()
