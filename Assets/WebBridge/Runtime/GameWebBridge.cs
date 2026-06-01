@@ -60,9 +60,10 @@ namespace Modules.Road
         public event Action<float[]> CoefficientsReceived;
         public event Action<int> SpinRequested;
         public event Action<string> CashoutRequested;
-        // Fires when React-side CashoutModal has fully closed and Unity is
-        // free to restart the round.
-        public event Action RestartRequested;
+        // Fires when React asks to restart the round (e.g. CashoutModal closed, or a loss/win
+        // resolved). Carries the reason and an optional win amount string so the game can
+        // decide what to show (e.g. a win table on cashout/win) before re-arming.
+        public event Action<RestartReason, string> RestartRequested;
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
         public event Action<WebGameStatePayload> GameRestored;
@@ -222,9 +223,37 @@ namespace Modules.Road
         }
 #endif
         
-        public void RestartRound()
+        // React entry point. Payload is "<reason>|<amount>" (e.g. "cashout|$5.00", "lose|").
+        // Empty/null payload -> RestartReason.None.
+        public void RestartRound(string payload)
         {
-            RestartRequested?.Invoke();
+            ParseRestartPayload(payload, out RestartReason reason, out string amount);
+            RestartRequested?.Invoke(reason, amount);
+        }
+
+        private static void ParseRestartPayload(string payload, out RestartReason reason, out string amount)
+        {
+            reason = RestartReason.None;
+            amount = null;
+
+            if (string.IsNullOrWhiteSpace(payload))
+                return;
+
+            string reasonToken = payload;
+            int sep = payload.IndexOf('|');
+            if (sep >= 0)
+            {
+                reasonToken = payload.Substring(0, sep);
+                amount = payload.Substring(sep + 1);
+            }
+
+            switch (reasonToken.Trim().ToLowerInvariant())
+            {
+                case "win": reason = RestartReason.Win; break;
+                case "cashout": reason = RestartReason.Cashout; break;
+                case "lose": reason = RestartReason.Lose; break;
+                default: reason = RestartReason.None; break;
+            }
         }
 
         public void UpdateCoeffs(string payload)
@@ -671,10 +700,11 @@ namespace Modules.Road
 
             if (ShouldAutoCashoutOnMockFinish(stepResult))
             {
-                // Mock auto-cashout flow: settle the win, then signal restart
-                // (matches the real React path of DoCashout → RestartRound).
-                CashoutRequested?.Invoke(BuildMockAutoCashoutAmount());
-                RestartRequested?.Invoke();
+                // Mock auto-cashout flow: settle the win, then signal restart with the
+                // cashout reason + amount (matches the real React path of cashout → RestartRound).
+                string mockAmount = BuildMockAutoCashoutAmount();
+                CashoutRequested?.Invoke(mockAmount);
+                RestartRequested?.Invoke(RestartReason.Cashout, mockAmount);
             }
         }
 
