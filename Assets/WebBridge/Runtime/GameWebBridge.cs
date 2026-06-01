@@ -41,6 +41,8 @@ namespace Modules.Road
         [SerializeField, Min(0f)] private float _mockBetAmount = 10f;
         [SerializeField, Min(0)] private int _mockWinDecimals = 2;
         [SerializeField] private int[] _mockBonusPositions = { 2, 3, 4 };
+        [Tooltip("Mock value returned for RequestWhiteLabel in the editor (no React).")]
+        [SerializeField] private bool _mockIsWhiteLabel = false;
 
         private readonly List<int> _mockBonusStepsCollected = new List<int>();
         private System.Random _mockRandom;
@@ -76,6 +78,11 @@ namespace Modules.Road
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
         public event Action<float> ShopBetSizeChanged;
+        // Fires with the white-label flag React reports (from its runtime manifest) in response
+        // to RequestWhiteLabel. true = white-label (no branding), false = branded. The game can
+        // swap branded art (e.g. the base block logo) accordingly. Cached in CurrentIsWhiteLabel
+        // so a subscriber that wires up after the reply can still read the last value.
+        public event Action<bool> WhiteLabelReceived;
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
@@ -96,6 +103,7 @@ namespace Modules.Road
         public WebGameStatePayload LastStepResult { get; private set; }
         public float? LastBalance { get; private set; }
         public float? LastShopBetSize { get; private set; }
+        public bool? CurrentIsWhiteLabel { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
         
         public bool SuppressCoefficientUpdates { get; set; }
@@ -407,6 +415,29 @@ namespace Modules.Road
             }
 
             WebBridgeUtils.Send("RequestActiveGameState");
+        }
+
+        // Asks React for the white-label flag (read from its runtime manifest). React replies
+        // by calling ApplyWhiteLabel. In the editor (no React) the serialized mock value is
+        // delivered immediately so editor play still drives the swap.
+        public void RequestWhiteLabel()
+        {
+            if (IsMockEnabled)
+            {
+                ApplyWhiteLabel(_mockIsWhiteLabel ? 1 : 0);
+                return;
+            }
+
+            WebBridgeUtils.Send("RequestWhiteLabel");
+        }
+
+        // React entry point (SendMessage): 1 = white-label, 0 = branded.
+        public void ApplyWhiteLabel(int value)
+        {
+            bool isWhiteLabel = value != 0;
+            CurrentIsWhiteLabel = isWhiteLabel;
+            Debug.Log($"[GameWebBridge] ApplyWhiteLabel: {isWhiteLabel}");
+            WhiteLabelReceived?.Invoke(isWhiteLabel);
         }
 
         // Единая точка входа в бонус с React-стороны. Используется и при свежей
