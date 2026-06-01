@@ -61,7 +61,6 @@ namespace Modules.Road
         public event Action<StepResultAction> StepResultActionReady;
         public event Action<float[]> CoefficientsReceived;
         public event Action<int> SpinRequested;
-        public event Action<string> CashoutRequested;
         // Fires when React asks to restart the round (e.g. CashoutModal closed, or a loss/win
         // resolved). Carries the reason and an optional win amount string so the game can
         // decide what to show (e.g. a win table on cashout/win) before re-arming.
@@ -731,10 +730,10 @@ namespace Modules.Road
 
             if (ShouldAutoCashoutOnMockFinish(stepResult))
             {
-                // Mock auto-cashout flow: settle the win, then signal restart with the
-                // cashout reason + amount (matches the real React path of cashout → RestartRound).
+                // Mock auto-cashout flow: signal restart with the cashout reason + amount
+                // (matches the real React path of cashout → RestartRound). Subscribers settle
+                // the win from RestartRequested when reason == RestartReason.Cashout.
                 string mockAmount = BuildMockAutoCashoutAmount();
-                CashoutRequested?.Invoke(mockAmount);
                 RestartRequested?.Invoke(RestartReason.Cashout, mockAmount);
             }
         }

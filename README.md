@@ -123,8 +123,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `StepResultActionReady` | `StepResultAction` | Результат хода обработан и готов для геймплея (`IsWin`, `BonusStepTriggered`) |
 | `CoefficientsReceived` | `float[]` | Пришли новые коэффициенты дорожки (поднимается только при изменении) |
 | `SpinRequested` | `int` | Запрос спина не в mock-режиме (win=1, lose=0). Только из редактора (`DoSpin`) |
-| `CashoutRequested` | `string` | Запрос кешаута с суммой |
-| `RestartRequested` | `RestartReason, string` | React просит перезапустить раунд. Несёт причину (`Win`/`Cashout`/`Lose`/`None`) и опциональную сумму выигрыша |
+| `RestartRequested` | `RestartReason, string` | React просит перезапустить раунд. Несёт причину (`Win`/`Cashout`/`Lose`/`None`) и опциональную сумму выигрыша. **Кешаут приходит сюда с `reason == Cashout` и суммой** — отдельного события на кешаут нет |
 | `BonusModePurchased` | `string, int` | Бонус куплен (modeId, кол-во позиций) |
 | `BonusModePurchaseFailed` | `string` | Покупка бонуса не удалась (modeId) |
 | `GameRestored` | `WebGameStatePayload` | Игра восстановлена (рестор после перезагрузки страницы) |
@@ -148,22 +147,36 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `StartBonus(json)` | JSON `WebBonusStartPayload` | Войти в бонус (покупка или F5-рестор) |
 | `ApplyBonusPurchaseResult(json)` | JSON `WebBonusPurchasePayload` | Результат покупки бонуса |
 | `UpdateShopBetSize(value)` | строка-число | Размер ставки в магазине бонусов |
-| `RequestGameState()` | — | (в mock возвращает мок-состояние; иначе шлёт `RequestGameState`) |
-| `RequestGameConfig()` | — | (в mock — мок-конфиг; иначе шлёт `RequestGameConfig`) |
-| `RequestActiveGameState()` | — | Шлёт `RequestActiveGameState` |
-| `RequestWhiteLabel()` | — | Запросить флаг white-label у React |
-| `ApplyWhiteLabel(int)` | `1` / `0` | React-ответ: 1 = white-label, 0 = брендированная |
+| `ApplyWhiteLabel(int)` | `1` / `0` | Ответ React на `RequestWhiteLabel`: 1 = white-label, 0 = брендированная |
 | `DoSpin(int win)` | `1` / `0` | **Только в редакторе** (`#if UNITY_EDITOR`). Отладочный спин без бэкенда |
 
-#### Методы Unity → React (вызывает игровой код)
+> `Request*`-методы (`RequestGameConfig`, `RequestGameState`, `RequestActiveGameState`,
+> `RequestWhiteLabel`) — это **исходящие запросы, которые вызывает Unity**, а не точки
+> входа React → Unity. См. раздел ниже.
 
-| Метод | Что шлёт в React |
-|---|---|
-| `SaveBonusAutoPlayProgress(progress)` | `BonusProgressSave_{json}` — сохранить прогресс автоигры бонуса |
-| `ClearBonusAutoPlayProgress()` | `BonusProgressClear` |
-| `NotifyBonusActive()` | `BonusActive` |
-| `NotifyBonusEnded()` | `BonusEnded` (React по нему открывает TransitionScreen на завершение бонуса) |
-| `NotifyBonusCleared()` | `BonusCleared` |
+#### Методы Unity → React (вызывает игровой код / сам мост)
+
+Это **исходящие** методы: Unity вызывает их, чтобы что-то отправить или запросить у
+React. `Request*`-методы — запрос-ответ: Unity шлёт запрос, React отвечает вызовом
+соответствующего `Apply*`-метода.
+
+| Метод | Что шлёт в React | Ответ React |
+|---|---|---|
+| `RequestGameConfig()` | `RequestGameConfig` | → `ApplyGameConfig(json)` |
+| `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
+| `RequestActiveGameState()` | `RequestActiveGameState` | → `RestoreGame` / `ApplyGameState`, если есть активный раунд |
+| `RequestWhiteLabel()` | `RequestWhiteLabel` | → `ApplyWhiteLabel(int)` |
+| `SaveBonusAutoPlayProgress(progress)` | `BonusProgressSave_{json}` — сохранить прогресс автоигры бонуса | — |
+| `ClearBonusAutoPlayProgress()` | `BonusProgressClear` | — |
+| `NotifyBonusActive()` | `BonusActive` | — |
+| `NotifyBonusEnded()` | `BonusEnded` (React по нему открывает TransitionScreen на завершение бонуса) | — |
+| `NotifyBonusCleared()` | `BonusCleared` | — |
+
+> **Кто вызывает `Request*`.** На старте сцены сам `GameWebBridge` запускает
+> бут-синхронизацию (`RequestGameConfig` + `RequestGameState` с повторами, пока не
+> придёт конфиг). Игровой код дополнительно вызывает `RequestActiveGameState()`
+> после того, как подпишется на `GameRestored`, чтобы безопасно восстановить активную
+> игру. В mock-режиме `Request*` не шлют сообщений, а сразу применяют мок-данные локально.
 
 Также есть хелперы без отправки в React:
 - `ResolveBonusModesForShop()` — собирает список режимов бонуса (`WebBonusShopModePayload`) из конфига для UI магазина.
@@ -684,8 +697,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
   `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
-  `ApplyBonusPurchaseResult`, `UpdateShopBetSize`, `RequestGameState`,
-  `RequestGameConfig`, `RequestActiveGameState`, `RequestWhiteLabel`, `ApplyWhiteLabel`.
+  `ApplyBonusPurchaseResult`, `UpdateShopBetSize`, `ApplyWhiteLabel`.
+  (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.
 - **ScreenOrientationWebBridge:** `ChangeOrientation`.
