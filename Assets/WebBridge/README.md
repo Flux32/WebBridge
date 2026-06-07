@@ -275,15 +275,21 @@ ScreenOrientationType CurrentOrientation { get; }
 Прослойка для звука. Звуки идентифицируются строковым ключом.
 
 ```csharp
-PlaySound(string soundKey)   // в WebGL шлёт PlaySound_{soundKey}
-PlayMusic(string soundKey)   // в WebGL шлёт PlayMusic_{soundKey}
+PlaySound(string soundKey, float? volume = null)   // в WebGL шлёт PlaySound_{soundKey}[|{volume}]
+PlayMusic(string soundKey, float? volume = null)   // в WebGL шлёт PlayMusic_{soundKey}[|{volume}]
 ```
+
+**Громкость** (`volume`) — необязательный параметр в диапазоне `0..1` (значения
+зажимаются через `Clamp01`). Если он не задан, сообщение остаётся прежним
+(`PlaySound_{soundKey}`) — обратная совместимость сохранена. Если задан, к ключу
+добавляется суффикс `|{volume}`, например `PlaySound_Jump|0.5`. Значение
+форматируется в инвариантной культуре (разделитель дробной части — точка).
 
 **В редакторе** мост не шлёт сообщения, а проигрывает звук локально: грузит
 `{soundKey}.mp3` из папки, заданной в ассете `SoundKeys` (`SoundFolderPath`),
 кеширует `AudioClip` и проигрывает (`PlaySound` — one-shot на SFX-источнике,
-`PlayMusic` — зацикленно на music-источнике). Это позволяет слышать звук при
-локальной разработке без React. См. [Звуки](#звуки).
+`PlayMusic` — зацикленно на music-источнике), применяя `volume`. Это позволяет
+слышать звук при локальной разработке без React. См. [Звуки](#звуки).
 
 ---
 
@@ -670,8 +676,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 
 | Сообщение | Источник |
 |---|---|
-| `PlaySound_{key}` | `AudioWebBridge.PlaySound` |
-| `PlayMusic_{key}` | `AudioWebBridge.PlayMusic` |
+| `PlaySound_{key}` или `PlaySound_{key}\|{volume}` | `AudioWebBridge.PlaySound` |
+| `PlayMusic_{key}` или `PlayMusic_{key}\|{volume}` | `AudioWebBridge.PlayMusic` |
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestBetBarViewportMetrics` | `LayoutWebBridge.RequestBetBarViewportMetrics` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |

@@ -1,3 +1,4 @@
+using System.Globalization;
 using UnityEngine;
 #if UNITY_EDITOR
 using System.Collections;
@@ -14,6 +15,7 @@ namespace Modules.Road
     {
         private const string PlaySoundMessageBase = "PlaySound_";
         private const string PlayMusicMessageBase = "PlayMusic_";
+        private const char VolumeSeparator = '|';
 
         public static AudioWebBridge Instance { get; private set; }
 
@@ -48,28 +50,37 @@ namespace Modules.Road
                 Instance = null;
         }
 
-        public void PlaySound(string soundKey)
+        public void PlaySound(string soundKey, float? volume = null)
         {
             //Debug.Log($"Play sound: {soundKey}");
 #if UNITY_EDITOR
-            StartCoroutine(LoadAndPlay(soundKey, false));
+            StartCoroutine(LoadAndPlay(soundKey, false, volume));
 #else
-            WebBridgeUtils.Send(PlaySoundMessageBase + soundKey);
+            WebBridgeUtils.Send(BuildMessage(PlaySoundMessageBase, soundKey, volume));
 #endif
         }
 
-        public void PlayMusic(string soundKey)
+        public void PlayMusic(string soundKey, float? volume = null)
         {
             Debug.Log($"Play music: {soundKey}");
 #if UNITY_EDITOR
-            StartCoroutine(LoadAndPlay(soundKey, true));
+            StartCoroutine(LoadAndPlay(soundKey, true, volume));
 #else
-            WebBridgeUtils.Send(PlayMusicMessageBase + soundKey);
+            WebBridgeUtils.Send(BuildMessage(PlayMusicMessageBase, soundKey, volume));
 #endif
         }
 
+        private static string BuildMessage(string messageBase, string soundKey, float? volume)
+        {
+            if (!volume.HasValue)
+                return messageBase + soundKey;
+
+            float clamped = Mathf.Clamp01(volume.Value);
+            return messageBase + soundKey + VolumeSeparator + clamped.ToString(CultureInfo.InvariantCulture);
+        }
+
 #if UNITY_EDITOR
-        private IEnumerator LoadAndPlay(string soundKey, bool isMusic)
+        private IEnumerator LoadAndPlay(string soundKey, bool isMusic, float? volume)
         {
             if (string.IsNullOrEmpty(soundKey))
             {
@@ -79,7 +90,7 @@ namespace Modules.Road
 
             if (_clipCache.TryGetValue(soundKey, out AudioClip cached))
             {
-                Play(cached, isMusic);
+                Play(cached, isMusic, volume);
                 yield break;
             }
 
@@ -104,19 +115,22 @@ namespace Modules.Road
             AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
             clip.name = soundKey;
             _clipCache[soundKey] = clip;
-            Play(clip, isMusic);
+            Play(clip, isMusic, volume);
         }
 
-        private void Play(AudioClip clip, bool isMusic)
+        private void Play(AudioClip clip, bool isMusic, float? volume)
         {
+            float resolvedVolume = volume.HasValue ? Mathf.Clamp01(volume.Value) : 1f;
+
             if (isMusic)
             {
                 _musicSource.clip = clip;
+                _musicSource.volume = resolvedVolume;
                 _musicSource.Play();
             }
             else
             {
-                _sfxSource.PlayOneShot(clip);
+                _sfxSource.PlayOneShot(clip, resolvedVolume);
             }
         }
 
