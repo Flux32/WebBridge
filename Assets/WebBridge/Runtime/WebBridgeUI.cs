@@ -18,13 +18,15 @@ namespace Modules.Road
         public event Action TransitionScreenCloseStarted;
         public event Action TransitionScreenCloseFinished;
 
-        // Latched phase of the CURRENT React transition cycle. React owns the
-        // lifecycle and fires these phases on its own clock; a follower that
-        // subscribes LATE (Unity still booting after an F5, slow 3G) would
-        // otherwise miss OpenFinished/CloseStarted entirely and the bonus would
-        // never enter. We remember the phase so a late subscriber can catch up
-        // via ReplayMissedTransitionPhases. Reset to None on CloseFinished so a
-        // finished cycle never replays into the NEXT transition's subscriber.
+        // Latched phase + id of the CURRENT React transition cycle. React owns
+        // the lifecycle and fires phases on its own clock; a follower that
+        // subscribes LATE (Unity still booting after an F5 / slow 3G) can miss
+        // OpenFinished/CloseStarted — or even the WHOLE cycle — before it gets to
+        // subscribe. We keep the last phase (NOT reset on CloseFinished) plus a
+        // per-cycle id so a late subscriber can detect WHICH cycle this is and
+        // replay the phases it missed. TransitionCycleId bumps on each
+        // OpenStarted — that's what lets a subscriber tell a freshly-finished
+        // cycle (replay it) from a stale earlier one it already handled (skip).
         public enum TransitionPhase
         {
             None = 0,
@@ -35,6 +37,7 @@ namespace Modules.Road
         }
 
         public TransitionPhase CurrentPhase { get; private set; } = TransitionPhase.None;
+        public int TransitionCycleId { get; private set; }
 
         private void Awake()
         {
@@ -65,7 +68,8 @@ namespace Modules.Road
         {
             Debug.Log("[WebBridgeUI] OnTransitionScreenOpenStarted received from React");
             IsTransitionScreenOpen = true;
-            // New cycle begins — arm the latch (clears any stale CloseFinished).
+            // New cycle begins — bump the id and arm the phase latch.
+            TransitionCycleId++;
             CurrentPhase = TransitionPhase.OpenStarted;
             TransitionScreenOpenStarted?.Invoke();
         }
@@ -90,23 +94,12 @@ namespace Modules.Road
             int subscriberCount = TransitionScreenCloseFinished?.GetInvocationList().Length ?? 0;
             Debug.Log($"[WebBridgeUI] OnTransitionScreenCloseFinished received from React — subscribers={subscriberCount}");
             IsTransitionScreenOpen = false;
-            // Cycle finished — disarm the latch so it can't replay into the next
-            // transition's early subscriber. CloseFinished always arrives live.
-            CurrentPhase = TransitionPhase.None;
+            // Keep the phase latched at CloseFinished (do NOT reset to None): a
+            // follower that subscribes only AFTER the whole cycle finished still
+            // needs to see that it ran. Replaying into the next flow is prevented
+            // by the cycle id (TransitionCycleId), not by clearing the phase.
+            CurrentPhase = TransitionPhase.CloseFinished;
             TransitionScreenCloseFinished?.Invoke();
-        }
-
-        // Catch a late subscriber up to the CURRENT transition cycle: invoke the
-        // phase handlers that already fired before it subscribed, in order. Only
-        // OpenFinished/CloseStarted can be "stuck" — CloseFinished is the live
-        // terminator and resets the latch to None. Handlers must be idempotent
-        // (SpinsBonus nulls its pending action after the first call), so this is
-        // safe even if a live event also arrives.
-        public void ReplayMissedTransitionPhases(Action onOpenFinished, Action onCloseStarted)
-        {
-            TransitionPhase phase = CurrentPhase;
-            if (phase >= TransitionPhase.OpenFinished) onOpenFinished?.Invoke();
-            if (phase >= TransitionPhase.CloseStarted) onCloseStarted?.Invoke();
         }
     }
 }
