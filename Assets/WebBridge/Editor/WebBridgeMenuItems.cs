@@ -21,6 +21,7 @@ namespace Modules.Road.Editor
         private const string RoadAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/RoadWebBridge.prefab";
         private const string PlinkoPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/PlinkoWebBridge.prefab";
         private const string PlinkoAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/PlinkoWebBridge.prefab";
+        private const string WebBridgeObjectName = "WebBridge";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
         private const string MockConfigMenu = "Tools/WebBridge/MockConfig";
 
@@ -189,6 +190,9 @@ namespace Modules.Road.Editor
             }
 
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            // React targets the object by name via SendMessage, so it is always "WebBridge"
+            // regardless of which game prefab was instantiated.
+            instance.name = WebBridgeObjectName;
             GameObjectUtility.SetParentAndAlign(instance, menuCommand.context as GameObject);
             Undo.RegisterCreatedObjectUndo(instance, $"Create {label}WebBridge");
             Selection.activeObject = instance;
