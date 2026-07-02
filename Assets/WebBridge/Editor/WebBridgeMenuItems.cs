@@ -4,6 +4,7 @@ using Modules.Plinko;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
+using WebBridge;
 
 namespace Modules.Road.Editor
 {
@@ -185,7 +186,7 @@ namespace Modules.Road.Editor
                                 ?? AssetDatabase.LoadAssetAtPath<GameObject>(assetsPath);
             if (prefab == null)
             {
-                Debug.LogError($"[WebBridge] {label} prefab not found at: {packagePath} or {assetsPath}");
+                WebBridgeLogger.LogError($"[WebBridge] {label} prefab not found at: {packagePath} or {assetsPath}");
                 return;
             }
 

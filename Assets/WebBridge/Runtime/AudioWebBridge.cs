@@ -32,7 +32,7 @@ namespace Modules.Road
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError($"Instance {nameof(AudioWebBridge)} already exists.");
+                WebBridgeLogger.LogError($"Instance {nameof(AudioWebBridge)} already exists.");
                 Destroy(gameObject);
                 return;
             }
@@ -54,7 +54,7 @@ namespace Modules.Road
 
         public void PlaySound(string soundKey, float? volume = null)
         {
-            //Debug.Log($"Play sound: {soundKey}");
+            //WebBridgeLogger.Log($"Play sound: {soundKey}");
 #if UNITY_EDITOR
             StartCoroutine(LoadAndPlay(soundKey, false, volume));
 #else
@@ -64,7 +64,7 @@ namespace Modules.Road
 
         public void PlayMusic(string soundKey, float? volume = null)
         {
-            Debug.Log($"Play music: {soundKey}");
+            WebBridgeLogger.Log($"Play music: {soundKey}");
 #if UNITY_EDITOR
             StartCoroutine(LoadAndPlay(soundKey, true, volume));
 #else
@@ -86,7 +86,7 @@ namespace Modules.Road
         {
             if (string.IsNullOrEmpty(soundKey))
             {
-                Debug.LogError("[AudioWebBridge] Sound key is empty. Assign a valid key in the component.");
+                WebBridgeLogger.LogError("[AudioWebBridge] Sound key is empty. Assign a valid key in the component.");
                 yield break;
             }
 
@@ -99,7 +99,7 @@ namespace Modules.Road
             string folderPath = GetSoundFolderPath();
             if (string.IsNullOrEmpty(folderPath))
             {
-                Debug.LogWarning("[AudioWebBridge] Sound folder path is not configured in SoundKeys.");
+                WebBridgeLogger.LogWarning("[AudioWebBridge] Sound folder path is not configured in SoundKeys.");
                 yield break;
             }
 
@@ -110,7 +110,7 @@ namespace Modules.Road
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"[AudioWebBridge] Failed to load '{soundKey}' from {filePath}: {request.error}");
+                WebBridgeLogger.LogError($"[AudioWebBridge] Failed to load '{soundKey}' from {filePath}: {request.error}");
                 yield break;
             }
 

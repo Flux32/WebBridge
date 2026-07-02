@@ -31,7 +31,7 @@ namespace Modules.Road
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError($"Instance {nameof(ScreenOrientationWebBridge)} already exists.");
+                WebBridgeLogger.LogError($"Instance {nameof(ScreenOrientationWebBridge)} already exists.");
                 Destroy(gameObject);
                 return;
             }

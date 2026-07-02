@@ -78,7 +78,7 @@ namespace Modules.Road
                 return;
 
             _currentMockDifficulty = difficulty;
-            Debug.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            WebBridgeLogger.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
             ApplyGameConfig(BuildMockGameConfig(), true);
             MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }
@@ -220,7 +220,7 @@ namespace Modules.Road
 
         public void ApplyGameConfig(string payload)
         {
-            Debug.Log($"[BridgeDebug][React->Unity] ApplyGameConfig raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyGameConfig raw: {payload}");
             WebGameConfigPayload config =
                 WebBridgeUtils.DeserializePayload<WebGameConfigPayload>(payload, nameof(ApplyGameConfig));
             if (config == null)
@@ -232,7 +232,7 @@ namespace Modules.Road
 
         public void ApplyGameState(string payload)
         {
-            Debug.Log($"[BridgeDebug][React->Unity] ApplyGameState raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyGameState raw: {payload}");
             WebGameStatePayload state =
                 WebBridgeUtils.DeserializePayload<WebGameStatePayload>(payload, nameof(ApplyGameState));
             if (state == null)
@@ -254,7 +254,7 @@ namespace Modules.Road
                 return;
             }
 
-            Debug.Log($"[BridgeDebug][React->Unity] CreateStep raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] CreateStep raw: {payload}");
             WebGameStatePayload state =
                 WebBridgeUtils.DeserializePayload<WebGameStatePayload>(payload, nameof(CreateStep));
             if (state == null)
@@ -282,7 +282,7 @@ namespace Modules.Road
                 return;
             }
 
-            Debug.Log($"[BridgeDebug][React->Unity] ApplyStepResult raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyStepResult raw: {payload}");
             WebGameStatePayload stepResult =
                 WebBridgeUtils.DeserializePayload<WebGameStatePayload>(payload, nameof(ApplyStepResult));
             if (stepResult == null)
@@ -299,7 +299,7 @@ namespace Modules.Road
                 return;
             }
 
-            Debug.Log($"[BridgeDebug][React->Unity] RestoreGame raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] RestoreGame raw: {payload}");
             WebGameRestorePayload restorePayload =
                 WebBridgeUtils.DeserializePayload<WebGameRestorePayload>(payload, nameof(RestoreGame));
             if (restorePayload == null)
@@ -364,12 +364,12 @@ namespace Modules.Road
         // bonusTotalWin, modeId.
         public void StartBonus(string payload)
         {
-            Debug.Log($"[BridgeDebug][React->Unity] StartBonus raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] StartBonus raw: {payload}");
             WebBonusStartPayload parsed =
                 WebBridgeUtils.DeserializePayload<WebBonusStartPayload>(payload, nameof(StartBonus));
             if (parsed == null)
             {
-                Debug.LogWarning("[RoadWebBridge] StartBonus payload parse failed.");
+                WebBridgeLogger.LogWarning("[RoadWebBridge] StartBonus payload parse failed.");
                 return;
             }
             BonusStartRequested?.Invoke(parsed);
@@ -409,18 +409,18 @@ namespace Modules.Road
             {
                 string json = Json.Serialize(progress);
                 WebBridgeUtils.Send($"{BonusProgressSaveMessagePrefix}{json}");
-                Debug.Log($"[RoadWebBridge] Bonus progress sent to React: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
+                WebBridgeLogger.Log($"[RoadWebBridge] Bonus progress sent to React: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[RoadWebBridge] Failed to send bonus progress: {e.Message}");
+                WebBridgeLogger.LogWarning($"[RoadWebBridge] Failed to send bonus progress: {e.Message}");
             }
         }
 
         public void ClearBonusAutoPlayProgress()
         {
             WebBridgeUtils.Send(BonusProgressClearMessage);
-            Debug.Log("[RoadWebBridge] Bonus progress clear sent to React");
+            WebBridgeLogger.Log("[RoadWebBridge] Bonus progress clear sent to React");
         }
 
         public void NotifyBonusActive()
@@ -483,7 +483,7 @@ namespace Modules.Road
             if (config == null)
                 return;
 
-            Debug.Log($"[BridgeDebug][Unity] Parsed game config: {RoadBridgeDebug.BuildConfigDebugInfo(config)}");
+            WebBridgeLogger.Log($"[BridgeDebug][Unity] Parsed game config: {RoadBridgeDebug.BuildConfigDebugInfo(config)}");
             LastGameConfig = config;
             GameConfigReceived?.Invoke(config);
 
@@ -525,7 +525,7 @@ namespace Modules.Road
 
         private void ApplyGameState(WebGameStatePayload state)
         {
-            Debug.Log($"[BridgeDebug][Unity] Parsed game state: {RoadBridgeDebug.BuildStateDebugInfo(state)}");
+            WebBridgeLogger.Log($"[BridgeDebug][Unity] Parsed game state: {RoadBridgeDebug.BuildStateDebugInfo(state)}");
 
             if (ShouldRestore(state))
             {
@@ -569,7 +569,7 @@ namespace Modules.Road
                 ApplyGameState(state);
             }
 
-            Debug.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={RoadBridgeDebug.BuildStateDebugInfo(state)}");
+            WebBridgeLogger.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={RoadBridgeDebug.BuildStateDebugInfo(state)}");
             GameRestored?.Invoke(state);
 
             // Bonus auto-play start is NOT triggered from here anymore. React
@@ -596,7 +596,7 @@ namespace Modules.Road
             if (isWinMain.HasValue)
                 stepResult.IsWinMain = isWinMain;
 
-            Debug.Log(
+            WebBridgeLogger.Log(
                 $"[BridgeDebug][Unity] Parsed step result before resolve: {RoadBridgeDebug.BuildStateDebugInfo(stepResult)}; " +
                 $"previousCoinsCount={previousBonusStepsCount}; currentCoinsCount={currentBonusStepsCount}; " +
                 $"resolvedByDelta={resolvedByDelta}; hasExplicitBonusFlag={hasExplicitBonusTrigger}; " +
@@ -609,7 +609,7 @@ namespace Modules.Road
 
             if (!isWinMain.HasValue)
             {
-                Debug.LogWarning(
+                WebBridgeLogger.LogWarning(
                     $"[RoadWebBridge] Step result does not contain a resolvable win state. status='{stepResult.Status ?? "null"}'.");
                 return;
             }
@@ -617,7 +617,7 @@ namespace Modules.Road
             if (!isWinMain.Value && stepResult.BonusGame == null && !hasExplicitBonusTrigger)
                 bonusStepTriggered = false;
 
-            Debug.Log(
+            WebBridgeLogger.Log(
                 $"[BridgeDebug][Unity] Step resolved for DoSpin: isWinMain={isWinMain.Value}; " +
                 $"finalBonusStepTriggered={bonusStepTriggered}; hasBonusGame={stepResult.BonusGame != null}");
 
@@ -669,7 +669,7 @@ namespace Modules.Road
             if (!purchaseResult.IsPurchased)
             {
                 string error = string.IsNullOrWhiteSpace(purchaseResult.Error) ? "unknown" : purchaseResult.Error;
-                Debug.Log($"[RoadWebBridge] Bonus purchase rejected for mode '{modeId}'. Error: {error}");
+                WebBridgeLogger.Log($"[RoadWebBridge] Bonus purchase rejected for mode '{modeId}'. Error: {error}");
                 BonusModePurchaseFailed?.Invoke(modeId);
                 return;
             }
@@ -677,7 +677,7 @@ namespace Modules.Road
             WebBonusGamePayload bonusGame = BuildBonusGamePayloadForPurchase(purchaseResult.BonusGame);
             if (bonusGame == null)
             {
-                Debug.LogWarning($"[RoadWebBridge] Bonus purchase payload is invalid for mode '{modeId}'.");
+                WebBridgeLogger.LogWarning($"[RoadWebBridge] Bonus purchase payload is invalid for mode '{modeId}'.");
                 BonusModePurchaseFailed?.Invoke(modeId);
                 return;
             }
@@ -882,7 +882,7 @@ namespace Modules.Road
         private void CycleMockDifficulty()
         {
             _currentMockDifficulty = MockConfig.Instance.GetNextDifficulty(_currentMockDifficulty);
-            Debug.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            WebBridgeLogger.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
             ApplyGameConfig(BuildMockGameConfig(), true);
             MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }

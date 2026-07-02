@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.Scripting;
 
+using WebBridge;
+
 namespace Modules.Road
 {
     [Preserve]
@@ -43,7 +45,7 @@ namespace Modules.Road
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError($"Instance {nameof(WebBridgeUI)} already exists.");
+                WebBridgeLogger.LogError($"Instance {nameof(WebBridgeUI)} already exists.");
                 Destroy(gameObject);
                 return;
             }
@@ -66,7 +68,7 @@ namespace Modules.Road
 
         public void OnTransitionScreenOpenStarted()
         {
-            Debug.Log("[WebBridgeUI] OnTransitionScreenOpenStarted received from React");
+            WebBridgeLogger.Log("[WebBridgeUI] OnTransitionScreenOpenStarted received from React");
             IsTransitionScreenOpen = true;
             // New cycle begins — bump the id and arm the phase latch.
             TransitionCycleId++;
@@ -77,14 +79,14 @@ namespace Modules.Road
         public void OnTransitionScreenOpenFinished()
         {
             int subscriberCount = TransitionScreenOpenFinished?.GetInvocationList().Length ?? 0;
-            Debug.Log($"[WebBridgeUI] OnTransitionScreenOpenFinished received from React — subscribers={subscriberCount}");
+            WebBridgeLogger.Log($"[WebBridgeUI] OnTransitionScreenOpenFinished received from React — subscribers={subscriberCount}");
             CurrentPhase = TransitionPhase.OpenFinished;
             TransitionScreenOpenFinished?.Invoke();
         }
 
         public void OnTransitionScreenCloseStarted()
         {
-            Debug.Log("[WebBridgeUI] OnTransitionScreenCloseStarted received from React");
+            WebBridgeLogger.Log("[WebBridgeUI] OnTransitionScreenCloseStarted received from React");
             CurrentPhase = TransitionPhase.CloseStarted;
             TransitionScreenCloseStarted?.Invoke();
         }
@@ -92,7 +94,7 @@ namespace Modules.Road
         public void OnTransitionScreenCloseFinished()
         {
             int subscriberCount = TransitionScreenCloseFinished?.GetInvocationList().Length ?? 0;
-            Debug.Log($"[WebBridgeUI] OnTransitionScreenCloseFinished received from React — subscribers={subscriberCount}");
+            WebBridgeLogger.Log($"[WebBridgeUI] OnTransitionScreenCloseFinished received from React — subscribers={subscriberCount}");
             IsTransitionScreenOpen = false;
             // Keep the phase latched at CloseFinished (do NOT reset to None): a
             // follower that subscribes only AFTER the whole cycle finished still

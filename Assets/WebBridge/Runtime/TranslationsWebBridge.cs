@@ -26,7 +26,7 @@ namespace Modules.Road
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError($"Instance {nameof(TranslationsWebBridge)} already exists.");
+                WebBridgeLogger.LogError($"Instance {nameof(TranslationsWebBridge)} already exists.");
                 Destroy(gameObject);
                 return;
             }
@@ -44,7 +44,7 @@ namespace Modules.Road
         {
             if (string.IsNullOrWhiteSpace(payload))
             {
-                Debug.LogWarning("[TranslationsWebBridge] ApplyTranslations ignored. Empty payload.");
+                WebBridgeLogger.LogWarning("[TranslationsWebBridge] ApplyTranslations ignored. Empty payload.");
                 return;
             }
 
@@ -55,7 +55,7 @@ namespace Modules.Road
             }
             catch (Exception exception)
             {
-                Debug.LogWarning($"[TranslationsWebBridge] Failed to parse payload: {exception.Message}");
+                WebBridgeLogger.LogWarning($"[TranslationsWebBridge] Failed to parse payload: {exception.Message}");
                 return;
             }
 
@@ -70,10 +70,10 @@ namespace Modules.Road
 
                 string value = SanitizeInvisibles(entry.Value ?? string.Empty);
                 _translations[entry.Key] = value;
-                Debug.Log($"[TranslationsWebBridge] {entry.Key}: {value}");
+                WebBridgeLogger.Log($"[TranslationsWebBridge] {entry.Key}: {value}");
             }
 
-            Debug.Log($"[TranslationsWebBridge] Applied {_translations.Count} translation(s).");
+            WebBridgeLogger.Log($"[TranslationsWebBridge] Applied {_translations.Count} translation(s).");
 
             HasTranslations = true;
             TranslationsChanged?.Invoke();

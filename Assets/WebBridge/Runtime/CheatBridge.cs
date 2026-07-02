@@ -3,6 +3,8 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Scripting;
 
+using WebBridge;
+
 namespace Modules.Road
 {
     [Preserve]
@@ -22,7 +24,7 @@ namespace Modules.Road
 #if UNITY_WEBGL && !UNITY_EDITOR
             CheatPostRngOn(nonceStr);
 #endif
-            Debug.Log($"[CheatBridge] RNG ON nonce={nonceStr}");
+            WebBridgeLogger.Log($"[CheatBridge] RNG ON nonce={nonceStr}");
         }
 
         public static void SendOff()
@@ -30,7 +32,7 @@ namespace Modules.Road
 #if UNITY_WEBGL && !UNITY_EDITOR
             CheatPostRngOff();
 #endif
-            Debug.Log("[CheatBridge] RNG OFF");
+            WebBridgeLogger.Log("[CheatBridge] RNG OFF");
         }
     }
 }

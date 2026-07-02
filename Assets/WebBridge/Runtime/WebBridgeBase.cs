@@ -38,7 +38,7 @@ namespace WebBridge
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError($"Instance {typeof(T).Name} already exists.");
+                WebBridgeLogger.LogError($"Instance {typeof(T).Name} already exists.");
                 Destroy(gameObject);
                 return;
             }
@@ -101,8 +101,15 @@ namespace WebBridge
         {
             bool isWhiteLabel = value != 0;
             CurrentIsWhiteLabel = isWhiteLabel;
-            Debug.Log($"[{typeof(T).Name}] ApplyWhiteLabel: {isWhiteLabel}");
+            WebBridgeLogger.Log($"[{typeof(T).Name}] ApplyWhiteLabel: {isWhiteLabel}");
             WhiteLabelReceived?.Invoke(isWhiteLabel);
+        }
+
+        // React entry point (SendMessage): 1 = enable WebBridge logging, 0 = disable. Lets the
+        // cheat panel turn the (build-default-off) bridge logs on/off at runtime.
+        public void SetLoggingEnabled(int value)
+        {
+            WebBridgeLogger.IsEnabled = value != 0;
         }
 
         public abstract void RequestGameConfig();

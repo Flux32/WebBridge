@@ -51,7 +51,7 @@ namespace Modules.Road
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogError($"Instance {nameof(LayoutWebBridge)} already exists.");
+                WebBridgeLogger.LogError($"Instance {nameof(LayoutWebBridge)} already exists.");
                 Destroy(gameObject);
                 return;
             }
@@ -131,7 +131,7 @@ namespace Modules.Road
             if (!hasChanged)
                 return;
 
-            Debug.Log($"[LayoutWebBridge] viewport hasIndicator={hasBonusIndicator} TL={bonusIndicatorTopLeft} TR={bonusIndicatorTopRight} BL={bonusIndicatorBottomLeft} BR={bonusIndicatorBottomRight}");
+            WebBridgeLogger.Log($"[LayoutWebBridge] viewport hasIndicator={hasBonusIndicator} TL={bonusIndicatorTopLeft} TR={bonusIndicatorTopRight} BL={bonusIndicatorBottomLeft} BR={bonusIndicatorBottomRight}");
             MobileBetBarViewportChanged?.Invoke(new WebMobileBetBarViewportPayload
             {
                 WidthViewport = width,
@@ -266,7 +266,7 @@ namespace Modules.Road
         {
             if (_batchDepth == 0)
             {
-                Debug.LogWarning($"[{nameof(LayoutWebBridge)}] EndBatch called without matching BeginBatch.");
+                WebBridgeLogger.LogWarning($"[{nameof(LayoutWebBridge)}] EndBatch called without matching BeginBatch.");
                 return;
             }
 

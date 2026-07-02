@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using WebBridge;
 
 namespace Modules.Road.Editor
 {
@@ -99,7 +100,7 @@ namespace Modules.Road.Editor
                 AssetDatabase.SaveAssetIfDirty(_asset);
             }
 
-            Debug.Log($"[SoundKeys] Scan complete: found {files.Length} mp3 files, added {added} new keys.");
+            WebBridgeLogger.Log($"[SoundKeys] Scan complete: found {files.Length} mp3 files, added {added} new keys.");
         }
 
         private void LoadOrCreateAsset()

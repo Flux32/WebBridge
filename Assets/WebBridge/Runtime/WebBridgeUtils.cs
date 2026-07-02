@@ -60,12 +60,12 @@ namespace WebBridge
 #if UNITY_WEBGL && !UNITY_EDITOR
             SendToReact(message);
 #endif
-            Debug.Log("[Unity -> React] " + message);
+            WebBridgeLogger.Log("[Unity -> React] " + message);
         }
 
         public static void SaveToLocalStorage(string key, string value)
         {
-            Debug.Log($"[WebBridgeStorage] Save '{key}': {value}");
+            WebBridgeLogger.Log($"[WebBridgeStorage] Save '{key}': {value}");
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebBridge_SaveToLocalStorage(key, value);
 #endif
@@ -77,21 +77,21 @@ namespace WebBridge
             IntPtr ptr = WebBridge_LoadFromLocalStorage(key);
             if (ptr == IntPtr.Zero)
             {
-                Debug.Log($"[WebBridgeStorage] Load '{key}': null (ptr=0)");
+                WebBridgeLogger.Log($"[WebBridgeStorage] Load '{key}': null (ptr=0)");
                 return null;
             }
             string result = Marshal.PtrToStringUTF8(ptr);
-            Debug.Log($"[WebBridgeStorage] Load '{key}': {result ?? "null"}");
+            WebBridgeLogger.Log($"[WebBridgeStorage] Load '{key}': {result ?? "null"}");
             return result;
 #else
-            Debug.Log($"[WebBridgeStorage] Load '{key}' (editor stub → null)");
+            WebBridgeLogger.Log($"[WebBridgeStorage] Load '{key}' (editor stub → null)");
             return null;
 #endif
         }
 
         public static void RemoveFromLocalStorage(string key)
         {
-            Debug.Log($"[WebBridgeStorage] Remove '{key}'");
+            WebBridgeLogger.Log($"[WebBridgeStorage] Remove '{key}'");
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebBridge_RemoveFromLocalStorage(key);
 #endif
@@ -116,7 +116,7 @@ namespace WebBridge
             }
             catch (Exception exception)
             {
-                Debug.LogWarning($"[WebBridge] Failed to parse {methodName}: {exception.Message}");
+                WebBridgeLogger.LogWarning($"[WebBridge] Failed to parse {methodName}: {exception.Message}");
                 return null;
             }
         }

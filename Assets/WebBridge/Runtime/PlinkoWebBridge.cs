@@ -43,7 +43,7 @@ namespace Modules.Plinko
         // React entry point (SendMessage): platform game config with per-risk coefficients.
         public void ApplyGameConfig(string payload)
         {
-            Debug.Log($"[BridgeDebug][React->Unity] ApplyGameConfig raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyGameConfig raw: {payload}");
             WebPlinkoConfigPayload config =
                 WebBridgeUtils.DeserializePayload<WebPlinkoConfigPayload>(payload, nameof(ApplyGameConfig));
             if (config == null)
@@ -63,7 +63,7 @@ namespace Modules.Plinko
         // React entry point (SendMessage): current GameState (e.g. get-game-state on load).
         public void ApplyGameState(string payload)
         {
-            Debug.Log($"[BridgeDebug][React->Unity] ApplyGameState raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyGameState raw: {payload}");
             WebPlinkoStatePayload state =
                 WebBridgeUtils.DeserializePayload<WebPlinkoStatePayload>(payload, nameof(ApplyGameState));
             if (state == null)
@@ -77,7 +77,7 @@ namespace Modules.Plinko
         // resultPosition, winAmount and risk. The board animates the ball into resultPosition.
         public void ApplyDropResult(string payload)
         {
-            Debug.Log($"[BridgeDebug][React->Unity] ApplyDropResult raw: {payload}");
+            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyDropResult raw: {payload}");
             WebPlinkoStatePayload result =
                 WebBridgeUtils.DeserializePayload<WebPlinkoStatePayload>(payload, nameof(ApplyDropResult));
             if (result == null)
