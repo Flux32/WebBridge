@@ -13,13 +13,13 @@ namespace Modules.Road
         private const float StepLoseChance = 0.05f;
         private const float StepBonusChance = 0.05f;
 
-        private static readonly MethodInfo SetMockDifficultyMethod = typeof(GameWebBridge)
+        private static readonly MethodInfo SetMockDifficultyMethod = typeof(RoadWebBridge)
             .GetMethod("SetMockDifficulty", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static readonly FieldInfo LoseChanceField = typeof(GameWebBridge)
+        private static readonly FieldInfo LoseChanceField = typeof(RoadWebBridge)
             .GetField("_mockLoseChance", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static readonly FieldInfo BonusChanceField = typeof(GameWebBridge)
+        private static readonly FieldInfo BonusChanceField = typeof(RoadWebBridge)
             .GetField("_mockBonusStepTriggerChance", BindingFlags.NonPublic | BindingFlags.Instance);
 
         private Vector2 _buttonPosition;
@@ -152,7 +152,7 @@ namespace Modules.Road
 
         private void DrawPanel()
         {
-            GameWebBridge bridge = GameWebBridge.Instance;
+            RoadWebBridge bridge = RoadWebBridge.Instance;
             if (bridge == null)
                 return;
 
@@ -227,7 +227,7 @@ namespace Modules.Road
                 onRight?.Invoke();
         }
 
-        private static void CycleDifficulty(GameWebBridge bridge, int direction)
+        private static void CycleDifficulty(RoadWebBridge bridge, int direction)
         {
             MockConfig config = MockConfig.Instance;
             if (config == null || config.Difficulties.Count == 0)

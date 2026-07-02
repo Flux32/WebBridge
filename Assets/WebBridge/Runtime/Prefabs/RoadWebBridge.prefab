@@ -60,7 +60,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 783241476237b4f9e8de8bde69fc95bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.GameWebBridge
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.RoadWebBridge
   _mockBonusCounts:
   - Difficult: easy
     Count: 10

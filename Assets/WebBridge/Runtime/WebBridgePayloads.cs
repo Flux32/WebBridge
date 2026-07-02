@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine.Scripting;
+
+using WebBridge;
 
 namespace Modules.Road
 {
@@ -10,25 +10,25 @@ namespace Modules.Road
     [Serializable]
     public class WebGameConfigPayload
     {
-        [JsonProperty("coefficients")]
+        [JsonName("coefficients")]
         public float[] Coefficients;
 
-        [JsonProperty("bonusCounts")]
+        [JsonName("bonusCounts")]
         public Dictionary<string, int> BonusCounts;
 
-        [JsonProperty("bonusModes")]
-        public JToken BonusModes;
+        [JsonName("bonusModes")]
+        public JsonValue BonusModes;
 
-        [JsonProperty("currency")]
+        [JsonName("currency")]
         public string Currency;
 
-        [JsonProperty("minBetAmount")]
+        [JsonName("minBetAmount")]
         public float? MinBetAmount;
 
-        [JsonProperty("maxBetAmount")]
+        [JsonName("maxBetAmount")]
         public float? MaxBetAmount;
 
-        [JsonProperty("balance")]
+        [JsonName("balance")]
         public float? Balance;
     }
 
@@ -36,22 +36,22 @@ namespace Modules.Road
     [Serializable]
     public class WebGameStatePayload
     {
-        [JsonProperty("status")]
+        [JsonName("status")]
         public string Status;
 
-        [JsonProperty("lineNumber")]
+        [JsonName("lineNumber")]
         public int? Step;
 
-        [JsonProperty("coinsCollected")]
+        [JsonName("coinsCollected")]
         public int[] BonusStepsCollected;
 
-        [JsonProperty("coinsTriggered")]
+        [JsonName("coinsTriggered")]
         public bool? BonusStepTriggered;
 
-        [JsonProperty("bonusGame")]
+        [JsonName("bonusGame")]
         public WebBonusGamePayload BonusGame;
 
-        [JsonProperty("isWinMain")]
+        [JsonName("isWinMain")]
         public bool? IsWinMain;
     }
 
@@ -59,37 +59,37 @@ namespace Modules.Road
     [Serializable]
     public class WebBonusGamePayload
     {
-        [JsonProperty("bonusTotalCoefficient")]
+        [JsonName("bonusTotalCoefficient")]
         public float BonusTotalCoefficient;
 
-        [JsonProperty("bonusTotalWin")]
+        [JsonName("bonusTotalWin")]
         public string BonusTotalWin;
 
-        [JsonProperty("bonusPositions")]
+        [JsonName("bonusPositions")]
         public int[] BonusPositions;
 
-        [JsonProperty("completedIterations")]
+        [JsonName("completedIterations")]
         public int? CompletedIterations;
 
-        [JsonProperty("accumulatedCoefficient")]
+        [JsonName("accumulatedCoefficient")]
         public float? AccumulatedCoefficient;
 
-        [JsonProperty("accumulatedWin")]
+        [JsonName("accumulatedWin")]
         public float? AccumulatedWin;
 
-        [JsonProperty("betAmount")]
+        [JsonName("betAmount")]
         public float? BetAmount;
 
-        [JsonProperty("bonusCurrency")]
+        [JsonName("bonusCurrency")]
         public string BonusCurrency;
 
-        [JsonProperty("currentStep")]
+        [JsonName("currentStep")]
         public int? CurrentStep;
 
-        [JsonProperty("bonusCoefficients")]
+        [JsonName("bonusCoefficients")]
         public string BonusCoefficients;
 
-        [JsonProperty("difficulty")]
+        [JsonName("difficulty")]
         public string Difficulty;
     }
 
@@ -97,34 +97,34 @@ namespace Modules.Road
     [Serializable]
     public class WebBonusAutoPlayProgress
     {
-        [JsonProperty("positions")]
+        [JsonName("positions")]
         public int[] Positions;
 
-        [JsonProperty("completedIterations")]
+        [JsonName("completedIterations")]
         public int CompletedIterations;
 
-        [JsonProperty("totalIterations")]
+        [JsonName("totalIterations")]
         public int TotalIterations;
 
-        [JsonProperty("accumulatedCoefficient")]
+        [JsonName("accumulatedCoefficient")]
         public float AccumulatedCoefficient;
 
-        [JsonProperty("accumulatedWin")]
+        [JsonName("accumulatedWin")]
         public float AccumulatedWin;
 
-        [JsonProperty("betAmount")]
+        [JsonName("betAmount")]
         public float BetAmount;
 
-        [JsonProperty("currency")]
+        [JsonName("currency")]
         public string Currency;
 
-        [JsonProperty("currentStep")]
+        [JsonName("currentStep")]
         public int CurrentStep;
 
-        [JsonProperty("difficulty")]
+        [JsonName("difficulty")]
         public string Difficulty;
 
-        [JsonProperty("bonusCoefficients")]
+        [JsonName("bonusCoefficients")]
         public string BonusCoefficients;
     }
 
@@ -137,40 +137,40 @@ namespace Modules.Road
     [Serializable]
     public class WebBonusStartPayload
     {
-        [JsonProperty("modeId")]
+        [JsonName("modeId")]
         public string ModeId;
 
-        [JsonProperty("positions")]
+        [JsonName("positions")]
         public int[] Positions;
 
-        [JsonProperty("bonusCoefficients")]
+        [JsonName("bonusCoefficients")]
         public string BonusCoefficients;
 
-        [JsonProperty("difficulty")]
+        [JsonName("difficulty")]
         public string Difficulty;
 
-        [JsonProperty("betAmount")]
+        [JsonName("betAmount")]
         public float BetAmount;
 
-        [JsonProperty("currency")]
+        [JsonName("currency")]
         public string Currency;
 
-        [JsonProperty("bonusTotalCoefficient")]
+        [JsonName("bonusTotalCoefficient")]
         public float BonusTotalCoefficient;
 
-        [JsonProperty("bonusTotalWin")]
+        [JsonName("bonusTotalWin")]
         public string BonusTotalWin;
 
-        [JsonProperty("completedIterations")]
+        [JsonName("completedIterations")]
         public int CompletedIterations;
 
-        [JsonProperty("accumulatedCoefficient")]
+        [JsonName("accumulatedCoefficient")]
         public float AccumulatedCoefficient;
 
-        [JsonProperty("accumulatedWin")]
+        [JsonName("accumulatedWin")]
         public float AccumulatedWin;
 
-        [JsonProperty("currentStep")]
+        [JsonName("currentStep")]
         public int CurrentStep;
     }
 
@@ -178,16 +178,16 @@ namespace Modules.Road
     [Serializable]
     public class WebBonusPurchasePayload
     {
-        [JsonProperty("modeId")]
+        [JsonName("modeId")]
         public string ModeId;
 
-        [JsonProperty("isPurchased")]
+        [JsonName("isPurchased")]
         public bool IsPurchased;
 
-        [JsonProperty("error")]
+        [JsonName("error")]
         public string Error;
 
-        [JsonProperty("bonusGame")]
+        [JsonName("bonusGame")]
         public WebBonusGamePayload BonusGame;
     }
 
@@ -205,28 +205,28 @@ namespace Modules.Road
     [Serializable]
     public class WebUiVisibilityPayload
     {
-        [JsonProperty("hideDesktopBetBar")]
+        [JsonName("hideDesktopBetBar")]
         public bool HideDesktopBetBar;
 
-        [JsonProperty("hideMobileBetBar")]
+        [JsonName("hideMobileBetBar")]
         public bool HideMobileBetBar;
 
-        [JsonProperty("hideMobileLastWin")]
+        [JsonName("hideMobileLastWin")]
         public bool HideMobileLastWin;
 
-        [JsonProperty("hideSettingsMenuButton")]
+        [JsonName("hideSettingsMenuButton")]
         public bool HideSettingsMenuButton;
 
-        [JsonProperty("hideLogo")]
+        [JsonName("hideLogo")]
         public bool HideLogo;
 
-        [JsonProperty("hideBottomBalancePanel")]
+        [JsonName("hideBottomBalancePanel")]
         public bool HideBottomBalancePanel;
 
-        [JsonProperty("desktopBetBarInteractable")]
+        [JsonName("desktopBetBarInteractable")]
         public bool DesktopBetBarInteractable;
 
-        [JsonProperty("mobileBetBarInteractable")]
+        [JsonName("mobileBetBarInteractable")]
         public bool MobileBetBarInteractable;
     }
 
@@ -234,22 +234,22 @@ namespace Modules.Road
     [Serializable]
     public class WebMobileBetBarViewportPayload
     {
-        [JsonProperty("widthViewport")]
+        [JsonName("widthViewport")]
         public float WidthViewport;
 
-        [JsonProperty("heightEndViewport")]
+        [JsonName("heightEndViewport")]
         public float HeightEndViewport;
 
-        [JsonProperty("heightEndWithoutBonusViewport")]
+        [JsonName("heightEndWithoutBonusViewport")]
         public float HeightEndWithoutBonusViewport;
 
-        [JsonProperty("bonusButtonRight")]
+        [JsonName("bonusButtonRight")]
         public WebViewportPoint BonusButtonRight;
 
-        [JsonProperty("betBarRight")]
+        [JsonName("betBarRight")]
         public WebViewportPoint BetBarRight;
 
-        [JsonProperty("bonusProgressIndicator")]
+        [JsonName("bonusProgressIndicator")]
         public WebViewportRect BonusProgressIndicator;
     }
 
@@ -257,10 +257,10 @@ namespace Modules.Road
     [Serializable]
     public class WebViewportPoint
     {
-        [JsonProperty("x")]
+        [JsonName("x")]
         public float X;
 
-        [JsonProperty("y")]
+        [JsonName("y")]
         public float Y;
     }
 
@@ -268,16 +268,16 @@ namespace Modules.Road
     [Serializable]
     public class WebViewportRect
     {
-        [JsonProperty("topLeft")]
+        [JsonName("topLeft")]
         public WebViewportPoint TopLeft;
 
-        [JsonProperty("topRight")]
+        [JsonName("topRight")]
         public WebViewportPoint TopRight;
 
-        [JsonProperty("bottomLeft")]
+        [JsonName("bottomLeft")]
         public WebViewportPoint BottomLeft;
 
-        [JsonProperty("bottomRight")]
+        [JsonName("bottomRight")]
         public WebViewportPoint BottomRight;
     }
 
@@ -285,10 +285,10 @@ namespace Modules.Road
     [Serializable]
     public class WebBetBarHideStatePayload
     {
-        [JsonProperty("hideDesktopBetBar")]
+        [JsonName("hideDesktopBetBar")]
         public bool HideDesktopBetBar;
 
-        [JsonProperty("hideMobileBetBar")]
+        [JsonName("hideMobileBetBar")]
         public bool HideMobileBetBar;
     }
 
@@ -296,10 +296,10 @@ namespace Modules.Road
     [Serializable]
     public class WebGameRestorePayload
     {
-        [JsonProperty("config")]
+        [JsonName("config")]
         public WebGameConfigPayload Config;
 
-        [JsonProperty("state")]
+        [JsonName("state")]
         public WebGameStatePayload State;
     }
 

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Scripting;
 
-namespace Modules.Road
+namespace WebBridge
 {
     [Preserve]
     public static class WebBridgeUtils
@@ -108,11 +105,11 @@ namespace Modules.Road
 
             try
             {
-                JToken token = JToken.Parse(payload);
-                if (token.Type == JTokenType.Array)
+                JsonValue token = JsonValue.Parse(payload);
+                if (token.IsArray)
                 {
-                    JToken first = token.First;
-                    return first?.Type == JTokenType.Null ? null : first?.ToObject<T>();
+                    JsonValue first = token.First;
+                    return (first == null || first.IsNull) ? null : first.ToObject<T>();
                 }
 
                 return token.ToObject<T>();
@@ -124,17 +121,20 @@ namespace Modules.Road
             }
         }
 
-        public static string ReadString(JObject source, params string[] propertyNames)
+        public static string ReadString(JsonValue source, params string[] propertyNames)
         {
+            if (source == null)
+                return null;
+
             for (int i = 0; i < propertyNames.Length; i++)
             {
-                JToken valueToken = source[propertyNames[i]];
-                if (valueToken == null || valueToken.Type == JTokenType.Null)
+                JsonValue valueToken = source[propertyNames[i]];
+                if (valueToken == null || valueToken.IsNull)
                     continue;
 
-                string value = valueToken.Type == JTokenType.String
-                    ? valueToken.Value<string>()
-                    : valueToken.ToString(Formatting.None);
+                string value = valueToken.IsString
+                    ? valueToken.AsString()
+                    : valueToken.ToCompactString();
                 if (!string.IsNullOrWhiteSpace(value))
                     return value;
             }
@@ -142,21 +142,24 @@ namespace Modules.Road
             return null;
         }
 
-        public static int? ReadInt(JObject source, params string[] propertyNames)
+        public static int? ReadInt(JsonValue source, params string[] propertyNames)
         {
+            if (source == null)
+                return null;
+
             for (int i = 0; i < propertyNames.Length; i++)
             {
-                JToken valueToken = source[propertyNames[i]];
-                if (valueToken == null || valueToken.Type == JTokenType.Null)
+                JsonValue valueToken = source[propertyNames[i]];
+                if (valueToken == null || valueToken.IsNull)
                     continue;
 
-                if (valueToken.Type == JTokenType.Integer)
-                    return valueToken.Value<int>();
+                if (valueToken.IsInteger)
+                    return valueToken.AsInt();
 
-                if (valueToken.Type == JTokenType.Float)
-                    return Mathf.RoundToInt(valueToken.Value<float>());
+                if (valueToken.IsFloat)
+                    return Mathf.RoundToInt((float)valueToken.AsDouble());
 
-                string raw = valueToken.ToString(Formatting.None);
+                string raw = valueToken.ToCompactString();
                 if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed))
                     return parsed;
 
@@ -167,63 +170,12 @@ namespace Modules.Road
             return null;
         }
 
-        public static string BuildConfigDebugInfo(WebGameConfigPayload config)
-        {
-            if (config == null)
-                return "null";
-
-            int coeffsCount = config.Coefficients?.Length ?? 0;
-            int bonusCountEntries = config.BonusCounts?.Count ?? 0;
-            string bonusCounts = FormatBonusCounts(config.BonusCounts);
-            string minBet = config.MinBetAmount.HasValue
-                ? config.MinBetAmount.Value.ToString(CultureInfo.InvariantCulture)
-                : "null";
-            string maxBet = config.MaxBetAmount.HasValue
-                ? config.MaxBetAmount.Value.ToString(CultureInfo.InvariantCulture)
-                : "null";
-            return $"coefficientsCount={coeffsCount}; bonusCountsEntries={bonusCountEntries}; bonusCounts={bonusCounts}; minBet={minBet}; maxBet={maxBet}";
-        }
-
-        public static string BuildStateDebugInfo(WebGameStatePayload state)
-        {
-            if (state == null)
-                return "null";
-
-            string coins = FormatIntArray(state.BonusStepsCollected);
-            string bonusGame = FormatBonusGame(state.BonusGame);
-            string isWinMain = state.IsWinMain.HasValue ? state.IsWinMain.Value.ToString() : "null";
-            string coinsTriggered = state.BonusStepTriggered.HasValue
-                ? state.BonusStepTriggered.Value.ToString()
-                : "null";
-            string status = string.IsNullOrWhiteSpace(state.Status) ? "null" : state.Status;
-            string lineNumber = state.Step.HasValue ? state.Step.Value.ToString() : "null";
-            return $"status={status}; lineNumber={lineNumber}; isWinMain={isWinMain}; coinsTriggered={coinsTriggered}; coinsCollected={coins}; bonusGame={bonusGame}";
-        }
-
         public static string FormatIntArray(IReadOnlyList<int> values)
         {
             if (values == null || values.Count == 0)
                 return "[]";
 
             return $"[{string.Join(",", values)}]";
-        }
-
-        public static string FormatBonusCounts(IReadOnlyDictionary<string, int> bonusCounts)
-        {
-            if (bonusCounts == null || bonusCounts.Count == 0)
-                return "{}";
-
-            return "{" + string.Join(", ", bonusCounts.Select(pair => $"{pair.Key}:{pair.Value}")) + "}";
-        }
-
-        public static string FormatBonusGame(WebBonusGamePayload bonusGame)
-        {
-            if (bonusGame == null)
-                return "null";
-
-            string positions = FormatIntArray(bonusGame.BonusPositions);
-            return $"{{coeff={bonusGame.BonusTotalCoefficient.ToString(CultureInfo.InvariantCulture)}, " +
-                   $"win={bonusGame.BonusTotalWin}, positions={positions}}}";
         }
     }
 }

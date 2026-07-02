@@ -3,15 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Scripting;
+using WebBridge;
 
 namespace Modules.Road
 {
     [Preserve]
-    public class GameWebBridge : MonoBehaviour
+    public class RoadWebBridge : WebBridgeBase<RoadWebBridge>
     {
         [Serializable]
         private struct MockBonusCount
@@ -23,8 +22,6 @@ namespace Modules.Road
         }
 
         private const string DefaultBetCurrency = "USD";
-        private const int InitialWebSyncAttempts = 10;
-        private const float InitialWebSyncRetryIntervalSeconds = 0.5f;
 
         private static readonly char[] CoeffSeparator = { ',' };
 
@@ -49,11 +46,7 @@ namespace Modules.Road
         private int _mockMoveIndex;
         private string _currentMockDifficulty;
         private bool _mockInitialized;
-        private bool _hasExternalGameConfigReceived;
-        private Coroutine _initialWebSyncCoroutine;
         private float[] _lastRaisedCoefficients;
-
-        public static GameWebBridge Instance { get; private set; }
 
         public event Action<WebGameConfigPayload> GameConfigReceived;
         public event Action<WebGameStatePayload> GameStateReceived;
@@ -76,11 +69,6 @@ namespace Modules.Road
         public event Action<WebBonusStartPayload> BonusStartRequested;
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
-        // Fires with the white-label flag React reports (from its runtime manifest) in response
-        // to RequestWhiteLabel. true = white-label (no branding), false = branded. The game can
-        // swap branded art (e.g. the base block logo) accordingly. Cached in CurrentIsWhiteLabel
-        // so a subscriber that wires up after the reply can still read the last value.
-        public event Action<bool> WhiteLabelReceived;
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
@@ -90,7 +78,7 @@ namespace Modules.Road
                 return;
 
             _currentMockDifficulty = difficulty;
-            Debug.Log($"[GameWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            Debug.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
             ApplyGameConfig(BuildMockGameConfig(), true);
             MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }
@@ -100,7 +88,6 @@ namespace Modules.Road
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
         public float? LastBalance { get; private set; }
-        public bool? CurrentIsWhiteLabel { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
         
         public bool SuppressCoefficientUpdates { get; set; }
@@ -117,24 +104,9 @@ namespace Modules.Road
             set => _mockBonusStepTriggerChance = Mathf.Clamp01(value);
         }
 
-        private bool IsMockEnabled => WebBridgeUtils.IsMockEnabled;
-        private bool IsCheatsEnabled => WebBridgeUtils.IsCheatsEnabled;
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Debug.LogError($"Instance {nameof(GameWebBridge)} already exists.");
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-        }
-
         private void Start()
         {
-            _hasExternalGameConfigReceived = IsMockEnabled;
+            HasReceivedInitialConfig = IsMockEnabled;
 
             if (IsMockEnabled)
             {
@@ -159,49 +131,6 @@ namespace Modules.Road
 
             if (Input.GetKeyDown(KeyCode.D))
                 CycleMockDifficulty();
-        }
-
-        private void OnDestroy()
-        {
-            if (Instance == this)
-                Instance = null;
-        }
-
-        private void BeginInitialWebSyncAfterSceneLoad()
-        {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            if (_initialWebSyncCoroutine != null)
-                StopCoroutine(_initialWebSyncCoroutine);
-
-            _initialWebSyncCoroutine = StartCoroutine(InitialWebSyncAfterSceneLoadRoutine());
-#endif
-        }
-
-        private IEnumerator InitialWebSyncAfterSceneLoadRoutine()
-        {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            yield return null;
-            yield return new WaitForEndOfFrame();
-
-            int attempts = 0;
-            while (!IsMockEnabled && !_hasExternalGameConfigReceived && attempts < InitialWebSyncAttempts)
-            {
-                attempts++;
-                RequestGameConfig();
-                RequestGameState();
-
-                if (_hasExternalGameConfigReceived)
-                    break;
-
-                yield return new WaitForSecondsRealtime(InitialWebSyncRetryIntervalSeconds);
-            }
-
-            _initialWebSyncCoroutine = null;
-            yield break;
-#else
-            _initialWebSyncCoroutine = null;
-            yield break;
-#endif
         }
 
 #if UNITY_EDITOR
@@ -269,7 +198,7 @@ namespace Modules.Road
             if (string.IsNullOrWhiteSpace(payload))
                 return;
 
-            _hasExternalGameConfigReceived = true;
+            HasReceivedInitialConfig = true;
 
             string[] tokens = payload.Split(CoeffSeparator, StringSplitOptions.RemoveEmptyEntries);
             if (tokens.Length == 0)
@@ -297,7 +226,7 @@ namespace Modules.Road
             if (config == null)
                 return;
 
-            _hasExternalGameConfigReceived = true;
+            HasReceivedInitialConfig = true;
             ApplyGameConfig(config, true);
         }
 
@@ -379,7 +308,7 @@ namespace Modules.Road
             ApplyRestore(restorePayload.Config, restorePayload.State);
         }
 
-        public void RequestGameState()
+        public override void RequestGameState()
         {
             if (IsMockEnabled)
             {
@@ -391,7 +320,7 @@ namespace Modules.Road
             WebBridgeUtils.Send("RequestGameState");
         }
 
-        public void RequestGameConfig()
+        public override void RequestGameConfig()
         {
             if (IsMockEnabled)
             {
@@ -414,10 +343,9 @@ namespace Modules.Road
             WebBridgeUtils.Send("RequestActiveGameState");
         }
 
-        // Asks React for the white-label flag (read from its runtime manifest). React replies
-        // by calling ApplyWhiteLabel. In the editor (no React) the serialized mock value is
-        // delivered immediately so editor play still drives the swap.
-        public void RequestWhiteLabel()
+        // In the editor (no React) the serialized mock value is delivered immediately so editor
+        // play still drives the white-label swap. Otherwise defers to the base handshake.
+        public override void RequestWhiteLabel()
         {
             if (IsMockEnabled)
             {
@@ -425,16 +353,7 @@ namespace Modules.Road
                 return;
             }
 
-            WebBridgeUtils.Send("RequestWhiteLabel");
-        }
-
-        // React entry point (SendMessage): 1 = white-label, 0 = branded.
-        public void ApplyWhiteLabel(int value)
-        {
-            bool isWhiteLabel = value != 0;
-            CurrentIsWhiteLabel = isWhiteLabel;
-            Debug.Log($"[GameWebBridge] ApplyWhiteLabel: {isWhiteLabel}");
-            WhiteLabelReceived?.Invoke(isWhiteLabel);
+            base.RequestWhiteLabel();
         }
 
         // Единая точка входа в бонус с React-стороны. Используется и при свежей
@@ -450,7 +369,7 @@ namespace Modules.Road
                 WebBridgeUtils.DeserializePayload<WebBonusStartPayload>(payload, nameof(StartBonus));
             if (parsed == null)
             {
-                Debug.LogWarning("[GameWebBridge] StartBonus payload parse failed.");
+                Debug.LogWarning("[RoadWebBridge] StartBonus payload parse failed.");
                 return;
             }
             BonusStartRequested?.Invoke(parsed);
@@ -488,20 +407,20 @@ namespace Modules.Road
 
             try
             {
-                string json = JsonConvert.SerializeObject(progress);
+                string json = Json.Serialize(progress);
                 WebBridgeUtils.Send($"{BonusProgressSaveMessagePrefix}{json}");
-                Debug.Log($"[GameWebBridge] Bonus progress sent to React: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
+                Debug.Log($"[RoadWebBridge] Bonus progress sent to React: iteration {progress.CompletedIterations}/{progress.TotalIterations}");
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[GameWebBridge] Failed to send bonus progress: {e.Message}");
+                Debug.LogWarning($"[RoadWebBridge] Failed to send bonus progress: {e.Message}");
             }
         }
 
         public void ClearBonusAutoPlayProgress()
         {
             WebBridgeUtils.Send(BonusProgressClearMessage);
-            Debug.Log("[GameWebBridge] Bonus progress clear sent to React");
+            Debug.Log("[RoadWebBridge] Bonus progress clear sent to React");
         }
 
         public void NotifyBonusActive()
@@ -528,7 +447,7 @@ namespace Modules.Road
             HashSet<string> usedModes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string defaultCurrency = ResolveBonusCurrency(LastGameConfig);
 
-            JToken bonusModesToken = LastGameConfig?.BonusModes;
+            JsonValue bonusModesToken = LastGameConfig?.BonusModes;
             if (bonusModesToken != null)
                 CollectBonusModesFromToken(bonusModesToken, result, usedModes, defaultCurrency);
 
@@ -564,7 +483,7 @@ namespace Modules.Road
             if (config == null)
                 return;
 
-            Debug.Log($"[BridgeDebug][Unity] Parsed game config: {WebBridgeUtils.BuildConfigDebugInfo(config)}");
+            Debug.Log($"[BridgeDebug][Unity] Parsed game config: {RoadBridgeDebug.BuildConfigDebugInfo(config)}");
             LastGameConfig = config;
             GameConfigReceived?.Invoke(config);
 
@@ -606,7 +525,7 @@ namespace Modules.Road
 
         private void ApplyGameState(WebGameStatePayload state)
         {
-            Debug.Log($"[BridgeDebug][Unity] Parsed game state: {WebBridgeUtils.BuildStateDebugInfo(state)}");
+            Debug.Log($"[BridgeDebug][Unity] Parsed game state: {RoadBridgeDebug.BuildStateDebugInfo(state)}");
 
             if (ShouldRestore(state))
             {
@@ -636,7 +555,7 @@ namespace Modules.Road
         private void ApplyRestore(WebGameConfigPayload config, WebGameStatePayload state)
         {
             IsRestoring = true;
-            _hasExternalGameConfigReceived = true;
+            HasReceivedInitialConfig = true;
 
             if (config != null)
             {
@@ -650,7 +569,7 @@ namespace Modules.Road
                 ApplyGameState(state);
             }
 
-            Debug.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={WebBridgeUtils.BuildStateDebugInfo(state)}");
+            Debug.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={RoadBridgeDebug.BuildStateDebugInfo(state)}");
             GameRestored?.Invoke(state);
 
             // Bonus auto-play start is NOT triggered from here anymore. React
@@ -678,7 +597,7 @@ namespace Modules.Road
                 stepResult.IsWinMain = isWinMain;
 
             Debug.Log(
-                $"[BridgeDebug][Unity] Parsed step result before resolve: {WebBridgeUtils.BuildStateDebugInfo(stepResult)}; " +
+                $"[BridgeDebug][Unity] Parsed step result before resolve: {RoadBridgeDebug.BuildStateDebugInfo(stepResult)}; " +
                 $"previousCoinsCount={previousBonusStepsCount}; currentCoinsCount={currentBonusStepsCount}; " +
                 $"resolvedByDelta={resolvedByDelta}; hasExplicitBonusFlag={hasExplicitBonusTrigger}; " +
                 $"initialBonusStepTriggered={bonusStepTriggered}");
@@ -691,7 +610,7 @@ namespace Modules.Road
             if (!isWinMain.HasValue)
             {
                 Debug.LogWarning(
-                    $"[GameWebBridge] Step result does not contain a resolvable win state. status='{stepResult.Status ?? "null"}'.");
+                    $"[RoadWebBridge] Step result does not contain a resolvable win state. status='{stepResult.Status ?? "null"}'.");
                 return;
             }
 
@@ -750,7 +669,7 @@ namespace Modules.Road
             if (!purchaseResult.IsPurchased)
             {
                 string error = string.IsNullOrWhiteSpace(purchaseResult.Error) ? "unknown" : purchaseResult.Error;
-                Debug.Log($"[GameWebBridge] Bonus purchase rejected for mode '{modeId}'. Error: {error}");
+                Debug.Log($"[RoadWebBridge] Bonus purchase rejected for mode '{modeId}'. Error: {error}");
                 BonusModePurchaseFailed?.Invoke(modeId);
                 return;
             }
@@ -758,7 +677,7 @@ namespace Modules.Road
             WebBonusGamePayload bonusGame = BuildBonusGamePayloadForPurchase(purchaseResult.BonusGame);
             if (bonusGame == null)
             {
-                Debug.LogWarning($"[GameWebBridge] Bonus purchase payload is invalid for mode '{modeId}'.");
+                Debug.LogWarning($"[RoadWebBridge] Bonus purchase payload is invalid for mode '{modeId}'.");
                 BonusModePurchaseFailed?.Invoke(modeId);
                 return;
             }
@@ -799,35 +718,34 @@ namespace Modules.Road
         }
 
         private static void CollectBonusModesFromToken(
-            JToken token,
+            JsonValue token,
             ICollection<WebBonusShopModePayload> result,
             ISet<string> usedModes,
             string defaultCurrency)
         {
-            if (token == null || token.Type == JTokenType.Null)
+            if (token == null || token.IsNull)
                 return;
 
-            if (token.Type == JTokenType.Object)
+            if (token.IsObject)
             {
-                JObject modesObject = (JObject)token;
-                foreach (JProperty modeProperty in modesObject.Properties())
+                foreach (KeyValuePair<string, JsonValue> modeProperty in token.Properties())
                 {
-                    if (IsCurrencyPropertyName(modeProperty.Name))
+                    if (IsCurrencyPropertyName(modeProperty.Key))
                         continue;
 
-                    AddBonusMode(result, usedModes, modeProperty.Name, modeProperty.Value, defaultCurrency);
+                    AddBonusMode(result, usedModes, modeProperty.Key, modeProperty.Value, defaultCurrency);
                 }
 
                 return;
             }
 
-            if (token.Type != JTokenType.Array)
+            if (!token.IsArray)
                 return;
 
-            JArray modesArray = (JArray)token;
-            for (int i = 0; i < modesArray.Count; i++)
+            for (int i = 0; i < token.Count; i++)
             {
-                if (modesArray[i] is not JObject modeObject)
+                JsonValue modeObject = token[i];
+                if (modeObject == null || !modeObject.IsObject)
                     continue;
 
                 string modeName = WebBridgeUtils.ReadString(modeObject, "modeId", "modeName", "mode", "name", "key");
@@ -839,7 +757,7 @@ namespace Modules.Road
             ICollection<WebBonusShopModePayload> result,
             ISet<string> usedModes,
             string modeName,
-            JToken modeToken,
+            JsonValue modeToken,
             string defaultCurrency)
         {
             if (string.IsNullOrWhiteSpace(modeName) || !usedModes.Add(modeName))
@@ -854,11 +772,11 @@ namespace Modules.Road
             });
         }
 
-        private static string ResolveModeCurrency(JToken modeToken, string defaultCurrency)
+        private static string ResolveModeCurrency(JsonValue modeToken, string defaultCurrency)
         {
-            if (modeToken is JObject modeObject)
+            if (modeToken != null && modeToken.IsObject)
             {
-                string modeCurrency = WebBridgeUtils.ReadString(modeObject, "currency", "currencyCode", "currencySymbol", "symbol");
+                string modeCurrency = WebBridgeUtils.ReadString(modeToken, "currency", "currencyCode", "currencySymbol", "symbol");
                 if (!string.IsNullOrWhiteSpace(modeCurrency))
                     return modeCurrency;
             }
@@ -871,9 +789,9 @@ namespace Modules.Road
             if (!string.IsNullOrWhiteSpace(config?.Currency))
                 return config.Currency;
 
-            if (config?.BonusModes is JObject modesObject)
+            if (config?.BonusModes != null && config.BonusModes.IsObject)
             {
-                string modesCurrency = WebBridgeUtils.ReadString(modesObject, "currency", "currencyCode", "currencySymbol", "symbol");
+                string modesCurrency = WebBridgeUtils.ReadString(config.BonusModes, "currency", "currencyCode", "currencySymbol", "symbol");
                 if (!string.IsNullOrWhiteSpace(modesCurrency))
                     return modesCurrency;
             }
@@ -892,27 +810,27 @@ namespace Modules.Road
                    || propertyName.Equals("symbol", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string ResolveModePrice(JToken modeToken)
+        private static string ResolveModePrice(JsonValue modeToken)
         {
-            if (modeToken is JObject modeObject)
+            if (modeToken != null && modeToken.IsObject)
             {
-                string stringPrice = WebBridgeUtils.ReadString(modeObject, "price", "amount", "cost", "value");
+                string stringPrice = WebBridgeUtils.ReadString(modeToken, "price", "amount", "cost", "value");
                 if (!string.IsNullOrWhiteSpace(stringPrice))
                     return stringPrice;
             }
 
-            if (modeToken == null || modeToken.Type == JTokenType.Null || modeToken.Type == JTokenType.Object)
+            if (modeToken == null || modeToken.IsNull || modeToken.IsObject)
                 return "0";
 
-            return modeToken.ToString(Formatting.None);
+            return modeToken.ToCompactString();
         }
 
-        private static int ResolveModeBonusAmount(JToken modeToken)
+        private static int ResolveModeBonusAmount(JsonValue modeToken)
         {
-            if (modeToken is not JObject modeObject)
+            if (modeToken == null || !modeToken.IsObject)
                 return 0;
 
-            int? value = WebBridgeUtils.ReadInt(modeObject, "count", "moves", "bonusCount", "steps", "lineCount");
+            int? value = WebBridgeUtils.ReadInt(modeToken, "count", "moves", "bonusCount", "steps", "lineCount");
             return value.HasValue ? Mathf.Max(0, value.Value) : 0;
         }
 
@@ -964,7 +882,7 @@ namespace Modules.Road
         private void CycleMockDifficulty()
         {
             _currentMockDifficulty = MockConfig.Instance.GetNextDifficulty(_currentMockDifficulty);
-            Debug.Log($"[GameWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            Debug.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
             ApplyGameConfig(BuildMockGameConfig(), true);
             MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }
@@ -1010,9 +928,9 @@ namespace Modules.Road
             };
         }
 
-        private JToken BuildMockBonusModes()
+        private JsonValue BuildMockBonusModes()
         {
-            JObject result = new JObject();
+            JsonValue result = JsonValue.NewObject();
             if (_mockBonusCounts != null)
             {
                 for (int i = 0; i < _mockBonusCounts.Length; i++)
@@ -1021,7 +939,7 @@ namespace Modules.Road
                     if (string.IsNullOrWhiteSpace(bonusCount.Difficult))
                         continue;
 
-                    result[bonusCount.Difficult] = new JObject
+                    result[bonusCount.Difficult] = new JsonValue
                     {
                         ["price"] = string.IsNullOrWhiteSpace(bonusCount.Price) ? "0" : bonusCount.Price,
                         ["currency"] = string.IsNullOrWhiteSpace(bonusCount.Currency) ? DefaultBetCurrency : bonusCount.Currency,
@@ -1032,19 +950,19 @@ namespace Modules.Road
 
             if (!result.HasValues)
             {
-                result["easy"] = new JObject
+                result["easy"] = new JsonValue
                 {
                     ["price"] = "100",
                     ["currency"] = DefaultBetCurrency,
                     ["count"] = 10
                 };
-                result["medium"] = new JObject
+                result["medium"] = new JsonValue
                 {
                     ["price"] = "200",
                     ["currency"] = DefaultBetCurrency,
                     ["count"] = 8
                 };
-                result["hard"] = new JObject
+                result["hard"] = new JsonValue
                 {
                     ["price"] = "300",
                     ["currency"] = DefaultBetCurrency,

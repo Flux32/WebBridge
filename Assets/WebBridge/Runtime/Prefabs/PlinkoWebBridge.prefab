@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1545737638635404231
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3065240742328190511}
+  - component: {fileID: 3686000498439639466}
+  - component: {fileID: 854343513921349945}
+  - component: {fileID: 3905055287020188002}
+  - component: {fileID: 3023990027768449992}
+  - component: {fileID: 7200001000000002}
+  - component: {fileID: 2433851044125129864}
+  m_Layer: 0
+  m_Name: WebBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3065240742328190511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3686000498439639466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d345b59c6b541f4a9fe9aea4b3fad4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.AudioWebBridge
+--- !u!114 &854343513921349945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3fc99a79ce4e9b83c7e02612bf9975, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Plinko.PlinkoWebBridge
+--- !u!114 &3905055287020188002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1aeb4a83f5be45728baff67e7b75ca4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.LayoutWebBridge
+  _hideDesktopBetBar: 0
+  _hideMobileBetBar: 0
+  _hideMobileLastWin: 0
+  _hideSettingsMenuButton: 0
+  _hideLogo: 0
+  _hideBottomBalancePanel: 1
+  _desktopBetBarInteractable: 1
+  _mobileBetBarInteractable: 1
+--- !u!114 &3023990027768449992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4434d4ddd38024f9a8347be1123ec1e0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.ScreenOrientationWebBridge
+  _mockMobileAspectRatio: 1.1
+--- !u!114 &7200001000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b0c6bcc7fa54f77b344def4fcc9e92c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.TranslationsWebBridge
+--- !u!114 &2433851044125129864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545737638635404231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f2d598b42af4381960bc1f00671a455, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.WebBridgeUI

@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.Scripting;
 
+using WebBridge;
+
 namespace Modules.Road
 {
     public enum ScreenOrientationType

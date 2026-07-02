@@ -1,7 +1,8 @@
 using System;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Scripting;
+
+using WebBridge;
 
 namespace Modules.Road
 {
@@ -297,7 +298,7 @@ namespace Modules.Road
                 MobileBetBarInteractable = _mobileBetBarInteractable
             };
 
-            WebBridgeUtils.Send(UiVisibilityMessageBase + JsonConvert.SerializeObject(payload));
+            WebBridgeUtils.Send(UiVisibilityMessageBase + Json.Serialize(payload));
         }
 
         private void NotifyBetBarHideStateChanged()

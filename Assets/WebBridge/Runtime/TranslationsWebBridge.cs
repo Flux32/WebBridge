@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Scripting;
+
+using WebBridge;
 
 namespace Modules.Road
 {
@@ -50,7 +51,7 @@ namespace Modules.Road
             Dictionary<string, string> parsed;
             try
             {
-                parsed = JsonConvert.DeserializeObject<Dictionary<string, string>>(payload);
+                parsed = Json.Deserialize<Dictionary<string, string>>(payload);
             }
             catch (Exception exception)
             {
