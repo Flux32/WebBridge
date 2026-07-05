@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Modules.Plinko;
+using Modules.PlinkoAztec;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
@@ -22,6 +23,8 @@ namespace Modules.Road.Editor
         private const string RoadAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/RoadWebBridge.prefab";
         private const string PlinkoPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/PlinkoWebBridge.prefab";
         private const string PlinkoAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/PlinkoWebBridge.prefab";
+        private const string PlinkoAztecPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/PlinkoAztecWebBridge.prefab";
+        private const string PlinkoAztecAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/PlinkoAztecWebBridge.prefab";
         private const string WebBridgeObjectName = "WebBridge";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
         private const string MockConfigMenu = "Tools/WebBridge/MockConfig";
@@ -170,6 +173,12 @@ namespace Modules.Road.Editor
             CreateWebBridge(menuCommand, PlinkoPackagePrefabPath, PlinkoAssetsPrefabPath, "Plinko");
         }
 
+        [MenuItem("GameObject/WebBridge/Create PlinkoAztecWebBridge", false, 12)]
+        private static void CreatePlinkoAztecWebBridge(MenuCommand menuCommand)
+        {
+            CreateWebBridge(menuCommand, PlinkoAztecPackagePrefabPath, PlinkoAztecAssetsPrefabPath, "PlinkoAztec");
+        }
+
         private static void CreateWebBridge(MenuCommand menuCommand, string packagePath, string assetsPath, string label)
         {
             if (TryGetExistingWebBridge(out GameObject existing))
@@ -199,8 +208,8 @@ namespace Modules.Road.Editor
             Selection.activeObject = instance;
         }
 
-        // A scene may host only one WebBridge (Road or Plinko). Both bridges derive from
-        // WebBridgeBase, so the presence of either concrete component blocks a second creation.
+        // A scene may host only one WebBridge (Road, Plinko or PlinkoAztec). All bridges derive
+        // from WebBridgeBase, so the presence of any concrete component blocks a second creation.
         private static bool TryGetExistingWebBridge(out GameObject existing)
         {
             existing = null;
@@ -216,6 +225,14 @@ namespace Modules.Road.Editor
             if (plinko != null)
             {
                 existing = plinko.gameObject;
+                return true;
+            }
+
+            PlinkoAztecWebBridge plinkoAztec =
+                Object.FindFirstObjectByType<PlinkoAztecWebBridge>(FindObjectsInactive.Include);
+            if (plinkoAztec != null)
+            {
+                existing = plinkoAztec.gameObject;
                 return true;
             }
 
