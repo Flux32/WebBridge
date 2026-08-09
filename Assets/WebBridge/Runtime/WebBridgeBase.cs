@@ -25,7 +25,16 @@ namespace WebBridge
         // CurrentIsWhiteLabel so a subscriber that wires up after the reply can still read it.
         public event Action<bool> WhiteLabelReceived;
 
+        // Fires whenever fast game switches: React pushes the player's choice from the bet-bar
+        // toggle (SetFastGame), and the game itself may flip it through NotifyFastGameChanged.
+        // Cached in IsFastGameEnabled so a subscriber that wires up after the push still reads it.
+        public event Action<bool> FastGameChanged;
+
         public bool? CurrentIsWhiteLabel { get; private set; }
+
+        // Fast game speeds the round presentation up (no showcase pauses). Off until React says
+        // otherwise — its stored value arrives right after the engine loads.
+        public bool IsFastGameEnabled { get; private set; }
 
         protected static bool IsMockEnabled => WebBridgeUtils.IsMockEnabled;
         protected static bool IsCheatsEnabled => WebBridgeUtils.IsCheatsEnabled;
@@ -110,6 +119,45 @@ namespace WebBridge
         public void SetLoggingEnabled(int value)
         {
             WebBridgeLogger.IsEnabled = value != 0;
+        }
+
+        // React entry point (SendMessage): 1 = fast game on, 0 = off. The toggle lives in the
+        // React bet bar and is shared by every game; React owns the value and persists it, so
+        // this is the single way the setting enters Unity.
+        public void SetFastGame(int value)
+        {
+            ApplyFastGame(value != 0);
+        }
+
+        // Asks React for the current fast-game status; it replies by calling SetFastGame. React
+        // also pushes the value on load, so this is only for game code that wires up later and
+        // needs the state it may have missed.
+        public virtual void RequestFastGame()
+        {
+            WebBridgeUtils.Send("RequestFastGame");
+        }
+
+        // Unity -> React: the game switched fast mode on its own (e.g. forced it off for a bonus).
+        // React mirrors the value into the bet-bar toggle. Silent when nothing actually changed.
+        public void NotifyFastGameChanged(bool isEnabled)
+        {
+            if (!ApplyFastGame(isEnabled))
+                return;
+
+            WebBridgeUtils.Send(isEnabled ? "FastGame_1" : "FastGame_0");
+        }
+
+        // Returns true when the value actually changed — keeps both entry points from re-applying
+        // the same speed and from echoing it back to the side that just sent it.
+        private bool ApplyFastGame(bool isEnabled)
+        {
+            if (IsFastGameEnabled == isEnabled)
+                return false;
+
+            IsFastGameEnabled = isEnabled;
+            WebBridgeLogger.Log($"[{typeof(T).Name}] FastGame: {isEnabled}");
+            FastGameChanged?.Invoke(isEnabled);
+            return true;
         }
 
         public abstract void RequestGameConfig();

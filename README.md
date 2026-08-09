@@ -16,6 +16,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 - [Быстрый старт](#быстрый-старт)
 - [Как это работает](#как-это-работает)
 - [Компоненты](#компоненты)
+  - [WebBridgeBase](#webbridgebase)
   - [GameWebBridge](#gamewebbridge)
   - [LayoutWebBridge](#layoutwebbridge)
   - [ScreenOrientationWebBridge](#screenorientationwebbridge)
@@ -96,6 +97,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 
 | Компонент | Зона ответственности |
 |---|---|
+| `WebBridgeBase<T>` | Общая для всех игр база каждого моста: синглтон, бут-синхронизация, white-label, логи, ускоренная игра |
 | `GameWebBridge` | Конфиг игры, состояние раунда, результаты ходов, коэффициенты, ставки, кешаут, бонус-система, баланс, white-label, рестор после F5 |
 | `LayoutWebBridge` | Видимость и интерактивность UI-элементов (бет-бары, логотип, кнопка настроек, баланс-панель), метрики мобильного бет-бара |
 | `ScreenOrientationWebBridge` | Ориентация экрана (desktop / mobile) |
@@ -108,6 +110,51 @@ Unity-пакет для связи между React-фронтендом и Unit
 ---
 
 ## Компоненты
+
+### WebBridgeBase
+
+База каждого игрового моста (`RoadWebBridge`, `PlinkoWebBridge`,
+`PlinkoAztecWebBridge` наследуют её). Здесь живёт только то, что одинаково во
+всех играх, поэтому методы ниже доступны на любом мосте.
+
+#### События
+
+| Событие | Аргументы | Когда срабатывает |
+|---|---|---|
+| `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
+| `FastGameChanged` | `bool` | Сменился режим ускоренной игры — и когда его переключил игрок в бет-баре, и когда сама игра (`NotifyFastGameChanged`) |
+
+#### Методы React → Unity (через `SendMessage`)
+
+| Метод | Параметр | Описание |
+|---|---|---|
+| `ApplyWhiteLabel(int)` | `1` / `0` | Ответ React на `RequestWhiteLabel`: 1 = white-label, 0 = брендированная |
+| `SetLoggingEnabled(int)` | `1` / `0` | Включить/выключить логи моста (в сборке по умолчанию выключены) |
+| `SetFastGame(int)` | `1` / `0` | Ускоренная игра: 1 = включена. Тумблер живёт в бет-баре React, значением владеет и хранит его React — это единственный вход настройки в Unity |
+
+#### Методы Unity → React
+
+| Метод | Что шлёт в React | Ответ React |
+|---|---|---|
+| `RequestWhiteLabel()` | `RequestWhiteLabel` | → `ApplyWhiteLabel(int)` |
+| `RequestFastGame()` | `RequestFastGame` | → `SetFastGame(int)` |
+| `NotifyFastGameChanged(bool)` | `FastGame_1` / `FastGame_0` — игра сама сменила режим (например, выключила ускорение на бонусе); React зеркалит значение в тумблер | — |
+
+#### Свойства
+
+| Свойство | Тип | Описание |
+|---|---|---|
+| `CurrentIsWhiteLabel` | `bool?` | Кешированный флаг white-label (`null` — ответа ещё не было) |
+| `IsFastGameEnabled` | `bool` | Текущий режим ускоренной игры. `false`, пока React не прислал своё значение (оно приходит сразу после загрузки движка) |
+
+> **Ускоренная игра.** React пушит сохранённое значение, как только движок
+> загрузился, и дальше — на каждое переключение тумблера. Игровому коду не нужно
+> ждать события: подписался позже — прочитай `IsFastGameEnabled`, а если нужен
+> явный ответ, дёрни `RequestFastGame()`. Повторная установка того же значения
+> событие не поднимает, а `NotifyFastGameChanged` не эхом возвращает то, что
+> только что прислал React.
+
+---
 
 ### GameWebBridge
 
@@ -678,6 +725,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `RequestGameState` | `GameWebBridge.RequestGameState` |
 | `RequestActiveGameState` | `GameWebBridge.RequestActiveGameState` |
 | `RequestWhiteLabel` | `GameWebBridge.RequestWhiteLabel` |
+| `RequestFastGame` | `WebBridgeBase.RequestFastGame` |
+| `FastGame_1` / `FastGame_0` | `WebBridgeBase.NotifyFastGameChanged` |
 | `BonusProgressSave_{json}` | `GameWebBridge.SaveBonusAutoPlayProgress` |
 | `BonusProgressClear` | `GameWebBridge.ClearBonusAutoPlayProgress` |
 | `BonusActive` | `GameWebBridge.NotifyBonusActive` |
@@ -692,6 +741,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 
 Методы перечислены в таблицах компонентов выше. Сводно:
 
+- **WebBridgeBase** (есть на любом мосте): `ApplyWhiteLabel`, `SetLoggingEnabled`,
+  `SetFastGame`.
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
   `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
   `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
