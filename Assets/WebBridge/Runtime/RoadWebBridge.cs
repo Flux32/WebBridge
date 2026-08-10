@@ -60,7 +60,6 @@ namespace Modules.Road
         public event Action<RestartReason, string> RestartRequested;
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
-        public event Action<WebGameStatePayload> GameRestored;
         // Unified bonus entry point. Fires from `StartBonus(payload)` — used by
         // both fresh purchase (completedIterations=0, accumulated*=0) and F5
         // restore (values populated from React-owned localStorage). SpinsBonus
@@ -83,7 +82,6 @@ namespace Modules.Road
             MockDifficultyChanged?.Invoke(_currentMockDifficulty);
         }
 
-        public bool IsRestoring { get; private set; }
         public WebGameConfigPayload LastGameConfig { get; private set; }
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
@@ -260,12 +258,6 @@ namespace Modules.Road
             if (state == null)
                 return;
 
-            if (ShouldRestore(state))
-            {
-                ApplyRestore(LastGameConfig, state);
-                return;
-            }
-
             ApplyStepResult(state);
         }
 
@@ -289,23 +281,6 @@ namespace Modules.Road
                 return;
 
             ApplyStepResult(stepResult);
-        }
-
-        public void RestoreGame(string payload)
-        {
-            if (IsMockEnabled)
-            {
-                RestoreMockGame();
-                return;
-            }
-
-            WebBridgeLogger.Log($"[BridgeDebug][React->Unity] RestoreGame raw: {payload}");
-            WebGameRestorePayload restorePayload =
-                WebBridgeUtils.DeserializePayload<WebGameRestorePayload>(payload, nameof(RestoreGame));
-            if (restorePayload == null)
-                return;
-
-            ApplyRestore(restorePayload.Config, restorePayload.State);
         }
 
         public override void RequestGameState()
@@ -332,17 +307,6 @@ namespace Modules.Road
             WebBridgeUtils.Send("RequestGameConfig");
         }
         
-        public void RequestActiveGameState()
-        {
-            if (IsMockEnabled)
-            {
-                InitializeMockIfNeeded();
-                return;
-            }
-
-            WebBridgeUtils.Send("RequestActiveGameState");
-        }
-
         // In the editor (no React) the serialized mock value is delivered immediately so editor
         // play still drives the white-label swap. Otherwise defers to the base handshake.
         public override void RequestWhiteLabel()
@@ -441,35 +405,8 @@ namespace Modules.Road
             WebBridgeUtils.Send("BonusCleared");
         }
 
-        public IReadOnlyList<WebBonusShopModePayload> ResolveBonusModesForShop()
-        {
-            List<WebBonusShopModePayload> result = new List<WebBonusShopModePayload>();
-            HashSet<string> usedModes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            string defaultCurrency = ResolveBonusCurrency(LastGameConfig);
-
-            JsonValue bonusModesToken = LastGameConfig?.BonusModes;
-            if (bonusModesToken != null)
-                CollectBonusModesFromToken(bonusModesToken, result, usedModes, defaultCurrency);
-
-            if (result.Count == 0 && LastGameConfig?.BonusCounts != null)
-            {
-                foreach (KeyValuePair<string, int> mode in LastGameConfig.BonusCounts)
-                {
-                    if (string.IsNullOrWhiteSpace(mode.Key) || !usedModes.Add(mode.Key))
-                        continue;
-
-                    result.Add(new WebBonusShopModePayload
-                    {
-                        ModeName = mode.Key,
-                        Price = "0",
-                        Currency = defaultCurrency,
-                        BonusAmount = Mathf.Max(0, mode.Value)
-                    });
-                }
-            }
-
-            return result;
-        }
+        public IReadOnlyList<WebBonusShopModePayload> ResolveBonusModesForShop() =>
+            RoadBonusModeReader.ReadShopModes(LastGameConfig);
 
         public void ResetMockRound()
         {
@@ -523,62 +460,16 @@ namespace Modules.Road
             return true;
         }
 
+        // Состояние сессии: «приведи сцену к этому», в отличие от ApplyStepResult
+        // («шаг случился, проиграй его»). Тот же контракт, что и у plinko-моста.
         private void ApplyGameState(WebGameStatePayload state)
         {
             WebBridgeLogger.Log($"[BridgeDebug][Unity] Parsed game state: {RoadBridgeDebug.BuildStateDebugInfo(state)}");
 
-            if (ShouldRestore(state))
-            {
-                ApplyRestore(LastGameConfig, state);
-                return;
-            }
-
             LastGameState = state;
+            // Дельты бонусных шагов следующий ход считает от этого состояния.
+            LastStepResult = state;
             GameStateReceived?.Invoke(state);
-        }
-
-        private bool ShouldRestore(WebGameStatePayload state)
-        {
-            if (IsRestoring || state == null || LastStepResult != null)
-                return false;
-
-            if (!state.Step.HasValue || state.Step.Value <= 0)
-                return false;
-
-            if (string.IsNullOrWhiteSpace(state.Status))
-                return false;
-
-            string status = state.Status.Trim().ToLowerInvariant();
-            return status == "in-game";
-        }
-
-        private void ApplyRestore(WebGameConfigPayload config, WebGameStatePayload state)
-        {
-            IsRestoring = true;
-            HasReceivedInitialConfig = true;
-
-            if (config != null)
-            {
-                _lastRaisedCoefficients = null;
-                ApplyGameConfig(config, true);
-            }
-
-            if (state != null)
-            {
-                LastStepResult = state;
-                ApplyGameState(state);
-            }
-
-            WebBridgeLogger.Log($"[BridgeDebug][Unity] Game restored. Config={config != null}, State={RoadBridgeDebug.BuildStateDebugInfo(state)}");
-            GameRestored?.Invoke(state);
-
-            // Bonus auto-play start is NOT triggered from here anymore. React
-            // owns the F5-bonus UX (regular game first → YouWinFreeGames →
-            // TransitionScreen) and explicitly calls `StartBonus(payload)`
-            // when it's time to enter the bonus. The state.BonusGame fields
-            // are still useful for re-hydrating `LastStepResult` above.
-
-            IsRestoring = false;
         }
 
         private void ApplyStepResult(WebGameStatePayload stepResult)
@@ -717,125 +608,6 @@ namespace Modules.Road
             };
         }
 
-        private static void CollectBonusModesFromToken(
-            JsonValue token,
-            ICollection<WebBonusShopModePayload> result,
-            ISet<string> usedModes,
-            string defaultCurrency)
-        {
-            if (token == null || token.IsNull)
-                return;
-
-            if (token.IsObject)
-            {
-                foreach (KeyValuePair<string, JsonValue> modeProperty in token.Properties())
-                {
-                    if (IsCurrencyPropertyName(modeProperty.Key))
-                        continue;
-
-                    AddBonusMode(result, usedModes, modeProperty.Key, modeProperty.Value, defaultCurrency);
-                }
-
-                return;
-            }
-
-            if (!token.IsArray)
-                return;
-
-            for (int i = 0; i < token.Count; i++)
-            {
-                JsonValue modeObject = token[i];
-                if (modeObject == null || !modeObject.IsObject)
-                    continue;
-
-                string modeName = WebBridgeUtils.ReadString(modeObject, "modeId", "modeName", "mode", "name", "key");
-                AddBonusMode(result, usedModes, modeName, modeObject, defaultCurrency);
-            }
-        }
-
-        private static void AddBonusMode(
-            ICollection<WebBonusShopModePayload> result,
-            ISet<string> usedModes,
-            string modeName,
-            JsonValue modeToken,
-            string defaultCurrency)
-        {
-            if (string.IsNullOrWhiteSpace(modeName) || !usedModes.Add(modeName))
-                return;
-
-            result.Add(new WebBonusShopModePayload
-            {
-                ModeName = modeName,
-                Price = ResolveModePrice(modeToken),
-                Currency = ResolveModeCurrency(modeToken, defaultCurrency),
-                BonusAmount = ResolveModeBonusAmount(modeToken)
-            });
-        }
-
-        private static string ResolveModeCurrency(JsonValue modeToken, string defaultCurrency)
-        {
-            if (modeToken != null && modeToken.IsObject)
-            {
-                string modeCurrency = WebBridgeUtils.ReadString(modeToken, "currency", "currencyCode", "currencySymbol", "symbol");
-                if (!string.IsNullOrWhiteSpace(modeCurrency))
-                    return modeCurrency;
-            }
-
-            return string.IsNullOrWhiteSpace(defaultCurrency) ? DefaultBetCurrency : defaultCurrency;
-        }
-
-        private static string ResolveBonusCurrency(WebGameConfigPayload config)
-        {
-            if (!string.IsNullOrWhiteSpace(config?.Currency))
-                return config.Currency;
-
-            if (config?.BonusModes != null && config.BonusModes.IsObject)
-            {
-                string modesCurrency = WebBridgeUtils.ReadString(config.BonusModes, "currency", "currencyCode", "currencySymbol", "symbol");
-                if (!string.IsNullOrWhiteSpace(modesCurrency))
-                    return modesCurrency;
-            }
-
-            return DefaultBetCurrency;
-        }
-
-        private static bool IsCurrencyPropertyName(string propertyName)
-        {
-            if (string.IsNullOrWhiteSpace(propertyName))
-                return false;
-
-            return propertyName.Equals("currency", StringComparison.OrdinalIgnoreCase)
-                   || propertyName.Equals("currencyCode", StringComparison.OrdinalIgnoreCase)
-                   || propertyName.Equals("currencySymbol", StringComparison.OrdinalIgnoreCase)
-                   || propertyName.Equals("symbol", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static string ResolveModePrice(JsonValue modeToken)
-        {
-            if (modeToken != null && modeToken.IsObject)
-            {
-                string stringPrice = WebBridgeUtils.ReadString(modeToken, "price", "amount", "cost", "value");
-                if (!string.IsNullOrWhiteSpace(stringPrice))
-                    return stringPrice;
-            }
-
-            if (modeToken == null || modeToken.IsNull || modeToken.IsObject)
-                return "0";
-
-            return modeToken.ToCompactString();
-        }
-
-        private static int ResolveModeBonusAmount(JsonValue modeToken)
-        {
-            if (modeToken == null || !modeToken.IsObject)
-                return 0;
-
-            int? value = WebBridgeUtils.ReadInt(modeToken, "count", "moves", "bonusCount", "steps", "lineCount");
-            return value.HasValue ? Mathf.Max(0, value.Value) : 0;
-        }
-
-        #region Mock
-
         private void InitializeMockIfNeeded()
         {
             if (_mockInitialized)
@@ -848,35 +620,6 @@ namespace Modules.Road
             WebGameConfigPayload mockConfig = BuildMockGameConfig();
             ApplyGameConfig(mockConfig, true);
             ApplyGameState(CreateMockGameStatePayload());
-        }
-
-        private void RestoreMockGame()
-        {
-            InitializeMockIfNeeded();
-
-            int totalSteps = ResolveMockCoefficients()?.Length ?? 6;
-            int restoreStep = Mathf.Max(1, totalSteps / 2);
-
-            _mockMoveIndex = restoreStep;
-            _mockBonusStepsCollected.Clear();
-
-            for (int i = 1; i <= restoreStep && _mockBonusStepsCollected.Count < _mockBonusStepsThreshold; i++)
-            {
-                if (_mockRandom.NextDouble() <= _mockBonusStepTriggerChance)
-                    _mockBonusStepsCollected.Add(i);
-            }
-
-            WebGameStatePayload restoredState = new WebGameStatePayload
-            {
-                Status = "in-game",
-                Step = restoreStep,
-                BonusStepsCollected = _mockBonusStepsCollected.ToArray(),
-                BonusStepTriggered = false,
-                BonusGame = null,
-                IsWinMain = null
-            };
-
-            ApplyRestore(BuildMockGameConfig(), restoredState);
         }
 
         private void CycleMockDifficulty()
@@ -1109,6 +852,5 @@ namespace Modules.Road
             return total;
         }
 
-        #endregion
     }
 }

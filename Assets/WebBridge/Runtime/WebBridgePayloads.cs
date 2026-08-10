@@ -32,13 +32,12 @@ namespace Modules.Road
         public float? Balance;
     }
 
+    // Состояние road-раунда: базовые поля платформы плюс своя специфика, которую
+    // бэк кладёт на верхний уровень ответа (extendGameState).
     [Preserve]
     [Serializable]
-    public class WebGameStatePayload
+    public class WebGameStatePayload : WebGameStateBase
     {
-        [JsonName("status")]
-        public string Status;
-
         [JsonName("lineNumber")]
         public int? Step;
 
@@ -290,17 +289,6 @@ namespace Modules.Road
 
         [JsonName("hideMobileBetBar")]
         public bool HideMobileBetBar;
-    }
-
-    [Preserve]
-    [Serializable]
-    public class WebGameRestorePayload
-    {
-        [JsonName("config")]
-        public WebGameConfigPayload Config;
-
-        [JsonName("state")]
-        public WebGameStatePayload State;
     }
 
     [Preserve]
