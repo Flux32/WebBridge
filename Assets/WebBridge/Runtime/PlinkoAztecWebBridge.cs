@@ -15,15 +15,28 @@ namespace Modules.PlinkoAztec
     [Preserve]
     public class PlinkoAztecWebBridge : WebBridgeBase<PlinkoAztecWebBridge>
     {
+        // Balls-per-drop is unknown until React pushes the bet-bar selection.
+        private const int UnknownBallsAmount = 0;
+
         public event Action<WebPlinkoAztecConfigPayload> GameConfigReceived;
         public event Action<WebPlinkoAztecStatePayload> GameStateReceived;
         public event Action<WebPlinkoAztecStatePayload> DropResultReceived;
         public event Action<WebPlinkoAztecStatePayload> StepResultReceived;
 
+        // Fires on every balls-per-drop change: the player stepped the bet-bar switch up or
+        // down, or React pushed the current selection (load, RequestBallsAmount answer). The
+        // value is cached in CurrentBallsAmount, so a subscriber that wires up later can read
+        // it instead of waiting for the next change.
+        public event Action<PlinkoAztecBallsAmountChange> BallsAmountChanged;
+
         public WebPlinkoAztecConfigPayload LastGameConfig { get; private set; }
         public WebPlinkoAztecStatePayload LastGameState { get; private set; }
         public WebPlinkoAztecStatePayload LastDropResult { get; private set; }
         public WebPlinkoAztecStatePayload LastStepResult { get; private set; }
+
+        // Balls the next drop will throw, as selected in the React bet bar. 0 until React
+        // reports the selection — call RequestBallsAmount to ask for it.
+        public int CurrentBallsAmount { get; private set; } = UnknownBallsAmount;
 
         private void Start()
         {
@@ -48,6 +61,35 @@ namespace Modules.PlinkoAztec
         public void RequestStep()
         {
             WebBridgeUtils.Send("RequestStep");
+        }
+
+        // Unity -> React: asks for the balls-per-drop currently selected in the bet bar; React
+        // answers by calling SetBallsAmount. React also pushes the value on load and on every
+        // switch, so this is only for game code that wires up later and needs what it missed.
+        public void RequestBallsAmount()
+        {
+            WebBridgeUtils.Send("RequestBallsAmount");
+        }
+
+        // React entry point (SendMessage): balls-per-drop selected in the bet bar. React owns
+        // the value (the allowed options come from the backend config) — this is the only way
+        // the selection enters Unity. Re-sending the same value raises no event.
+        public void SetBallsAmount(int amount)
+        {
+            if (amount <= UnknownBallsAmount)
+            {
+                WebBridgeLogger.LogWarning($"[PlinkoAztecWebBridge] SetBallsAmount ignored: {amount}");
+                return;
+            }
+
+            if (amount == CurrentBallsAmount)
+                return;
+
+            int previousAmount = CurrentBallsAmount;
+            CurrentBallsAmount = amount;
+            WebBridgeLogger.Log($"[PlinkoAztecWebBridge] BallsAmount: {previousAmount} -> {amount}");
+            BallsAmountChanged?.Invoke(
+                new PlinkoAztecBallsAmountChange(amount, previousAmount, ResolveDirection(previousAmount, amount)));
         }
 
         // React entry point (SendMessage): platform game config with the slot line and
@@ -114,6 +156,18 @@ namespace Modules.PlinkoAztec
         public void NotifyDropFinished()
         {
             WebBridgeUtils.Send("DropFinished");
+        }
+
+        // The very first value the bridge learns has nothing to compare against, so it is a
+        // plain sync rather than a step the player made.
+        private static PlinkoAztecBallsAmountDirection ResolveDirection(int previousAmount, int amount)
+        {
+            if (previousAmount == UnknownBallsAmount)
+                return PlinkoAztecBallsAmountDirection.None;
+
+            return amount > previousAmount
+                ? PlinkoAztecBallsAmountDirection.Increased
+                : PlinkoAztecBallsAmountDirection.Decreased;
         }
     }
 }

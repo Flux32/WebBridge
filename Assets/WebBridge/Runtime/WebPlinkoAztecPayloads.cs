@@ -122,6 +122,43 @@ namespace Modules.PlinkoAztec
         public string Currency;
     }
 
+    // Where a balls-per-drop change came from. None marks the pushes the player did not make:
+    // the first value after load, the answer to RequestBallsAmount, and the re-clamp React does
+    // when the backend config drops the selected option.
+    public enum PlinkoAztecBallsAmountDirection
+    {
+        None = 0,
+        Increased = 1,
+        Decreased = 2
+    }
+
+    // Argument of PlinkoAztecWebBridge.BallsAmountChanged. Carries the new balls-per-drop
+    // selection together with the previous one, so the board can add or remove exactly the
+    // balls that changed instead of rebuilding the whole tray.
+    public readonly struct PlinkoAztecBallsAmountChange
+    {
+        public PlinkoAztecBallsAmountChange(
+            int amount,
+            int previousAmount,
+            PlinkoAztecBallsAmountDirection direction)
+        {
+            Amount = amount;
+            PreviousAmount = previousAmount;
+            Direction = direction;
+        }
+
+        public int Amount { get; }
+
+        // 0 until React reports the first selection.
+        public int PreviousAmount { get; }
+
+        public PlinkoAztecBallsAmountDirection Direction { get; }
+
+        public bool IsIncrease => Direction == PlinkoAztecBallsAmountDirection.Increased;
+
+        public bool IsDecrease => Direction == PlinkoAztecBallsAmountDirection.Decreased;
+    }
+
     // Bet limits shared by the platform (get-game-config betConfig object). Amounts come as
     // strings with currency precision.
     [Preserve]

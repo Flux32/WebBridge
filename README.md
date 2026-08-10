@@ -18,6 +18,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 - [Компоненты](#компоненты)
   - [WebBridgeBase](#webbridgebase)
   - [GameWebBridge](#gamewebbridge)
+  - [PlinkoAztecWebBridge](#plinkoaztecwebbridge)
   - [LayoutWebBridge](#layoutwebbridge)
   - [ScreenOrientationWebBridge](#screenorientationwebbridge)
   - [AudioWebBridge](#audiowebbridge)
@@ -241,6 +242,68 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 | `IsRestoring` | `bool` | Идёт ли восстановление |
 | `SuppressCoefficientUpdates` | `bool` (set) | Подавить поднятие `CoefficientsReceived` |
 | `CanProcessMockSpin` | `Func<bool>` (set) | Необязательный гейт для мок-спинов |
+
+---
+
+### PlinkoAztecWebBridge
+
+Мост Plinko Aztec. Namespace — `Modules.PlinkoAztec`. Ставкой владеет React:
+он зовёт `play({ betPerBall, ballsAmount })` и присылает готовый `GameState`,
+Unity его визуализирует и сообщает, когда доиграл.
+
+#### События
+
+| Событие | Аргументы | Когда срабатывает |
+|---|---|---|
+| `GameConfigReceived` | `WebPlinkoAztecConfigPayload` | Пришёл конфиг игры (линия ячеек, варианты числа шариков) |
+| `GameStateReceived` | `WebPlinkoAztecStatePayload` | Обновилось состояние игры |
+| `DropResultReceived` | `WebPlinkoAztecStatePayload` | Пришёл результат броска (`ballsResult`, колесо, бонус) |
+| `StepResultReceived` | `WebPlinkoAztecStatePayload` | Пришёл результат шага бонусной игры |
+| `BallsAmountChanged` | `PlinkoAztecBallsAmountChange` | Сменилось число шариков в броске: игрок нажал ± в бет-баре либо React прислал текущий выбор (загрузка, ответ на `RequestBallsAmount`) |
+
+#### Методы React → Unity (через `SendMessage`)
+
+| Метод | Параметр | Описание |
+|---|---|---|
+| `ApplyGameConfig(json)` | JSON `WebPlinkoAztecConfigPayload` | Применить конфиг игры |
+| `ApplyGameState(json)` | JSON `WebPlinkoAztecStatePayload` | Применить состояние игры |
+| `ApplyDropResult(json)` | JSON `WebPlinkoAztecStatePayload` | Результат броска |
+| `ApplyStepResult(json)` | JSON `WebPlinkoAztecStatePayload` | Результат шага бонусной игры |
+| `SetBallsAmount(int)` | напр. `20` | Число шариков в броске, выбранное в бет-баре. Набор допустимых значений диктует бэкенд (`ballsAmountOptions`), значением владеет React — это единственный вход выбора в Unity |
+
+#### Методы Unity → React
+
+| Метод | Что шлёт в React | Ответ React |
+|---|---|---|
+| `RequestGameConfig()` | `RequestGameConfig` | → `ApplyGameConfig(json)` |
+| `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
+| `RequestStep()` | `RequestStep` — игрок тапнул поле в бонусной игре | → `ApplyStepResult(json)` |
+| `RequestBallsAmount()` | `RequestBallsAmount` | → `SetBallsAmount(int)` |
+| `NotifyDropFinished()` | `DropFinished` — анимация доиграна, шарики сели | — |
+
+#### Свойства
+
+| Свойство | Тип | Описание |
+|---|---|---|
+| `LastGameConfig` | `WebPlinkoAztecConfigPayload` | Последний конфиг |
+| `LastGameState` | `WebPlinkoAztecStatePayload` | Последнее состояние |
+| `LastDropResult` | `WebPlinkoAztecStatePayload` | Последний результат броска |
+| `LastStepResult` | `WebPlinkoAztecStatePayload` | Последний результат шага бонуса |
+| `CurrentBallsAmount` | `int` | Число шариков, которое уйдёт в следующий бросок. `0`, пока React не прислал выбор |
+
+> **Число шариков.** React пушит выбор, как только движок загрузился, и дальше — на
+> каждое нажатие ± в бет-баре. Ждать события не нужно: подписался позже — прочитай
+> `CurrentBallsAmount`, а если нужен явный ответ, дёрни `RequestBallsAmount()`.
+> Повторная установка того же значения событие не поднимает.
+>
+> ```csharp
+> PlinkoAztecWebBridge.Instance.BallsAmountChanged += change =>
+> {
+>     if (change.IsIncrease) SpawnBalls(change.Amount - change.PreviousAmount);
+>     else if (change.IsDecrease) RemoveBalls(change.PreviousAmount - change.Amount);
+>     else ShowBalls(change.Amount); // первый синк после загрузки
+> };
+> ```
 
 ---
 
@@ -699,6 +762,26 @@ class WebBonusAutoPlayProgress
 - `WebBetBarHideStatePayload` — состояние видимости бет-баров.
 - `WebGameRestorePayload` — `{ config, state }` для `RestoreGame`.
 
+### PlinkoAztecBallsAmountChange
+
+Аргумент события `BallsAmountChanged`:
+
+```csharp
+readonly struct PlinkoAztecBallsAmountChange
+{
+    int Amount;                                 // новое число шариков в броске
+    int PreviousAmount;                         // прежнее; 0 — выбор пришёл впервые
+    PlinkoAztecBallsAmountDirection Direction;  // None | Increased | Decreased
+    bool IsIncrease;                            // Direction == Increased
+    bool IsDecrease;                            // Direction == Decreased
+}
+
+enum PlinkoAztecBallsAmountDirection { None = 0, Increased = 1, Decreased = 2 }
+```
+
+`None` — сменил не игрок: первый синк после загрузки, ответ на `RequestBallsAmount`
+или пересчёт выбора, когда конфиг бэкенда убрал выбранный вариант.
+
 ### RestartReason
 
 ```csharp
@@ -727,6 +810,9 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `RequestWhiteLabel` | `GameWebBridge.RequestWhiteLabel` |
 | `RequestFastGame` | `WebBridgeBase.RequestFastGame` |
 | `FastGame_1` / `FastGame_0` | `WebBridgeBase.NotifyFastGameChanged` |
+| `RequestStep` | `PlinkoAztecWebBridge.RequestStep` |
+| `RequestBallsAmount` | `PlinkoAztecWebBridge.RequestBallsAmount` |
+| `DropFinished` | `PlinkoWebBridge` / `PlinkoAztecWebBridge.NotifyDropFinished` |
 | `BonusProgressSave_{json}` | `GameWebBridge.SaveBonusAutoPlayProgress` |
 | `BonusProgressClear` | `GameWebBridge.ClearBonusAutoPlayProgress` |
 | `BonusActive` | `GameWebBridge.NotifyBonusActive` |
@@ -747,6 +833,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
   `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
   `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
+- **PlinkoAztecWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyDropResult`,
+  `ApplyStepResult`, `SetBallsAmount`.
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.
 - **ScreenOrientationWebBridge:** `ChangeOrientation`.
