@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -13,11 +14,18 @@ namespace Modules.Road
     /// <see cref="StopLoop"/>. Повторный PlayLoop с тем же ключом не начинает
     /// звук заново — он только доводит громкость, так что вызывать его в Update
     /// безопасно. Ключ, оставленный без StopLoop, играет до конца сессии.
+    ///
+    /// One-shot уходит не чаще одного раза за кадр на ключ: залп из восьми
+    /// одинаковых попаданий в одном кадре — это один звук, а не восемь копий
+    /// поверх друг друга (React сложил бы их все).
     /// </summary>
     [Preserve]
     public class AudioWebBridge : MonoBehaviour
     {
         public static AudioWebBridge Instance { get; private set; }
+
+        /// <summary>Кадр последней отправки ключа — дедуп one-shot'ов внутри кадра.</summary>
+        private readonly Dictionary<string, int> _lastSentFrame = new();
 
 #if UNITY_EDITOR
         private EditorAudioPreview _preview;
@@ -47,11 +55,34 @@ namespace Modules.Road
 
         public void PlaySound(string soundKey, float? volume = null)
         {
+            if (string.IsNullOrEmpty(soundKey) || WasSentThisFrame(soundKey))
+                return;
+
 #if UNITY_EDITOR
             _preview.PlaySound(soundKey, volume);
 #else
             WebBridgeUtils.Send(AudioMessages.PlaySound(soundKey, volume));
 #endif
+        }
+
+        /// <summary>
+        /// Сыграть ОДИН из взаимозаменяемых вариантов звука (три версии попадания),
+        /// чтобы повторяющееся событие не строчило одним и тем же сэмплом.
+        /// </summary>
+        public void PlaySoundAnyOf(params string[] soundKeys)
+        {
+            // Со случайного варианта, но играем первый непустой: незаполненное поле
+            // в инспекторе не должно превращаться в тишину вместо звука.
+            int start = Random.Range(0, soundKeys.Length);
+            for (int i = 0; i < soundKeys.Length; i++)
+            {
+                string soundKey = soundKeys[(start + i) % soundKeys.Length];
+                if (string.IsNullOrEmpty(soundKey))
+                    continue;
+
+                PlaySound(soundKey);
+                return;
+            }
         }
 
         public void PlayMusic(string soundKey, float? volume = null)
@@ -81,6 +112,16 @@ namespace Modules.Road
 #else
             WebBridgeUtils.Send(AudioMessages.StopLoop(soundKey));
 #endif
+        }
+
+        private bool WasSentThisFrame(string soundKey)
+        {
+            int frame = Time.frameCount;
+            if (_lastSentFrame.TryGetValue(soundKey, out int sent) && sent == frame)
+                return true;
+
+            _lastSentFrame[soundKey] = frame;
+            return false;
         }
     }
 }
