@@ -102,7 +102,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `GameWebBridge` | Конфиг игры, состояние раунда, результаты ходов, коэффициенты, ставки, кешаут, бонус-система, баланс, white-label, рестор после F5 |
 | `LayoutWebBridge` | Видимость и интерактивность UI-элементов (бет-бары, логотип, кнопка настроек, баланс-панель), метрики мобильного бет-бара |
 | `ScreenOrientationWebBridge` | Ориентация экрана (desktop / mobile) |
-| `AudioWebBridge` | Запросы на проигрывание звуков и музыки |
+| `AudioWebBridge` | Запросы на проигрывание звуков, музыки и зацикленных звуков |
 | `TranslationsWebBridge` | Локализация (словарь переводов от React) |
 | `WebBridgeUI` | Жизненный цикл переходного экрана (TransitionScreen), которым владеет React |
 | `CheatBridge` | Статический мост для отладочного управления RNG (только при включённых читах) |
@@ -385,15 +385,27 @@ ScreenOrientationType CurrentOrientation { get; }
 Прослойка для звука. Звуки идентифицируются строковым ключом.
 
 ```csharp
-PlaySound(string soundKey)   // в WebGL шлёт PlaySound_{soundKey}
-PlayMusic(string soundKey)   // в WebGL шлёт PlayMusic_{soundKey}
+PlaySound(string soundKey, float? volume = null)   // шлёт PlaySound_{key}[|{volume}]
+PlayMusic(string soundKey, float? volume = null)   // шлёт PlayMusic_{key}[|{volume}]
+PlayLoop(string soundKey, float? volume = null)    // шлёт PlayLoop_{key}[|{volume}]
+StopLoop(string soundKey)                          // шлёт StopLoop_{key}
 ```
 
-**В редакторе** мост не шлёт сообщения, а проигрывает звук локально: грузит
-`{soundKey}.mp3` из папки, заданной в ассете `SoundKeys` (`SoundFolderPath`),
-кеширует `AudioClip` и проигрывает (`PlaySound` — one-shot на SFX-источнике,
-`PlayMusic` — зацикленно на music-источнике). Это позволяет слышать звук при
-локальной разработке без React. См. [Звуки](#звуки).
+`volume` необязателен (0..1) и масштабирует громкость, настроенную для этого
+ключа в games-configurator.
+
+**Зацикленный звук — это пара вызовов.** `PlayLoop` держит дорожку, пока её не
+снимет `StopLoop` с тем же ключом; повторный `PlayLoop` играющего ключа не
+начинает звук заново, а только доводит громкость — звать его каждый кадр
+безопасно. Ключ, оставленный без `StopLoop`, играет до конца сессии. React
+глушит лупы, пока звук выключен тумблером или страница в фоне, и поднимает их
+сам, когда играть снова можно — повторного `PlayLoop` для этого не нужно.
+
+**В редакторе** мост не шлёт сообщения, а проигрывает звук локально
+(`EditorAudioPreview`): грузит `{soundKey}.mp3` из папки, заданной в ассете
+`SoundKeys` (`SoundFolderPath`), кеширует `AudioClip` и проигрывает — one-shot
+на SFX-источнике, музыку и каждый луп на своём зацикленном источнике. Это
+позволяет слышать звук при локальной разработке без React. См. [Звуки](#звуки).
 
 ---
 
@@ -545,6 +557,13 @@ public class RoadController : MonoBehaviour
 AudioWebBridge.Instance.PlaySound(_jumpSoundKey);
 ```
 
+Зацикленный звук на время фазы:
+
+```csharp
+private void OnEngineStarted() => AudioWebBridge.Instance.PlayLoop(_engineLoopKey);
+private void OnEngineStopped() => AudioWebBridge.Instance.StopLoop(_engineLoopKey);
+```
+
 ---
 
 ## Mock-режим
@@ -643,7 +662,8 @@ public class Sample : MonoBehaviour
 - Редактируются через **Tools → WebBridge → Sounds**.
 - Drawer `WebBridgeSoundDrawer` рисует выпадающий список ключей из `SoundKeys`.
 - В редакторе `AudioWebBridge` грузит `{ключ}.mp3` из `SoundFolderPath` и проигрывает
-  локально; в WebGL — шлёт `PlaySound_{ключ}` / `PlayMusic_{ключ}` в React.
+  локально; в WebGL — шлёт `PlaySound_{ключ}` / `PlayMusic_{ключ}` /
+  `PlayLoop_{ключ}` / `StopLoop_{ключ}` в React.
 
 ---
 
@@ -802,6 +822,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 |---|---|
 | `PlaySound_{key}` | `AudioWebBridge.PlaySound` |
 | `PlayMusic_{key}` | `AudioWebBridge.PlayMusic` |
+| `PlayLoop_{key}` | `AudioWebBridge.PlayLoop` |
+| `StopLoop_{key}` | `AudioWebBridge.StopLoop` |
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestBetBarViewportMetrics` | `LayoutWebBridge.RequestBetBarViewportMetrics` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |

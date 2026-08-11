@@ -1,31 +1,26 @@
-using System.Globalization;
 using UnityEngine;
-#if UNITY_EDITOR
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.Networking;
-#endif
-
 using UnityEngine.Scripting;
 
 using WebBridge;
 
 namespace Modules.Road
 {
+    /// <summary>
+    /// Звук игры уходит в React по строковому ключу: дорожки и громкость живут в
+    /// games-configurator, здесь только имя звука и что с ним делать.
+    ///
+    /// Зацикленный звук — это ПАРА вызовов: <see cref="PlayLoop"/> держит его до
+    /// <see cref="StopLoop"/>. Повторный PlayLoop с тем же ключом не начинает
+    /// звук заново — он только доводит громкость, так что вызывать его в Update
+    /// безопасно. Ключ, оставленный без StopLoop, играет до конца сессии.
+    /// </summary>
     [Preserve]
     public class AudioWebBridge : MonoBehaviour
     {
-        private const string PlaySoundMessageBase = "PlaySound_";
-        private const string PlayMusicMessageBase = "PlayMusic_";
-        private const char VolumeSeparator = '|';
-
         public static AudioWebBridge Instance { get; private set; }
 
 #if UNITY_EDITOR
-        private AudioSource _sfxSource;
-        private AudioSource _musicSource;
-        private readonly Dictionary<string, AudioClip> _clipCache = new();
-        private string _cachedFolderPath;
+        private EditorAudioPreview _preview;
 #endif
 
         private void Awake()
@@ -40,9 +35,7 @@ namespace Modules.Road
             Instance = this;
 
 #if UNITY_EDITOR
-            _sfxSource = gameObject.AddComponent<AudioSource>();
-            _musicSource = gameObject.AddComponent<AudioSource>();
-            _musicSource.loop = true;
+            _preview = gameObject.AddComponent<EditorAudioPreview>();
 #endif
         }
 
@@ -54,102 +47,40 @@ namespace Modules.Road
 
         public void PlaySound(string soundKey, float? volume = null)
         {
-            //WebBridgeLogger.Log($"Play sound: {soundKey}");
 #if UNITY_EDITOR
-            StartCoroutine(LoadAndPlay(soundKey, false, volume));
+            _preview.PlaySound(soundKey, volume);
 #else
-            WebBridgeUtils.Send(BuildMessage(PlaySoundMessageBase, soundKey, volume));
+            WebBridgeUtils.Send(AudioMessages.PlaySound(soundKey, volume));
 #endif
         }
 
         public void PlayMusic(string soundKey, float? volume = null)
         {
-            WebBridgeLogger.Log($"Play music: {soundKey}");
 #if UNITY_EDITOR
-            StartCoroutine(LoadAndPlay(soundKey, true, volume));
+            _preview.PlayMusic(soundKey, volume);
 #else
-            WebBridgeUtils.Send(BuildMessage(PlayMusicMessageBase, soundKey, volume));
+            WebBridgeUtils.Send(AudioMessages.PlayMusic(soundKey, volume));
 #endif
         }
 
-        private static string BuildMessage(string messageBase, string soundKey, float? volume)
+        /// <summary>Запустить зацикленный звук (или доводит громкость играющего).</summary>
+        public void PlayLoop(string soundKey, float? volume = null)
         {
-            if (!volume.HasValue)
-                return messageBase + soundKey;
-
-            float clamped = Mathf.Clamp01(volume.Value);
-            return messageBase + soundKey + VolumeSeparator + clamped.ToString(CultureInfo.InvariantCulture);
-        }
-
 #if UNITY_EDITOR
-        private IEnumerator LoadAndPlay(string soundKey, bool isMusic, float? volume)
-        {
-            if (string.IsNullOrEmpty(soundKey))
-            {
-                WebBridgeLogger.LogError("[AudioWebBridge] Sound key is empty. Assign a valid key in the component.");
-                yield break;
-            }
-
-            if (_clipCache.TryGetValue(soundKey, out AudioClip cached))
-            {
-                Play(cached, isMusic, volume);
-                yield break;
-            }
-
-            string folderPath = GetSoundFolderPath();
-            if (string.IsNullOrEmpty(folderPath))
-            {
-                WebBridgeLogger.LogWarning("[AudioWebBridge] Sound folder path is not configured in SoundKeys.");
-                yield break;
-            }
-
-            string filePath = $"file://{folderPath}/{soundKey}.mp3";
-
-            using UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(filePath, AudioType.MPEG);
-            yield return request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                WebBridgeLogger.LogError($"[AudioWebBridge] Failed to load '{soundKey}' from {filePath}: {request.error}");
-                yield break;
-            }
-
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-            clip.name = soundKey;
-            _clipCache[soundKey] = clip;
-            Play(clip, isMusic, volume);
-        }
-
-        private void Play(AudioClip clip, bool isMusic, float? volume)
-        {
-            float resolvedVolume = volume.HasValue ? Mathf.Clamp01(volume.Value) : 1f;
-
-            if (isMusic)
-            {
-                _musicSource.clip = clip;
-                _musicSource.volume = resolvedVolume;
-                _musicSource.Play();
-            }
-            else
-            {
-                _sfxSource.PlayOneShot(clip, resolvedVolume);
-            }
-        }
-
-        private string GetSoundFolderPath()
-        {
-            if (_cachedFolderPath != null)
-                return _cachedFolderPath;
-
-            string[] guids = UnityEditor.AssetDatabase.FindAssets("t:SoundKeys");
-            if (guids.Length == 0)
-                return null;
-
-            string assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-            SoundKeys soundKeys = UnityEditor.AssetDatabase.LoadAssetAtPath<SoundKeys>(assetPath);
-            _cachedFolderPath = soundKeys != null ? soundKeys.SoundFolderPath : null;
-            return _cachedFolderPath;
-        }
+            _preview.PlayLoop(soundKey, volume);
+#else
+            WebBridgeUtils.Send(AudioMessages.PlayLoop(soundKey, volume));
 #endif
+        }
+
+        /// <summary>Остановить зацикленный звук. Неизвестный ключ — no-op.</summary>
+        public void StopLoop(string soundKey)
+        {
+#if UNITY_EDITOR
+            _preview.StopLoop(soundKey);
+#else
+            WebBridgeUtils.Send(AudioMessages.StopLoop(soundKey));
+#endif
+        }
     }
 }
