@@ -154,6 +154,15 @@ namespace Modules.Road
         [JsonName("currency")]
         public string Currency;
 
+        // Display-only bet, already formatted the way cashout strings are ("$0.05"):
+        // for crypto wallets React converts betAmount/currency (BTC, USDT, …) into the
+        // display currency, so the bonus win table shows the same money the cashout
+        // window shows. betAmount/currency stay in the WALLET currency — that is what
+        // the progress saved back to React is measured in. Empty → fall back to
+        // betAmount/currency (fiat wallets, older React builds).
+        [JsonName("displayBet")]
+        public string DisplayBet;
+
         [JsonName("bonusTotalCoefficient")]
         public float BonusTotalCoefficient;
 
