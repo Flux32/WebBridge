@@ -46,6 +46,21 @@ namespace Modules.Road
             StartCoroutine(LoadAndPlay(soundKey, clip => PlayOn(LoopSource(soundKey), clip, volume)));
         }
 
+        /// <summary>
+        /// Громкость играющего звука: у зацикленного — его собственный источник,
+        /// иначе общий SFX-источник. В редакторе one-shot'ы делят один источник,
+        /// поэтому громкость одиночного звука здесь доводится сразу для всех —
+        /// в React каждый инстанс доводится отдельно.
+        /// </summary>
+        public void SetVolume(string soundKey, float volume)
+        {
+            AudioSource source = _loopSources.TryGetValue(soundKey, out AudioSource loop) && loop.isPlaying
+                ? loop
+                : _sfxSource;
+
+            source.volume = Volume(volume);
+        }
+
         public void StopLoop(string soundKey)
         {
             if (!_loopSources.TryGetValue(soundKey, out AudioSource source))

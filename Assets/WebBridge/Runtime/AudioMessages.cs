@@ -14,6 +14,7 @@ namespace Modules.Road
         private const string PlayMusicBase = "PlayMusic_";
         private const string PlayLoopBase = "PlayLoop_";
         private const string StopLoopBase = "StopLoop_";
+        private const string SetVolumeBase = "SetVolume_";
         private const char VolumeSeparator = '|';
 
         public static string PlaySound(string soundKey, float? volume) => Build(PlaySoundBase, soundKey, volume);
@@ -23,6 +24,9 @@ namespace Modules.Road
         public static string PlayLoop(string soundKey, float? volume) => Build(PlayLoopBase, soundKey, volume);
 
         public static string StopLoop(string soundKey) => StopLoopBase + soundKey;
+
+        /// <summary>Громкость здесь обязательна: без суффикса React команду отбрасывает.</summary>
+        public static string SetVolume(string soundKey, float volume) => Build(SetVolumeBase, soundKey, volume);
 
         private static string Build(string messageBase, string soundKey, float? volume)
         {

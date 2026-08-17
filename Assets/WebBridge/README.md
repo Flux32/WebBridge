@@ -277,7 +277,19 @@ ScreenOrientationType CurrentOrientation { get; }
 ```csharp
 PlaySound(string soundKey, float? volume = null)   // в WebGL шлёт PlaySound_{soundKey}[|{volume}]
 PlayMusic(string soundKey, float? volume = null)   // в WebGL шлёт PlayMusic_{soundKey}[|{volume}]
+PlayLoop(string soundKey, float? volume = null)    // в WebGL шлёт PlayLoop_{soundKey}[|{volume}]
+StopLoop(string soundKey)                          // в WebGL шлёт StopLoop_{soundKey}
+SetVolume(string soundKey, float volume)           // в WebGL шлёт SetVolume_{soundKey}|{volume}
 ```
+
+Зацикленный звук — это пара вызовов: `PlayLoop` держит его до `StopLoop`.
+Повторный `PlayLoop` того же ключа не начинает звук заново, а только доводит
+громкость, поэтому звать его из `Update` безопасно.
+
+`SetVolume` меняет громкость УЖЕ играющего звука (one-shot или лупа), не
+перезапуская его: перезапуск ради громкости дал бы звук поверх самого себя.
+Громкость здесь обязательна — команду без суффикса React отбрасывает. Ключ,
+который сейчас не играет, — no-op.
 
 **Громкость** (`volume`) — необязательный параметр в диапазоне `0..1` (значения
 зажимаются через `Clamp01`). Если он не задан, сообщение остаётся прежним
@@ -678,6 +690,9 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 |---|---|
 | `PlaySound_{key}` или `PlaySound_{key}\|{volume}` | `AudioWebBridge.PlaySound` |
 | `PlayMusic_{key}` или `PlayMusic_{key}\|{volume}` | `AudioWebBridge.PlayMusic` |
+| `PlayLoop_{key}` или `PlayLoop_{key}\|{volume}` | `AudioWebBridge.PlayLoop` |
+| `StopLoop_{key}` | `AudioWebBridge.StopLoop` |
+| `SetVolume_{key}\|{volume}` | `AudioWebBridge.SetVolume` |
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestBetBarViewportMetrics` | `LayoutWebBridge.RequestBetBarViewportMetrics` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |

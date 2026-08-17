@@ -104,6 +104,27 @@ namespace Modules.Road
 #endif
         }
 
+        /// <summary>
+        /// Сменить громкость УЖЕ играющего звука, не перезапуская его: перезапуск
+        /// ради громкости дал бы звук поверх самого себя. React пересчитывает её
+        /// той же формулой, что при старте, поэтому здесь — тот же множитель
+        /// 0..1, что и в PlaySound. Ключ, который сейчас не играет, — no-op.
+        ///
+        /// Дедуп кадра сюда не относится: это не новый звук, звать из Update
+        /// безопасно.
+        /// </summary>
+        public void SetVolume(string soundKey, float volume)
+        {
+            if (string.IsNullOrEmpty(soundKey))
+                return;
+
+#if UNITY_EDITOR
+            _preview.SetVolume(soundKey, volume);
+#else
+            WebBridgeUtils.Send(AudioMessages.SetVolume(soundKey, volume));
+#endif
+        }
+
         /// <summary>Остановить зацикленный звук. Неизвестный ключ — no-op.</summary>
         public void StopLoop(string soundKey)
         {
