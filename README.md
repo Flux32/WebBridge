@@ -19,6 +19,7 @@ Unity-пакет для связи между React-фронтендом и Unit
   - [WebBridgeBase](#webbridgebase)
   - [GameWebBridge](#gamewebbridge)
   - [PlinkoAztecWebBridge](#plinkoaztecwebbridge)
+  - [WheelWebBridge](#wheelwebbridge)
   - [LayoutWebBridge](#layoutwebbridge)
   - [ScreenOrientationWebBridge](#screenorientationwebbridge)
   - [AudioWebBridge](#audiowebbridge)
@@ -302,6 +303,54 @@ Unity его визуализирует и сообщает, когда доиг
 >     if (change.IsIncrease) SpawnBalls(change.Amount - change.PreviousAmount);
 >     else if (change.IsDecrease) RemoveBalls(change.PreviousAmount - change.Amount);
 >     else ShowBalls(change.Amount); // первый синк после загрузки
+> };
+> ```
+
+---
+
+### WheelWebBridge
+
+Мост игры с общим раундом и ставкой на цвет (wheel). Namespace — `Modules.Wheel`.
+Раундом владеет бэкенд: он крутит его сразу для всех, React следит за фазой и
+пересылает её сюда. У Unity нет ни логики раунда, ни бет-бара — бар и доска
+ставок живут в React, — игра только показывает фазу и сообщает, когда доиграла
+исход.
+
+#### События
+
+| Событие | Аргументы | Когда срабатывает |
+|---|---|---|
+| `RoundReceived` | `WebWheelRoundPayload` | Пришло состояние раунда: смена фазы, отсчёт до старта, исход |
+
+#### Методы React → Unity
+
+| Метод | Аргумент | Что делает |
+|---|---|---|
+| `ApplyRound` | JSON `WebWheelRoundPayload` | Фаза раунда и, когда он разыгран, выпавший цвет |
+
+#### Методы Unity → React
+
+| Метод | Сообщение | Когда звать |
+|---|---|---|
+| `NotifyRoundShown` | `RoundShown` | Исход доигран на экране — React снимает лок и показывает выигрыш |
+
+#### Payload
+
+| Поле | Тип | Смысл |
+|---|---|---|
+| `status` | `WAIT_GAME` / `IN_GAME` / `FINISH_GAME` / `STOPPED` | Фаза раунда; в коде читается как `Status` (`WheelRoundStatus`) |
+| `roundId` | string | Номер раунда бэкенда |
+| `msToNextPhase` | int? | Сколько осталось до смены фазы (приходит с приёмом ставок) |
+| `winnerColor` | `BLACK` / `RED` / `BLUE` / `GREEN` | Выпавший цвет; в коде — `Winner` (`WheelColor`) |
+| `cellIndex` | int? | Выпавшая ячейка колеса |
+| `inCellOffset` | float? | Точка остановки внутри ячейки |
+
+> Игра подписывается на фазу, а не опрашивает её:
+>
+> ```csharp
+> WheelWebBridge.Instance.RoundReceived += round =>
+> {
+>     if (round.Status == WheelRoundStatus.Spinning) PlayOutcome(round.Winner);
 > };
 > ```
 
@@ -826,6 +875,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `StopLoop_{key}` | `AudioWebBridge.StopLoop` |
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestBetBarViewportMetrics` | `LayoutWebBridge.RequestBetBarViewportMetrics` |
+| `RoundShown` | `WheelWebBridge.NotifyRoundShown` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |
 | `RequestGameState` | `GameWebBridge.RequestGameState` |
 | `RequestActiveGameState` | `GameWebBridge.RequestActiveGameState` |
@@ -857,6 +907,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **PlinkoAztecWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyDropResult`,
   `ApplyStepResult`, `SetBallsAmount`.
+- **WheelWebBridge:** `ApplyRound`.
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.
 - **ScreenOrientationWebBridge:** `ChangeOrientation`.
