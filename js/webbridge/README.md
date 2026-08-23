@@ -39,8 +39,11 @@ window.__PHASER_BOOT__ = createPhaserBoot({
 
 ## Что осталось (скелет)
 
-- `CrushBridge` покрывает базовый цикл (config/state/step/coeffs/bonus); остальные
-  команды из `CrushCommand` доводятся по мере готовности сцен;
+- `CrushBridge` покрывает базовый цикл (config/state/step/coeffs) и запуск бонуса
+  с уведомлениями. Бонус в Crush полноценный — в C#-мосте есть покупка
+  (`BonusModePurchased`/`BonusModePurchaseFailed`), режимы магазина
+  (`ResolveBonusModesForShop`) и восстановление позиций автоплея
+  (`ResolveBonusPositionsForAutoPlay`); здесь этого пока нет;
 - нет аналогов `AudioWebBridge`/`LayoutWebBridge` как отдельных классов — сейчас
   их сообщения уходят прямо через `BridgeBase`; выделять в отдельные модули,
   когда набежит логика;

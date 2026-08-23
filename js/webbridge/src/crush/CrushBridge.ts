@@ -91,8 +91,11 @@ export class CrushBridge extends BridgeBase {
         this.cashoutPressed.invoke();
         return;
       case 'ApplyBonusPurchaseResult':
-        // TODO: довести вместе со сценой магазина бонусов — сигнал заводить
-        // тогда же, чтобы не плодить мёртвый API.
+        // Бонус в Crush полноценный — C#-мост отдаёт BonusModePurchased и
+        // BonusModePurchaseFailed, знает режимы магазина и восстанавливает
+        // позиции автоплея. Здесь пока покрыт только запуск и уведомления;
+        // покупку заводить вместе со сценой магазина, чтобы не плодить
+        // мёртвый API.
         BridgeLogger.warn(`[CrushBridge] ${command.type} ещё не обработан`);
         return;
     }
