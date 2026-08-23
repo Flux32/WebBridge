@@ -12,6 +12,16 @@
  */
 import type { MockHost } from './MockHost';
 
+/**
+ * Произвольное действие в панели. Нужно для того, что панель сделать не может,
+ * — например собрать билд: страница не запускает сборку сама, за неё это делает
+ * эндпоинт dev-сервера, а игра приносит сюда вызов.
+ */
+export interface MockPanelAction {
+  label: string;
+  run(): void | Promise<void>;
+}
+
 const LOSE_CHANCE_STEP = 0.05;
 const BUTTON_SIZE = 44;
 
@@ -24,7 +34,10 @@ export class MockPanel {
   private dragOffset: { x: number; y: number } | null = null;
   private wasDragged = false;
 
-  public constructor(private readonly host: MockHost) {
+  public constructor(
+    private readonly host: MockHost,
+    private readonly actions: MockPanelAction[] = [],
+  ) {
     this.root = document.createElement('div');
     this.root.style.cssText = [
       'position:fixed', 'left:12px', 'top:12px', 'z-index:2147483647',
@@ -102,6 +115,7 @@ export class MockPanel {
     ));
 
     panel.appendChild(this.createActions());
+    if (this.actions.length > 0) panel.appendChild(this.createCustomActions());
     return panel;
   }
 
@@ -131,6 +145,34 @@ export class MockPanel {
     [step, cashout, restart].forEach((button) => { button.style.flex = '1'; });
 
     row.append(step, cashout, restart);
+    return row;
+  }
+
+  // Действия игры: пока идёт долгая работа, кнопка блокируется и показывает
+  // многоточие — иначе непонятно, началось ли что-нибудь.
+  private createCustomActions(): HTMLDivElement {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:6px;margin-top:6px';
+
+    this.actions.forEach((action) => {
+      const button = this.createButton(action.label, async () => {
+        button.disabled = true;
+        button.textContent = `${action.label} …`;
+        try {
+          await action.run();
+          button.textContent = `${action.label} ✓`;
+        } catch {
+          button.textContent = `${action.label} ✗`;
+        }
+        setTimeout(() => {
+          button.disabled = false;
+          button.textContent = action.label;
+        }, 1500);
+      });
+      button.style.flex = '1';
+      row.appendChild(button);
+    });
+
     return row;
   }
 
