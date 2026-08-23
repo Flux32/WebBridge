@@ -6,8 +6,11 @@ export type { SignalHandler } from './core/Signal';
 export type { BridgeTransport } from './core/BridgeTransport';
 export { isCheatsEnabled, isMockEnabled } from './core/mockMode';
 
-export { RoadBridge } from './road/RoadBridge';
-export type { RestartRequest } from './road/RoadBridge';
+export { CrushBridge } from './crush/CrushBridge';
+export type { RestartRequest } from './crush/CrushBridge';
+
+export { MockHost } from './mock/MockHost';
+export type { MockHostOptions } from './mock/MockHost';
 
 export { createPhaserBoot } from './phaser/createPhaserBoot';
 export type { PhaserBootConfig } from './phaser/createPhaserBoot';

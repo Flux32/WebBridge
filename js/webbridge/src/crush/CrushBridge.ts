@@ -1,5 +1,5 @@
 /**
- * Мост игры Road — зеркало C#-шного `RoadWebBridge`. Разбирает команды React в
+ * Мост режима Crush — зеркало C#-шного `RoadWebBridge`. Разбирает команды React в
  * сигналы, на которые подписываются сцены, и отдаёт наружу методы уведомлений.
  * Ни одной игровой сущности здесь не импортируется: зависимость идёт от игры к
  * мосту, не наоборот.
@@ -23,7 +23,7 @@ export interface RestartRequest {
   amount: string;
 }
 
-export class RoadBridge extends BridgeBase {
+export class CrushBridge extends BridgeBase {
   public readonly gameConfigReceived = new Signal<GameConfigPayload>();
   public readonly gameStateReceived = new Signal<unknown>();
   public readonly stepResultReceived = new Signal<StepResultPayload>();
@@ -55,21 +55,21 @@ export class RoadBridge extends BridgeBase {
     this.transport.send({ type: 'RequestGameState' });
   }
 
+  protected override applyGameConfig(payload: string): void {
+    const config = JSON.parse(payload) as GameConfigPayload;
+    this.lastGameConfig = config;
+    this.hasReceivedInitialConfig = true;
+    this.gameConfigReceived.invoke(config);
+  }
+
+  protected override applyGameState(payload: string): void {
+    const state: unknown = JSON.parse(payload);
+    this.lastGameState = state;
+    this.gameStateReceived.invoke(state);
+  }
+
   protected override handleGameCommand(command: Exclude<EngineCommand, CoreCommand>): void {
     switch (command.type) {
-      case 'ApplyGameConfig': {
-        const config = JSON.parse(command.payload) as GameConfigPayload;
-        this.lastGameConfig = config;
-        this.hasReceivedInitialConfig = true;
-        this.gameConfigReceived.invoke(config);
-        return;
-      }
-      case 'ApplyGameState': {
-        const state: unknown = JSON.parse(command.payload);
-        this.lastGameState = state;
-        this.gameStateReceived.invoke(state);
-        return;
-      }
       case 'ApplyStepResult':
         this.stepResultReceived.invoke(command.payload);
         return;
@@ -93,7 +93,7 @@ export class RoadBridge extends BridgeBase {
       case 'ApplyBonusPurchaseResult':
         // TODO: довести вместе со сценой магазина бонусов — сигнал заводить
         // тогда же, чтобы не плодить мёртвый API.
-        BridgeLogger.warn(`[RoadBridge] ${command.type} ещё не обработан`);
+        BridgeLogger.warn(`[CrushBridge] ${command.type} ещё не обработан`);
         return;
     }
   }

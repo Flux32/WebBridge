@@ -4,7 +4,7 @@
  * React с ретраями, white-label-рукопожатие, fast game и общий UI-слой
  * (ориентация, переводы, окна результата/перехода).
  *
- * Игровая специфика живёт в наследнике (см. `road/RoadBridge`).
+ * Игровая специфика живёт в наследнике (см. `road/CrushBridge`).
  */
 import type {
   CoreCommand,
@@ -66,6 +66,14 @@ export abstract class BridgeBase {
       case 'ChangeOrientation':
         this.orientationChanged.invoke(command.payload);
         return;
+      // Конфиг и состояние нужны любой игре, но разбирает их каждая по-своему:
+      // база только маршрутизирует, форму payload'а знает наследник.
+      case 'ApplyGameConfig':
+        this.applyGameConfig(command.payload);
+        return;
+      case 'ApplyGameState':
+        this.applyGameState(command.payload);
+        return;
       case 'ApplyTranslations':
         this.translationsReceived.invoke(JSON.parse(command.payload) as Record<string, string>);
         return;
@@ -104,6 +112,12 @@ export abstract class BridgeBase {
         this.handleGameCommand(command);
     }
   }
+
+  /** Разобрать конфиг раунда. Payload — сериализованный JSON своей игры. */
+  protected abstract applyGameConfig(payload: string): void;
+
+  /** Разобрать состояние сессии: «приведи сцену к этому». */
+  protected abstract applyGameState(payload: string): void;
 
   /** Игровые команды. Наследник обязан разобрать свой союз `*Command`. */
   protected abstract handleGameCommand(command: Exclude<EngineCommand, CoreCommand>): void;
@@ -160,7 +174,7 @@ export abstract class BridgeBase {
   public notifyFastGameChanged(isEnabled: boolean): void {
     if (!this.applyFastGame(isEnabled)) return;
 
-    this.transport.send({ type: 'FastGameChanged', payload: isEnabled });
+    this.transport.send({ type: 'FastGameChanged', enabled: isEnabled });
   }
 
   public dispose(): void {
