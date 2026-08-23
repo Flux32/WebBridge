@@ -50,7 +50,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 Или конкретную версию:
 
 ```json
-"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#v1.0.0"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#unity-v1.0.0"
 ```
 
 ### Структура репозитория
