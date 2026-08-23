@@ -40,17 +40,32 @@ Unity-пакет для связи между React-фронтендом и Unit
 
 ## Установка
 
-Добавьте в `Packages/manifest.json`:
+Пакет лежит не в корне репозитория, а в `unity/Assets/WebBridge`, поэтому URL
+обязан нести `?path=`. Добавьте в `Packages/manifest.json`:
 
 ```json
-"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#main"
 ```
 
 Или конкретную версию:
 
 ```json
-"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git#v1.0.0"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#v1.0.0"
 ```
+
+### Структура репозитория
+
+Корень отдан не одному Unity-проекту — мост живёт под два движка:
+
+```
+protocol/          @public/webbridge-protocol — контракт React <-> игра (источник истины)
+js/webbridge/      @public/webbridge-js — игровая сторона для Phaser
+unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
+```
+
+Контракт один на всех, реализации две: C# отдаёт и принимает строки через
+`SendMessage`/`SendToReact`, Phaser-бандл — структуры в том же `window`. Всё
+ниже по документу описывает Unity-сторону; TS-зеркало см. `js/webbridge/README.md`.
 
 **Зависимости** (подтягиваются автоматически):
 - `com.unity.nuget.newtonsoft-json` — сериализация JSON-payload;
