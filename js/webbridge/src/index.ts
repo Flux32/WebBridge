@@ -10,6 +10,7 @@ export { CrushBridge } from './crush/CrushBridge';
 export type { RestartRequest } from './crush/CrushBridge';
 
 export { MockHost } from './mock/MockHost';
+export { MockPanel } from './mock/MockPanel';
 export type { MockHostOptions } from './mock/MockHost';
 
 export { createPhaserBoot } from './phaser/createPhaserBoot';

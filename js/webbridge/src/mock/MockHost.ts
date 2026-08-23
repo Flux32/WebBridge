@@ -14,16 +14,30 @@ import type {
 } from '@omega/webbridge-protocol';
 
 export interface MockHostOptions {
-  /** Лесенка раунда. Игра обычно передаёт свою — по числу шагов в сцене. */
-  coefficients: number[];
+  /**
+   * Лесенки по именам сложности — как DifficultyEntry[] в MockConfig
+   * C#-пакета. Сложность на бэке выбирает таблицу коэффициентов, поэтому здесь
+   * она делает ровно то же: меняет лесенку и переотправляет конфиг.
+   */
+  difficulties: Record<string, number[]>;
+  /** Текущая сложность; по умолчанию — первая в наборе. */
+  difficulty: string;
   /** Вероятность проигрыша на шаге. */
   loseChance: number;
   /** Валюта в ответах — движок показывает её как есть. */
   currency: string;
 }
 
+// Значения из MockConfig C#-пакета, чтобы мок был осмысленным без настройки.
+const DEFAULT_DIFFICULTIES: Record<string, number[]> = {
+  easy: [1.1, 1.2, 1.4, 1.8, 2.2, 2.6, 3.2, 4.1, 5.8],
+  medium: [1.2, 1.5, 1.8, 2.4, 3.0, 3.8, 5.0, 7.0, 10.0],
+  hard: [1.5, 2.0, 3.0, 4.5, 6.5, 9.0, 13.0, 18.0, 25.0],
+};
+
 const DEFAULTS: MockHostOptions = {
-  coefficients: [1.5, 2, 3, 5, 8, 13, 21, 34],
+  difficulties: DEFAULT_DIFFICULTIES,
+  difficulty: 'easy',
   loseChance: 0.2,
   currency: 'USD',
 };
@@ -39,6 +53,49 @@ export class MockHost implements PhaserHostBridge {
 
   public constructor(options: Partial<MockHostOptions> = {}) {
     this.options = { ...DEFAULTS, ...options };
+
+    // Сложность, которой нет в переданном наборе, оставила бы мок без лесенки.
+    if (!(this.options.difficulty in this.options.difficulties)) {
+      const [first] = Object.keys(this.options.difficulties);
+      if (first === undefined) throw new Error('MockHost: difficulties пуст');
+      this.options.difficulty = first;
+    }
+  }
+
+  /** Имена сложностей в порядке объявления — для перебора в панели. */
+  public get difficultyNames(): string[] {
+    return Object.keys(this.options.difficulties);
+  }
+
+  public get difficulty(): string {
+    return this.options.difficulty;
+  }
+
+  /** Лесенка текущей сложности. */
+  public get coefficients(): number[] {
+    // Конструктор гарантирует, что текущая сложность есть в наборе.
+    return this.options.difficulties[this.options.difficulty]!;
+  }
+
+  public get loseChance(): number {
+    return this.options.loseChance;
+  }
+
+  public set loseChance(value: number) {
+    this.options.loseChance = Math.min(1, Math.max(0, value));
+  }
+
+  /**
+   * Сменить сложность: новая лесенка уезжает в движок конфигом, а раунд
+   * начинается заново — на бэке смена сложности тоже относится к новому
+   * раунду, а не к текущему.
+   */
+  public setDifficulty(name: string): void {
+    if (!(name in this.options.difficulties) || name === this.options.difficulty) return;
+
+    this.options.difficulty = name;
+    this.sendGameConfig();
+    this.restart('difficulty');
   }
 
   /** Отдать мока игре, поднятой через `__PHASER_BOOT__`. */
@@ -136,7 +193,7 @@ export class MockHost implements PhaserHostBridge {
     this.send({
       type: 'ApplyGameConfig',
       payload: JSON.stringify({
-        coefficients: this.options.coefficients,
+        coefficients: this.coefficients,
         bonusCounts: {},
         bonusModes: {},
         currency: this.options.currency,
