@@ -24,6 +24,30 @@ export interface MockPanelAction {
 
 const LOSE_CHANCE_STEP = 0.05;
 const BUTTON_SIZE = 44;
+const RESULT_HOLD_MS = 1500;
+
+// Индикатор долгой работы: бегущая полоса по кнопке. Именно бегущая, а не
+// статичная — по ней видно, что процесс идёт, а не завис.
+const STYLE_ID = 'wb-mock-panel-style';
+const STYLE = `
+@keyframes wb-mock-sweep { from { background-position: 200% 0 } to { background-position: 0 0 } }
+.wb-mock-busy {
+  background-image: linear-gradient(100deg, #2a2a2a 20%, #4a7c4a 45%, #6fbf6f 50%, #4a7c4a 55%, #2a2a2a 80%);
+  background-size: 200% 100%;
+  animation: wb-mock-sweep 1.2s linear infinite;
+  cursor: progress;
+}
+@media (prefers-reduced-motion: reduce) { .wb-mock-busy { animation-duration: 3s } }
+`;
+
+function ensureStyle(): void {
+  if (document.getElementById(STYLE_ID)) return;
+
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = STYLE;
+  document.head.appendChild(style);
+}
 
 export class MockPanel {
   private readonly root: HTMLDivElement;
@@ -51,6 +75,7 @@ export class MockPanel {
   }
 
   public mount(target: HTMLElement = document.body): () => void {
+    ensureStyle();
     target.appendChild(this.root);
     this.refresh();
     return () => this.root.remove();
@@ -157,17 +182,30 @@ export class MockPanel {
     this.actions.forEach((action) => {
       const button = this.createButton(action.label, async () => {
         button.disabled = true;
-        button.textContent = `${action.label} …`;
+        button.classList.add('wb-mock-busy');
+
+        // Счётчик секунд рядом с бегущей полосой: сборка идёт десятками секунд,
+        // и без него непонятно, долго ли ещё.
+        const startedAt = Date.now();
+        const tick = setInterval(() => {
+          const seconds = Math.round((Date.now() - startedAt) / 1000);
+          button.textContent = `${action.label} ${seconds}s`;
+        }, 250);
+
         try {
           await action.run();
           button.textContent = `${action.label} ✓`;
         } catch {
           button.textContent = `${action.label} ✗`;
+        } finally {
+          clearInterval(tick);
+          button.classList.remove('wb-mock-busy');
         }
+
         setTimeout(() => {
           button.disabled = false;
           button.textContent = action.label;
-        }, 1500);
+        }, RESULT_HOLD_MS);
       });
       button.style.flex = '1';
       row.appendChild(button);
