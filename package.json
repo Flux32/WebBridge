@@ -1,0 +1,13 @@
+{
+  "name": "webbridge-monorepo",
+  "private": true,
+  "workspaces": [
+    "protocol",
+    "js/webbridge"
+  ],
+  "scripts": {
+    "build": "tsc -b js/webbridge",
+    "typecheck": "tsc -b js/webbridge",
+    "clean": "tsc -b --clean js/webbridge"
+  }
+}
