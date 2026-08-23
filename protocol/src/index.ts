@@ -9,8 +9,8 @@ export type {
   UnityFrameSamplePayload,
 } from './payloads';
 
-export type { CoreCommand, EngineCommand, EngineCommandType, RoadCommand } from './commands';
-export type { CoreEvent, EngineEvent, EngineEventType, RoadEvent, UnityOnlyEvent } from './events';
+export type { CoreCommand, EngineCommand, EngineCommandType, CrushCommand } from './commands';
+export type { CoreEvent, EngineEvent, EngineEventType, CrushEvent, UnityOnlyEvent } from './events';
 
 export type {
   PhaserBootFn,

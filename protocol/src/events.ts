@@ -23,13 +23,15 @@ export type CoreEvent =
   | { type: 'RequestTranslations' }
   | { type: 'RequestBetBarViewportMetrics' };
 
-/** События конкретно игры Road. */
-export type RoadEvent =
+/** События режима Crush. */
+export type CrushEvent =
   | { type: 'BonusProgressSave'; raw: string }
   | { type: 'BonusProgressClear' }
   | { type: 'BonusActive' }
   | { type: 'BonusEnded' }
   | { type: 'BonusCleared' }
+  // Движок доиграл анимацию шага и готов принять следующий: этим React
+  // разблокирует бет-бар.
   | { type: 'SpinReady' }
   | { type: 'OpenTransitionScreen' }
   | { type: 'BonusPurchaseRequest'; payload: BonusPurchaseRequestPayload };
@@ -37,5 +39,5 @@ export type RoadEvent =
 /** Телеметрия, которую умеет только Unity-сборка. */
 export type UnityOnlyEvent = { type: 'UnityFrameSample'; payload: UnityFrameSamplePayload };
 
-export type EngineEvent = CoreEvent | RoadEvent | UnityOnlyEvent;
+export type EngineEvent = CoreEvent | CrushEvent | UnityOnlyEvent;
 export type EngineEventType = EngineEvent['type'];

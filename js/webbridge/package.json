@@ -20,7 +20,7 @@
     "prepack": "tsc -b"
   },
   "dependencies": {
-    "@omega/webbridge-protocol": "1.0.0"
+    "@omega/webbridge-protocol": "https://github.com/Flux32/WebBridge/releases/download/protocol-v1.0.0/omega-webbridge-protocol-1.0.0.tgz"
   },
   "devDependencies": {
     "typescript": "^5.5.0"

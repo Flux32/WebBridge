@@ -1,5 +1,5 @@
 /**
- * Мост игры Road — зеркало C#-шного `RoadWebBridge`. Разбирает команды React в
+ * Мост режима Crush — зеркало C#-шного `RoadWebBridge`. Разбирает команды React в
  * сигналы, на которые подписываются сцены, и отдаёт наружу методы уведомлений.
  * Ни одной игровой сущности здесь не импортируется: зависимость идёт от игры к
  * мосту, не наоборот.
@@ -23,7 +23,7 @@ export interface RestartRequest {
   amount: string;
 }
 
-export class RoadBridge extends BridgeBase {
+export class CrushBridge extends BridgeBase {
   public readonly gameConfigReceived = new Signal<GameConfigPayload>();
   public readonly gameStateReceived = new Signal<unknown>();
   public readonly stepResultReceived = new Signal<StepResultPayload>();
@@ -93,7 +93,7 @@ export class RoadBridge extends BridgeBase {
       case 'ApplyBonusPurchaseResult':
         // TODO: довести вместе со сценой магазина бонусов — сигнал заводить
         // тогда же, чтобы не плодить мёртвый API.
-        BridgeLogger.warn(`[RoadBridge] ${command.type} ещё не обработан`);
+        BridgeLogger.warn(`[CrushBridge] ${command.type} ещё не обработан`);
         return;
     }
   }

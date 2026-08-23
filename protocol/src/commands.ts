@@ -35,8 +35,12 @@ export type CoreCommand =
   | { type: 'TransitionScreenCloseStarted' }
   | { type: 'TransitionScreenCloseFinished' };
 
-/** Команды конкретно игры Road. Другая игра добавляет свой союз рядом. */
-export type RoadCommand =
+/**
+ * Команды режима Crush — «шаг по лесенке коэффициентов + кэшаут». Это режим
+ * бэка (`gameType` в play/step/payout), а не одна игра: на нём живут Road,
+ * MegaGrab и AngryMoney. Режим с другой механикой добавляет свой союз рядом.
+ */
+export type CrushCommand =
   | { type: 'SetAutoplay'; payload: boolean }
   | { type: 'RestartRound'; payload: string }
   | { type: 'UpdateCoeffs'; payload: number[] }
@@ -54,5 +58,5 @@ export type RoadCommand =
   // камеру к верхушке башни, ПОКА окно открывается.
   | { type: 'CashoutPressed' };
 
-export type EngineCommand = CoreCommand | RoadCommand;
+export type EngineCommand = CoreCommand | CrushCommand;
 export type EngineCommandType = EngineCommand['type'];

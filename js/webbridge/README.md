@@ -7,7 +7,7 @@
 | C# | TS |
 |---|---|
 | `WebBridgeBase<T>` | `BridgeBase` |
-| `RoadWebBridge` | `RoadBridge` |
+| `RoadWebBridge` | `CrushBridge` |
 | `event Action<T>` | `Signal<T>` |
 | `WebBridgeUtils.Send` | `BridgeTransport.send` |
 | `WebBridgeUtils.*LocalStorage` | `BridgeStorage` |
@@ -15,7 +15,7 @@
 
 ## Архитектурные границы
 
-1. **Ядро не знает про Phaser.** `BridgeBase`/`RoadBridge` работают с
+1. **Ядро не знает про Phaser.** `BridgeBase`/`CrushBridge` работают с
    `BridgeTransport` — интерфейсом «отправить `EngineEvent`». Phaser появляется
    только в `phaser/createPhaserBoot.ts`.
 2. **Ядро не знает про строки.** Парсинг `SendMessage`-строк — беда одного лишь
@@ -28,10 +28,10 @@
 ## Точка входа
 
 ```ts
-import { createPhaserBoot, RoadBridge } from '@omega/webbridge-js';
+import { createPhaserBoot, CrushBridge } from '@omega/webbridge-js';
 
 window.__PHASER_BOOT__ = createPhaserBoot({
-  createBridge: (transport) => new RoadBridge(transport),
+  createBridge: (transport) => new CrushBridge(transport),
   createGame: (bridge, container, options) => new Phaser.Game(makeConfig(bridge, container, options)),
   destroyGame: (game) => game.destroy(true),
 });
@@ -39,8 +39,8 @@ window.__PHASER_BOOT__ = createPhaserBoot({
 
 ## Что осталось (скелет)
 
-- `RoadBridge` покрывает базовый цикл (config/state/step/coeffs/bonus); остальные
-  команды из `RoadCommand` доводятся по мере готовности сцен;
+- `CrushBridge` покрывает базовый цикл (config/state/step/coeffs/bonus); остальные
+  команды из `CrushCommand` доводятся по мере готовности сцен;
 - нет аналогов `AudioWebBridge`/`LayoutWebBridge` как отдельных классов — сейчас
   их сообщения уходят прямо через `BridgeBase`; выделять в отдельные модули,
   когда набежит логика;

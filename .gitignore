@@ -8,6 +8,8 @@
 node_modules/
 dist/
 *.tsbuildinfo
+# тарболы релизов собираются npm pack прямо в корне
+*.tgz
 
 # IDE
 .vs/
