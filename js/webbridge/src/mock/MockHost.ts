@@ -28,16 +28,25 @@ export interface MockHostOptions {
   currency: string;
 }
 
-// Значения из MockConfig C#-пакета, чтобы мок был осмысленным без настройки.
+/**
+ * Четыре уровня платформы — ровно те, что уходят на бэк в `value.difficulty`
+ * (`DifficultyLevel` во фронтенде) и что показывает чит-панель Unity. Регистр
+ * верхний, как на проводе.
+ *
+ * Лесенки — иллюстративные: EASY/MEDIUM/HARD взяты из MockConfig C#-пакета,
+ * DAREDEVIL добавлен по смыслу уровня (короче и круче). Настоящие таблицы
+ * присылает сервер, мок лишь даёт чему-то приехать в конфиге.
+ */
 const DEFAULT_DIFFICULTIES: Record<string, number[]> = {
-  easy: [1.1, 1.2, 1.4, 1.8, 2.2, 2.6, 3.2, 4.1, 5.8],
-  medium: [1.2, 1.5, 1.8, 2.4, 3.0, 3.8, 5.0, 7.0, 10.0],
-  hard: [1.5, 2.0, 3.0, 4.5, 6.5, 9.0, 13.0, 18.0, 25.0],
+  EASY: [1.1, 1.2, 1.4, 1.8, 2.2, 2.6, 3.2, 4.1, 5.8],
+  MEDIUM: [1.2, 1.5, 1.8, 2.4, 3.0, 3.8, 5.0, 7.0, 10.0],
+  HARD: [1.5, 2.0, 3.0, 4.5, 6.5, 9.0, 13.0, 18.0, 25.0],
+  DAREDEVIL: [2.0, 4.5, 9.0, 19.0, 40.0, 85.0, 180.0],
 };
 
 const DEFAULTS: MockHostOptions = {
   difficulties: DEFAULT_DIFFICULTIES,
-  difficulty: 'easy',
+  difficulty: 'EASY',
   loseChance: 0.2,
   currency: 'USD',
 };
