@@ -1,0 +1,32 @@
+{
+  "name": "@public/webbridge-js",
+  "version": "1.0.0",
+  "description": "JS-сторона WebBridge: прослойка между React-хостом и игрой на Phaser. Зеркало C#-пакета com.pixi.webbridge.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "prepublishOnly": "tsc -b"
+  },
+  "dependencies": {
+    "@public/webbridge-protocol": "1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "publishConfig": {
+    "registry": "https://packages.inoutgames.dev/",
+    "access": "restricted"
+  }
+}

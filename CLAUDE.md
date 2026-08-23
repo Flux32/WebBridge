@@ -30,6 +30,17 @@ Unity-часть (этот репозиторий) — только Unity-сто
 3. **Референс-фронтенд Road — /Users/flux/Documents/GitHub/Pixi/RoadFrontent**
    Рабочий React-фронтенд игры Road. Показывает связку целиком: `@public/client-core` (бэкенд) + UI Kit + драйв Unity через `unityInstance.SendMessage("WebBridge", <метод>, payload)`. Это шаблон, по которому делается фронт новой игры (например Plinko): как слать команды в бэк, как форвардить результат в Unity-мост, какие имена методов/GameObject использовать.
 
+## Структура репозитория
+```
+protocol/          @public/webbridge-protocol — движко-агностичный контракт (команды, события, payload'ы)
+js/webbridge/      @public/webbridge-js — игровая сторона моста для Phaser (зеркало C#-пакета)
+unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
+```
+1. Контракт правится ТОЛЬКО в `protocol/` — остальные стороны его потребляют.
+2. TS-мост зеркалит имена C#: `WebBridgeBase<T>` → `BridgeBase`, `RoadWebBridge` → `RoadBridge`, `event Action<T>` → `Signal<T>`.
+3. Ядро TS-моста не знает ни про Phaser, ни про строки: движок появляется только в `phaser/createPhaserBoot.ts`, парсинг строк — только в Unity.
+4. Сборка: `npm run build` в корне (TS project references, `tsc -b js/webbridge`).
+
 ### Связь с Unity-мостом
 - React адресует Unity-объект по имени GameObject (`"WebBridge"`) + имени публичного метода моста — имя C#-класса роли не играет.
 - Каждой игре — свой мост (`RoadWebBridge`, `PlinkoWebBridge`), наследник game-agnostic базы `WebBridgeBase<T>` (namespace `WebBridge`). Общие типы (`Json`, `JsonValue`, `JsonName`, `WebBridgeUtils`, `WebGameStateBase`) лежат в namespace `WebBridge`, игро-специфика — в `Modules.<Game>`.

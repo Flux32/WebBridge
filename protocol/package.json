@@ -1,0 +1,29 @@
+{
+  "name": "@public/webbridge-protocol",
+  "version": "1.0.0",
+  "description": "Движко-агностичный контракт React <-> игра: команды, события, payload'ы. Единственный источник истины для Unity-моста (C#), JS-моста (Phaser) и фронтенда.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "prepublishOnly": "tsc -b"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "publishConfig": {
+    "registry": "https://packages.inoutgames.dev/",
+    "access": "restricted"
+  }
+}
