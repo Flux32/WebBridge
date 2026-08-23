@@ -3,7 +3,7 @@
  * Phaser, ни от способа доставки: под Phaser это `host.emit`, под тестами —
  * массив-накопитель.
  */
-import type { EngineEvent } from '@public/webbridge-protocol';
+import type { EngineEvent } from '@omega/webbridge-protocol';
 
 export interface BridgeTransport {
   send(event: EngineEvent): void;

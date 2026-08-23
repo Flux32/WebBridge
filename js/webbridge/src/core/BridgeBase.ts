@@ -10,7 +10,7 @@ import type {
   CoreCommand,
   EngineCommand,
   Orientation,
-} from '@public/webbridge-protocol';
+} from '@omega/webbridge-protocol';
 import { BridgeLogger } from './BridgeLogger';
 import type { BridgeTransport } from './BridgeTransport';
 import { isMockEnabled } from './mockMode';

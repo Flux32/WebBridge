@@ -11,7 +11,7 @@ import type {
   StartBonusPayload,
   StepResultPayload,
   UiVisibilityPayload,
-} from '@public/webbridge-protocol';
+} from '@omega/webbridge-protocol';
 import { BridgeBase } from '../core/BridgeBase';
 import { BridgeLogger } from '../core/BridgeLogger';
 import type { BridgeTransport } from '../core/BridgeTransport';

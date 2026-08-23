@@ -1,4 +1,4 @@
-# @public/webbridge-js
+# @omega/webbridge-js
 
 Игровая сторона моста для Phaser — то же, что `unity/Assets/WebBridge` для Unity.
 Имена классов, методов и событий сознательно зеркалят C#, чтобы корневой
@@ -28,7 +28,7 @@
 ## Точка входа
 
 ```ts
-import { createPhaserBoot, RoadBridge } from '@public/webbridge-js';
+import { createPhaserBoot, RoadBridge } from '@omega/webbridge-js';
 
 window.__PHASER_BOOT__ = createPhaserBoot({
   createBridge: (transport) => new RoadBridge(transport),

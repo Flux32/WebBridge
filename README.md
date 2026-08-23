@@ -58,8 +58,8 @@ Unity-пакет для связи между React-фронтендом и Unit
 Корень отдан не одному Unity-проекту — мост живёт под два движка:
 
 ```
-protocol/          @public/webbridge-protocol — контракт React <-> игра (источник истины)
-js/webbridge/      @public/webbridge-js — игровая сторона для Phaser
+protocol/          @omega/webbridge-protocol — контракт React <-> игра (источник истины)
+js/webbridge/      @omega/webbridge-js — игровая сторона для Phaser
 unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ```
 

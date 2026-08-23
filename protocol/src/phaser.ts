@@ -10,7 +10,7 @@
  *   3) зовёт `host.ready()`, когда игра готова принимать команды (аналог Unity
  *      `isLoaded`), а по ходу загрузки — `host.setProgress(0..1)`.
  *
- * Реализация фабрики — `@public/webbridge-js` (`createPhaserBoot`).
+ * Реализация фабрики — `@omega/webbridge-js` (`createPhaserBoot`).
  */
 import type { EngineCommand } from './commands';
 import type { EngineEvent } from './events';

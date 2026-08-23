@@ -32,8 +32,8 @@ Unity-часть (этот репозиторий) — только Unity-сто
 
 ## Структура репозитория
 ```
-protocol/          @public/webbridge-protocol — движко-агностичный контракт (команды, события, payload'ы)
-js/webbridge/      @public/webbridge-js — игровая сторона моста для Phaser (зеркало C#-пакета)
+protocol/          @omega/webbridge-protocol — движко-агностичный контракт (команды, события, payload'ы)
+js/webbridge/      @omega/webbridge-js — игровая сторона моста для Phaser (зеркало C#-пакета)
 unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ```
 1. Контракт правится ТОЛЬКО в `protocol/` — остальные стороны его потребляют.

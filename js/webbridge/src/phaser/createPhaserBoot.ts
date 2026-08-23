@@ -13,7 +13,7 @@ import type {
   PhaserBootOptions,
   PhaserGameBridge,
   PhaserHostBridge,
-} from '@public/webbridge-protocol';
+} from '@omega/webbridge-protocol';
 import type { BridgeBase } from '../core/BridgeBase';
 import type { BridgeTransport } from '../core/BridgeTransport';
 

@@ -5,7 +5,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "paths": {
-      "@public/webbridge-protocol": ["../../protocol/src/index.ts"]
+      "@omega/webbridge-protocol": ["../../protocol/src/index.ts"]
     }
   },
   "include": ["src"],

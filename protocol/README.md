@@ -1,4 +1,4 @@
-# @public/webbridge-protocol
+# @omega/webbridge-protocol
 
 Словарь, на котором говорят **все** участники: React-фронтенд, Unity-мост
 (`unity/Assets/WebBridge`, C#) и JS-мост (`js/webbridge`, Phaser).
@@ -21,16 +21,22 @@
 
 ## Публикация
 
-Пакет уезжает в тот же приватный реестр, что `@public/client-core` и
-`@public/ui-kit`, — поэтому у фронтенда и CI уже настроен auth на scope
-`@public`, менять инфраструктуру не нужно.
+Пока — тарболом в GitHub Releases: реестр `packages.inoutgames.dev` принадлежит
+партнёрам, публиковать туда мы не можем, а свой GitLab Package Registry на
+`git.x-web.cloud` ещё не заведён. Имя пакета уже под scope `@omega`, чтобы при
+переезде туда его не менять (GitLab требует, чтобы scope совпадал с корневой
+группой).
 
 ```bash
-npm publish -w @public/webbridge-protocol
+npm version patch -w @omega/webbridge-protocol
+npm pack -w @omega/webbridge-protocol
+gh release create protocol-v<версия> omega-webbridge-protocol-<версия>.tgz \
+  --repo Flux32/WebBridge --title "protocol v<версия>"
 ```
 
-`prepublishOnly` соберёт `dist/` (в git его нет). После бампа контракта —
-поднять `version` и опубликовать заново, иначе потребители останутся на старой.
+`prepack` соберёт `dist/` (в git его нет). Дальше во фронтенде правится URL
+тарбола в `dependencies` — версии иммутабельны, semver-диапазонов тут нет,
+ссылка всегда точная.
 
 ## Куда девать дубли
 
