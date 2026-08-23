@@ -25,8 +25,8 @@ export interface GameConfigPayload {
   balance?: number;
 }
 
-/** Унифицированный payload запуска бонуса (покупка / сбор в игре / restore). */
-export interface StartBonusPayload {
+/** Бонус road: лесенка по позициям (покупка / сбор в игре / restore). */
+export interface RoadStartBonusPayload {
   modeId: string;
   difficulty: string;
   positions: number[];
@@ -47,6 +47,23 @@ export interface StartBonusPayload {
   accumulatedWin: number;
   currentStep: number;
 }
+
+/**
+ * Бонус twist: купленная серия фри-спинов. Сервер считает её целиком в ответе
+ * на покупку, поэтому хост отдаёт игре всю серию одним сообщением — дальше игра
+ * крутит спины сама, в своём темпе, и стримит прогресс бонусными событиями.
+ *
+ * `spins` — раунды в виде обычных спин-ответов (сырой GameState-JSON, как у
+ * `ApplySpinResult`): игре не нужно знать формат bonusGameResult, она проигрывает
+ * их тем же путём, что и спин живой сессии.
+ */
+export interface TwistStartBonusPayload {
+  /** Сколько фри-спинов объявил сервер; счётчик «Free games left» стартует с него. */
+  totalRounds: number;
+  spins: string[];
+}
+
+export type StartBonusPayload = RoadStartBonusPayload | TwistStartBonusPayload;
 
 /** Ответ на запрос покупки бонуса от движка. */
 export interface BonusPurchaseResultPayload {

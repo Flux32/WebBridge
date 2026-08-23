@@ -1,6 +1,6 @@
 {
   "name": "@omega/webbridge-protocol",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Движко-агностичный контракт React <-> игра: команды, события, payload'ы. Единственный источник истины для Unity-моста (C#), JS-моста (Phaser) и фронтенда.",
   "type": "module",
   "main": "./dist/index.js",

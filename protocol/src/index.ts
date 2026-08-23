@@ -3,14 +3,35 @@ export type {
   BonusPurchaseResultPayload,
   GameConfigPayload,
   Orientation,
+  RoadStartBonusPayload,
   StartBonusPayload,
+  TwistStartBonusPayload,
   StepResultPayload,
   UiVisibilityPayload,
   UnityFrameSamplePayload,
 } from './payloads';
 
-export type { CoreCommand, EngineCommand, EngineCommandType, CrushCommand } from './commands';
-export type { CoreEvent, EngineEvent, EngineEventType, CrushEvent, UnityOnlyEvent } from './events';
+export type {
+  CoreCommand,
+  CrushCommand,
+  EngineCommand,
+  EngineCommandType,
+  PlinkoCommand,
+  TwistCommand,
+  WheelCommand,
+} from './commands';
+
+export type {
+  BonusEngineEvent,
+  CoreEvent,
+  CrushEvent,
+  EngineEvent,
+  EngineEventType,
+  PlinkoEvent,
+  UnityOnlyEvent,
+  WheelEvent,
+} from './events';
+export { isBonusEngineEvent } from './events';
 
 export type {
   PhaserBootFn,

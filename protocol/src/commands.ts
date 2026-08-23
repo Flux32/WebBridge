@@ -21,6 +21,12 @@ export type CoreCommand =
   | { type: 'ChangeOrientation'; payload: Orientation }
   | { type: 'SetAssetsBasePath'; payload: string }
   | { type: 'ApplyTranslations'; payload: string }
+  // Конфиг и состояние сессии нужны любой игре: «приведи сцену к этому».
+  // Ими же идёт восстановление после перезагрузки — отдельного
+  // RestoreGame(config+state) нет, движок сам запрашивает и то и другое на
+  // старте сцены и повторяет запрос, пока не получит ответ.
+  | { type: 'ApplyGameConfig'; payload: string }
+  | { type: 'ApplyGameState'; payload: string }
   | { type: 'SetDesktopBetBarViewportMetrics'; payload: string }
   | { type: 'SetMobileBetBarViewportMetrics'; payload: string }
   | { type: 'SyncUiVisibility' }
@@ -45,12 +51,6 @@ export type CrushCommand =
   | { type: 'RestartRound'; payload: string }
   | { type: 'UpdateCoeffs'; payload: number[] }
   | { type: 'ApplyStepResult'; payload: StepResultPayload }
-  | { type: 'ApplyGameConfig'; payload: string }
-  // Состояние сессии: «приведи сцену к этому». Им же идёт восстановление после
-  // перезагрузки — отдельного RestoreGame(config+state) в мосте нет, движок сам
-  // запрашивает config и state на старте сцены (RequestGameConfig / RequestGameState)
-  // и повторяет запрос, пока не получит ответ.
-  | { type: 'ApplyGameState'; payload: string }
   | { type: 'StartBonus'; payload: StartBonusPayload }
   | { type: 'ApplyBonusPurchaseResult'; payload: BonusPurchaseResultPayload }
   // Игрок нажал Cashout. Уходит в движок сразу по нажатию — до payout-запроса и до открытия окна,
@@ -58,5 +58,26 @@ export type CrushCommand =
   // камеру к верхушке башни, ПОКА окно открывается.
   | { type: 'CashoutPressed' };
 
-export type EngineCommand = CoreCommand | CrushCommand;
+/** Команды Plinko: шарики и их падение. */
+export type PlinkoCommand =
+  | { type: 'SetBallsAmount'; payload: number }
+  | { type: 'ApplyDropResult'; payload: string };
+
+/** Команды колеса. */
+export type WheelCommand = { type: 'ApplyRound'; payload: string };
+
+/**
+ * Команды Twist: спин живой сессии и шаг купленной серии фри-спинов. Оба
+ * payload'а — сырой GameState-JSON, игра проигрывает их одним и тем же путём.
+ */
+export type TwistCommand =
+  | { type: 'ApplySpinResult'; payload: string }
+  | { type: 'ApplyBonusStepResult'; payload: string };
+
+export type EngineCommand =
+  | CoreCommand
+  | CrushCommand
+  | PlinkoCommand
+  | WheelCommand
+  | TwistCommand;
 export type EngineCommandType = EngineCommand['type'];

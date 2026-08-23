@@ -55,21 +55,21 @@ export class CrushBridge extends BridgeBase {
     this.transport.send({ type: 'RequestGameState' });
   }
 
+  protected override applyGameConfig(payload: string): void {
+    const config = JSON.parse(payload) as GameConfigPayload;
+    this.lastGameConfig = config;
+    this.hasReceivedInitialConfig = true;
+    this.gameConfigReceived.invoke(config);
+  }
+
+  protected override applyGameState(payload: string): void {
+    const state: unknown = JSON.parse(payload);
+    this.lastGameState = state;
+    this.gameStateReceived.invoke(state);
+  }
+
   protected override handleGameCommand(command: Exclude<EngineCommand, CoreCommand>): void {
     switch (command.type) {
-      case 'ApplyGameConfig': {
-        const config = JSON.parse(command.payload) as GameConfigPayload;
-        this.lastGameConfig = config;
-        this.hasReceivedInitialConfig = true;
-        this.gameConfigReceived.invoke(config);
-        return;
-      }
-      case 'ApplyGameState': {
-        const state: unknown = JSON.parse(command.payload);
-        this.lastGameState = state;
-        this.gameStateReceived.invoke(state);
-        return;
-      }
       case 'ApplyStepResult':
         this.stepResultReceived.invoke(command.payload);
         return;

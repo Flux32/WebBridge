@@ -60,9 +60,13 @@ export class MockHost implements PhaserHostBridge {
       case 'RequestFastGame':
         this.send({ type: 'SetFastGame', payload: false });
         return;
-      // Движок доиграл шаг — можно следующий.
+      // Движок доиграл шаг и готов к следующему. После проигрыша сцена
+      // пересобирает раунд сама и присылает этот же сигнал — поэтому здесь же
+      // снимается и закрытость раунда, иначе мок остался бы думать, что ставку
+      // делать нельзя, хотя куча уже стоит целой.
       case 'SpinReady':
         this.isBusy = false;
+        this.isRoundOver = false;
         return;
       default:
         return;
@@ -98,7 +102,11 @@ export class MockHost implements PhaserHostBridge {
     this.restart('cashout');
   }
 
-  /** Пересобрать раунд — после проигрыша движение возобновляет только это. */
+  /**
+   * Пересобрать раунд принудительно. В обычном ходе дел этого не требуется:
+   * после проигрыша движок пересобирает сцену сам и отпускает мок через
+   * SpinReady. Нужно, когда раунд надо оборвать посреди лесенки.
+   */
   public restart(reason = 'lose'): void {
     this.isRoundOver = false;
     this.isBusy = false;
