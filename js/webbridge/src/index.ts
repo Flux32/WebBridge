@@ -9,6 +9,8 @@ export { isCheatsEnabled, isMockEnabled } from './core/mockMode';
 export { CrushBridge } from './crush/CrushBridge';
 export type { RestartRequest } from './crush/CrushBridge';
 
+export { SlotBridge } from './slot/SlotBridge';
+
 export { MockHost } from './mock/MockHost';
 export { MockPanel } from './mock/MockPanel';
 export type { MockPanelAction } from './mock/MockPanel';

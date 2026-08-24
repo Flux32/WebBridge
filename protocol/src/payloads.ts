@@ -105,3 +105,34 @@ export interface UnityFrameSamplePayload {
   estimatedDroppedFrames: number;
   foregroundSequence: number;
 }
+
+/**
+ * Одно действие внутри раунда слота: сервер описывает ими всё, что происходит
+ * поверх выпавшей доски — залипшие монеты, респины, выдачу джекпота. Форма
+ * действия зависит от его `action`, поэтому остальные поля открыты.
+ */
+export interface SlotAction {
+  action: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Результат спина слота целиком: сервер считает раунд одним ответом, игра его
+ * только проигрывает. Зеркало `SlotSpinResult` во фронтенде (`src/slot/types.ts`),
+ * который нормализует сырой ответ бэка перед отправкой в игру.
+ *
+ * `boards` — доски раунда по порядку (базовый спин, затем бонусные, если есть);
+ * `actions` — по массиву действий на каждую доску. Денежные значения приходят
+ * строками, как их отдаёт платформа: приводить их к number — дело игры.
+ */
+export interface SlotSpinResult {
+  betAmount: string;
+  coeff: string;
+  currency: string;
+  isFinished: boolean;
+  isWin: boolean;
+  winAmount: string;
+  rounds: number;
+  boards: string[];
+  actions: SlotAction[][];
+}

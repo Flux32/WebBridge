@@ -4,6 +4,8 @@ export type {
   GameConfigPayload,
   Orientation,
   RoadStartBonusPayload,
+  SlotAction,
+  SlotSpinResult,
   StartBonusPayload,
   TwistStartBonusPayload,
   StepResultPayload,
@@ -17,6 +19,8 @@ export type {
   EngineCommand,
   EngineCommandType,
   PlinkoCommand,
+  SlotCommand,
+  SpinCommand,
   TwistCommand,
   WheelCommand,
 } from './commands';
