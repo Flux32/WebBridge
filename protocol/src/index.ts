@@ -5,6 +5,8 @@ export type {
   Orientation,
   RoadStartBonusPayload,
   SlotAction,
+  SlotCoin,
+  SlotCoinsCollectionAction,
   SlotSpinResult,
   StartBonusPayload,
   TwistStartBonusPayload,
@@ -12,6 +14,8 @@ export type {
   UiVisibilityPayload,
   UnityFrameSamplePayload,
 } from './payloads';
+
+export { SLOT_ACTIONS } from './payloads';
 
 export type {
   CoreCommand,

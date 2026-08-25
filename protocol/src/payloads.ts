@@ -117,6 +117,47 @@ export interface SlotAction {
 }
 
 /**
+ * Известные значения `SlotAction.action`. Восстановлены из эталонного клиента
+ * hold-and-win; список открыт — сервер может прислать и то, чего здесь нет,
+ * поэтому `SlotAction.action` остаётся строкой.
+ */
+export const SLOT_ACTIONS = {
+  winLines: 'WIN_LINES',
+  strikeCoinsCollection: 'STRIKE_COINS_COLLECTION',
+  superStrikeCoinsAdded: 'SUPER_STRIKE_COINS_ADDED',
+  superStrikeMultiplierAdded: 'SUPER_STRIKE_MULTIPLIER_ADDED',
+  superStrikeJackpotAdded: 'SUPER_STRIKE_JACKPOT_ADDED',
+  superStrikeMultiplierCollected: 'SUPER_STRIKE_MULTIPLIER_COLLECTED',
+  enhancedSuperStrike: 'ENHANCED_SUPER_STRIKE',
+  pileOfGold: 'PILE_OF_GOLD',
+  bonusRun: 'BONUS_RUN',
+  bonusBuy: 'BONUS_BUY',
+  bonusSpinsCount: 'BONUS_SPINS_COUNT',
+} as const;
+
+/**
+ * Монета в действии сбора. `index` — плоский индекс ячейки доски в том же
+ * column-major порядке, что и строка доски (`reel * rows + row`); `symbol` —
+ * символ доски. Денежные поля приходят строками, как их отдаёт платформа.
+ */
+export interface SlotCoin {
+  index: number;
+  symbol?: string;
+  payout?: string;
+  coeff?: string;
+}
+
+/**
+ * Сбор монет: они летят из своих ячеек в ячейку `triggerIndex` — ту, где стоит
+ * монета-триггер.
+ */
+export interface SlotCoinsCollectionAction extends SlotAction {
+  action: typeof SLOT_ACTIONS.strikeCoinsCollection;
+  triggerIndex: number;
+  coins: SlotCoin[];
+}
+
+/**
  * Результат спина слота целиком: сервер считает раунд одним ответом, игра его
  * только проигрывает. Зеркало `SlotSpinResult` во фронтенде (`src/slot/types.ts`),
  * который нормализует сырой ответ бэка перед отправкой в игру.
