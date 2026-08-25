@@ -10,6 +10,8 @@ export { CrushBridge } from './crush/CrushBridge';
 export type { RestartRequest } from './crush/CrushBridge';
 
 export { SlotBridge } from './slot/SlotBridge';
+export { SlotMockHost } from './slot/SlotMockHost';
+export type { SlotMockHostOptions } from './slot/SlotMockHost';
 
 export { MockHost } from './mock/MockHost';
 export { MockPanel } from './mock/MockPanel';
