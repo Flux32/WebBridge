@@ -114,24 +114,28 @@ export class SlotMockHost implements PhaserHostBridge {
 
   public setProgress(): void {}
 
-  /** Обычный спин. Пока предыдущий доигрывается, нажатие игнорируется. */
+  /**
+   * Обычный спин. Сбор случается не всегда — как и на бою, где монеты просто
+   * лежат на барабанах, пока не выпадет монета-триггер. Пока предыдущий раунд
+   * доигрывается, нажатие игнорируется.
+   */
   public spin(): void {
     if (this.isBusy) return;
 
-    const board = this.makeBoard();
-    const actions = Math.random() < this.options.collectChance
-      ? this.makeCollect(board)
-      : [];
+    const rolled = this.makeBoard();
+    const round = Math.random() < this.options.collectChance
+      ? this.makeCollect(rolled)
+      : { board: rolled, actions: [] };
 
-    this.deliver([board], [actions]);
+    this.deliver([round.board], [round.actions]);
   }
 
   /** Спин, который гарантированно заканчивается сбором монет. */
   public spinWithCollect(): void {
     if (this.isBusy) return;
 
-    const board = this.makeBoard({ forceCoins: true });
-    this.deliver([board], [this.makeCollect(board, { force: true })]);
+    const round = this.makeCollect(this.makeBoard({ forceCoins: true }), { force: true });
+    this.deliver([round.board], [round.actions]);
   }
 
   /**
@@ -141,8 +145,14 @@ export class SlotMockHost implements PhaserHostBridge {
   public spinBonusRound(boards = 3): void {
     if (this.isBusy) return;
 
-    const list = Array.from({ length: Math.max(2, boards) }, () => this.makeBoard({ forceCoins: true }));
-    this.deliver(list, list.map((b, i) => (i === list.length - 1 ? this.makeCollect(b, { force: true }) : [])));
+    const rolled = Array.from({ length: Math.max(2, boards) }, () => this.makeBoard({ forceCoins: true }));
+    // Сбор — только на последней доске, как финал серии респинов.
+    const rounds = rolled.map((board, i) => (
+      i === rolled.length - 1
+        ? this.makeCollect(board, { force: true })
+        : { board, actions: [] as SlotAction[] }
+    ));
+    this.deliver(rounds.map(r => r.board), rounds.map(r => r.actions));
   }
 
   /**
@@ -193,10 +203,17 @@ export class SlotMockHost implements PhaserHostBridge {
   }
 
   /**
-   * Собирает все монеты доски в ячейку-триггер. Триггер ставится на средний
-   * барабан — там, где в платформенной игре появляется монета-курица.
+   * Собирает все монеты доски в ячейку-триггер.
+   *
+   * Возвращает и доску тоже: триггер надо ПОСТАВИТЬ на неё, иначе действие
+   * ссылается на ячейку, в которой нарисован обычный символ, и картинка
+   * расходится с данными. Триггер идёт на средний барабан — там, где в
+   * платформенной игре появляется монета-курица.
    */
-  private makeCollect(board: string, opts: { force?: boolean } = {}): SlotAction[] {
+  private makeCollect(
+    board: string,
+    opts: { force?: boolean } = {},
+  ): { board: string; actions: SlotAction[] } {
     const { rows, reels } = this.options;
     const cells = board.split('');
 
@@ -213,18 +230,21 @@ export class SlotMockHost implements PhaserHostBridge {
       });
     });
 
-    if (coins.length === 0 && !opts.force) return [];
+    if (coins.length === 0 && !opts.force) return { board, actions: [] };
 
     // Триггер — середина среднего барабана.
     const middleReel = Math.floor(reels / 2);
     const triggerIndex = middleReel * rows + Math.floor(rows / 2);
     cells[triggerIndex] = TRIGGER_SYMBOL;
 
-    return [{
-      action: SLOT_ACTIONS.strikeCoinsCollection,
-      triggerIndex,
-      coins,
-    }];
+    return {
+      board: cells.join(''),
+      actions: [{
+        action: SLOT_ACTIONS.strikeCoinsCollection,
+        triggerIndex,
+        coins,
+      }],
+    };
   }
 
   /**
