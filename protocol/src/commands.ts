@@ -80,7 +80,13 @@ export type SpinCommand = { type: 'ApplySpinResult'; payload: string };
  */
 export type TwistCommand =
   | SpinCommand
-  | { type: 'ApplyBonusStepResult'; payload: string };
+  | { type: 'ApplyBonusStepResult'; payload: string }
+  // Интро иконки фри-спинов на стороне хоста доиграло — серию можно крутить.
+  // Серию ведёт игра, поэтому и отмашка нужна ей: `StartBonus` приходит ещё под
+  // закрытой шторкой перехода, там игра меняет локацию и готовит доску, а
+  // первый спин ждёт этой команды. Хост шлёт её и когда интро не играет вовсе
+  // (иконка не загружена), чтобы игра никогда не ждала впустую.
+  | { type: 'FreeGamesIntroFinished' };
 
 /**
  * Команды слота. Раунд приходит целиком одним `ApplySpinResult` — включая
