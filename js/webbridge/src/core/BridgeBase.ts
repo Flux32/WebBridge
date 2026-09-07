@@ -26,6 +26,8 @@ export abstract class BridgeBase {
   public readonly fastGameChanged = new Signal<boolean>();
   public readonly orientationChanged = new Signal<Orientation>();
   public readonly translationsReceived = new Signal<Record<string, string>>();
+  /** Игрок ткнул в заблокированный бет-баром Play — ставки нет, есть повод подсказать почему. */
+  public readonly disabledPlayPressed = new Signal();
   public readonly winWindowOpened = new Signal();
   public readonly winWindowClosed = new Signal();
   public readonly transitionScreenOpenStarted = new Signal();
@@ -107,6 +109,9 @@ export abstract class BridgeBase {
         return;
       case 'SyncUiVisibility':
         this.syncUiVisibility();
+        return;
+      case 'DisabledPlayPressed':
+        this.disabledPlayPressed.invoke();
         return;
       default:
         this.handleGameCommand(command);

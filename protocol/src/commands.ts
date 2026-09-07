@@ -30,6 +30,10 @@ export type CoreCommand =
   | { type: 'SetDesktopBetBarViewportMetrics'; payload: string }
   | { type: 'SetMobileBetBarViewportMetrics'; payload: string }
   | { type: 'SyncUiVisibility' }
+  // Игрок нажал Play, пока бет-бар держит кнопку неактивной (раунд ещё идёт, не хватает
+  // баланса, ставка вне лимитов). Ставка при этом не уходит: команда нужна движку, чтобы
+  // отыграть отказ — состояния кнопки у него нет, её блокировку знает только React.
+  | { type: 'DisabledPlayPressed' }
   // Окно результата раунда (cashout / win / mega / super и финальное окно бонуски) появилось на
   // экране / полностью ушло. Движок гасит на это свой геймплейный UI (кэф-бар, бонус-панель) и
   // возвращает его только после закрытия: RestartRound уходит ещё во время показа окна, поэтому по
