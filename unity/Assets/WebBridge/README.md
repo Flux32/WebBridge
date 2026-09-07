@@ -37,16 +37,17 @@ Unity-пакет для связи между React-фронтендом и Unit
 
 ## Установка
 
-Добавьте в `Packages/manifest.json`:
+Пакет лежит не в корне репозитория, а в `unity/Assets/WebBridge`, поэтому URL
+обязан нести `?path=`. Добавьте в `Packages/manifest.json`:
 
 ```json
-"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#main"
 ```
 
 Или конкретную версию:
 
 ```json
-"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git#v1.0.0"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#unity-v1.0.0"
 ```
 
 **Зависимости** (подтягиваются автоматически):
