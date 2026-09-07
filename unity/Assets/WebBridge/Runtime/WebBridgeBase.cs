@@ -30,6 +30,12 @@ namespace WebBridge
         // Cached in IsFastGameEnabled so a subscriber that wires up after the push still reads it.
         public event Action<bool> FastGameChanged;
 
+        // Fires when the player pressed Play while the React bet bar kept the button disabled
+        // (round still running, not enough balance, bet outside the limits). No bet was placed:
+        // the disabled state lives entirely in React, so this is the game's only chance to show
+        // the player why nothing happened.
+        public event Action DisabledPlayPressed;
+
         public bool? CurrentIsWhiteLabel { get; private set; }
 
         // Fast game speeds the round presentation up (no showcase pauses). Off until React says
@@ -127,6 +133,14 @@ namespace WebBridge
         public void SetFastGame(int value)
         {
             ApplyFastGame(value != 0);
+        }
+
+        // React entry point (SendMessage): the player pressed the bet-bar Play button while it
+        // was disabled. Carries no payload — the reason for the block stays on the React side.
+        public void OnDisabledPlayPressed()
+        {
+            WebBridgeLogger.Log($"[{typeof(T).Name}] OnDisabledPlayPressed");
+            DisabledPlayPressed?.Invoke();
         }
 
         // Asks React for the current fast-game status; it replies by calling SetFastGame. React

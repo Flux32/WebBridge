@@ -140,6 +140,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 |---|---|---|
 | `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
 | `FastGameChanged` | `bool` | Сменился режим ускоренной игры — и когда его переключил игрок в бет-баре, и когда сама игра (`NotifyFastGameChanged`) |
+| `DisabledPlayPressed` | — | Игрок нажал Play, пока бет-бар держит кнопку неактивной. Ставки нет — повод подсказать игроку причину |
 
 #### Методы React → Unity (через `SendMessage`)
 
@@ -148,6 +149,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `ApplyWhiteLabel(int)` | `1` / `0` | Ответ React на `RequestWhiteLabel`: 1 = white-label, 0 = брендированная |
 | `SetLoggingEnabled(int)` | `1` / `0` | Включить/выключить логи моста (в сборке по умолчанию выключены) |
 | `SetFastGame(int)` | `1` / `0` | Ускоренная игра: 1 = включена. Тумблер живёт в бет-баре React, значением владеет и хранит его React — это единственный вход настройки в Unity |
+| `OnDisabledPlayPressed()` | — | Нажатие по неактивной кнопке Play в бет-баре: раунд ещё идёт, не хватает баланса или ставка вне лимитов. Причину блокировки знает только React, в Unity приходит сам факт нажатия |
 
 #### Методы Unity → React
 
@@ -915,7 +917,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 Методы перечислены в таблицах компонентов выше. Сводно:
 
 - **WebBridgeBase** (есть на любом мосте): `ApplyWhiteLabel`, `SetLoggingEnabled`,
-  `SetFastGame`.
+  `SetFastGame`, `OnDisabledPlayPressed`.
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
   `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
   `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
