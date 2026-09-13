@@ -498,6 +498,37 @@ Play Mode редактора.
 | `Mock Bonus Positions` | Позиции бонуса по умолчанию |
 | `Mock Is White Label` | Значение, возвращаемое на `RequestWhiteLabel` в редакторе |
 
+
+### Mock Plinko Aztec
+
+`PlinkoAztecWebBridge` в mock-режиме полностью заменяет React: `PlinkoAztecMockHost`
+отвечает на `RequestGameConfig` / `RequestGameState` / `RequestStep` /
+`RequestBallsAmount` / `RequestWhiteLabel` теми же JSON-payload'ами, что приходят с
+платформы, а панель `PlinkoAztecMockDebugIMGUI` (кнопка **PLK**) заменяет бет-бар.
+Панель добавляется мостом себе на GameObject в `Start`, поэтому видна только на
+сценах, где лежит именно Aztec-мост.
+
+| Элемент панели | Что делает |
+|---|---|
+| `Balls` | Переключает balls-per-drop из `Balls Amount Options` (как свитч в бет-баре) |
+| `Scenario` | Куда лягут шарики: случайно, всё в топ-слот, всё в нижний слот, колесо фортуны, колесо → бонус-игра |
+| `DROP` | Раунд по выбранному сценарию → `ApplyDropResult` |
+| `STEP` | Шаг бонус-игры (активна, только пока бонус идёт) → `ApplyStepResult` |
+| `RESET` | Сброс сессии: прогресс бамперов и активная бонус-игра |
+
+Параметры эмуляции — секция `Mock` в инспекторе `PlinkoAztecWebBridge`:
+
+| Поле | Описание |
+|---|---|
+| `Slot Coefficients` | Линия слотов слева направо; `0` помечает spin-слот (колесо) |
+| `Balls Amount Options` | Варианты balls-per-drop |
+| `Bet Per Ball` / `Currency` / `Decimal Places` | Ставка на шарик и формат сумм |
+| `Bumper Chance` | Шанс бампер-хита на шарик |
+| `Bonus Level Threshold` | Бампер-хитов на уровень бонус-игры |
+| `Bonus Steps` / `Bonus Balls Per Step` | Длина бонус-игры и шариков за шаг |
+| `Fortune Wheel Coefficient` | Множитель колеса вне бонус-сектора |
+| `Is White Label` | Ответ на `RequestWhiteLabel` в редакторе |
+
 `ScreenOrientationWebBridge` имеет своё мок-поле: `Mock Mobile Aspect Ratio`.
 
 ---

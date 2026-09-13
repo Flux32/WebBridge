@@ -18,6 +18,11 @@ namespace Modules.PlinkoAztec
         // Balls-per-drop is unknown until React pushes the bet-bar selection.
         private const int UnknownBallsAmount = 0;
 
+        [Header("Mock")]
+        [SerializeField] private PlinkoAztecMockSettings _mockSettings = new PlinkoAztecMockSettings();
+
+        private PlinkoAztecMockHost _mockHost;
+
         public event Action<WebPlinkoAztecConfigPayload> GameConfigReceived;
         public event Action<WebPlinkoAztecStatePayload> GameStateReceived;
         public event Action<WebPlinkoAztecStatePayload> DropResultReceived;
@@ -38,28 +43,76 @@ namespace Modules.PlinkoAztec
         // reports the selection — call RequestBallsAmount to ask for it.
         public int CurrentBallsAmount { get; private set; } = UnknownBallsAmount;
 
+        // Balls-per-drop options the mock bet bar offers — the debug panel cycles through them.
+        public int[] MockBallsAmountOptions => _mockSettings.BallsAmountOptions;
+
+        // True while the emulated session is inside a bonus game, so the panel knows a step is
+        // something the board can ask for.
+        public bool IsMockBonusActive => _mockHost.IsBonusActive;
+
+        // One-line summary of the emulated session for the panel footer.
+        public string MockSessionInfo => _mockHost.IsBonusActive
+            ? $"Bonus game: level {_mockHost.BonusLevel}, {_mockHost.BonusStepsLeft} steps left. Press STEP to play it out."
+            : "No bonus game running. DROP plays a round with the selected scenario.";
+
         private void Start()
         {
             HasReceivedInitialConfig = IsMockEnabled;
 
-            if (!IsMockEnabled)
-                BeginInitialWebSyncAfterSceneLoad();
+            if (IsMockEnabled)
+            {
+                InitializeMock();
+                return;
+            }
+
+            BeginInitialWebSyncAfterSceneLoad();
         }
 
         public override void RequestGameConfig()
         {
+            if (IsMockEnabled)
+            {
+                ApplyGameConfig(_mockHost.BuildGameConfig());
+                return;
+            }
+
             WebBridgeUtils.Send("RequestGameConfig");
         }
 
         public override void RequestGameState()
         {
+            if (IsMockEnabled)
+            {
+                ApplyGameState(_mockHost.BuildGameState(CurrentBallsAmount));
+                return;
+            }
+
             WebBridgeUtils.Send("RequestGameState");
+        }
+
+        // In the editor (no React) the serialized mock value is delivered immediately so editor
+        // play still drives the white-label swap. Otherwise defers to the base handshake.
+        public override void RequestWhiteLabel()
+        {
+            if (IsMockEnabled)
+            {
+                ApplyWhiteLabel(_mockSettings.IsWhiteLabel ? 1 : 0);
+                return;
+            }
+
+            base.RequestWhiteLabel();
         }
 
         // Unity -> React: the player triggered the next bonus-game drop (tap on the board).
         // React answers with a game.step() result via ApplyStepResult.
         public void RequestStep()
         {
+            if (IsMockEnabled)
+            {
+                ApplyStepResult(_mockHost.BuildStepResult(CurrentBallsAmount));
+                return;
+            }
+
             WebBridgeUtils.Send("RequestStep");
         }
 
@@ -68,6 +121,13 @@ namespace Modules.PlinkoAztec
         // switch, so this is only for game code that wires up later and needs what it missed.
         public void RequestBallsAmount()
         {
+            if (IsMockEnabled)
+            {
+                BallsAmountChanged?.Invoke(new PlinkoAztecBallsAmountChange(
+                    CurrentBallsAmount, CurrentBallsAmount, PlinkoAztecBallsAmountDirection.None));
+                return;
+            }
+
             WebBridgeUtils.Send("RequestBallsAmount");
         }
 
@@ -156,6 +216,34 @@ namespace Modules.PlinkoAztec
         public void NotifyDropFinished()
         {
             WebBridgeUtils.Send("DropFinished");
+        }
+
+        // Mock only: stands in for the React bet-bar Play press. Builds the drop the chosen
+        // scenario asks for and feeds it through the regular React entry point, so the board
+        // runs the same parse-and-animate path it does on the web.
+        public void PlayMockDrop(PlinkoAztecMockScenario scenario)
+        {
+            ApplyDropResult(_mockHost.BuildDropResult(CurrentBallsAmount, scenario));
+        }
+
+        // Mock only: back to a fresh player — bumper progress cleared, bonus game dropped.
+        public void ResetMockSession()
+        {
+            _mockHost.Reset();
+            ApplyGameConfig(_mockHost.BuildGameConfig());
+            ApplyGameState(_mockHost.BuildGameState(CurrentBallsAmount));
+        }
+
+        // Mock mode replaces React entirely: the host answers the requests the web side would,
+        // and the debug panel replaces the bet bar the player would press.
+        private void InitializeMock()
+        {
+            _mockHost = new PlinkoAztecMockHost(_mockSettings);
+            gameObject.AddComponent<PlinkoAztecMockDebugIMGUI>();
+
+            SetBallsAmount(_mockSettings.DefaultBallsAmount);
+            RequestGameConfig();
+            RequestGameState();
         }
 
         // The very first value the bridge learns has nothing to compare against, so it is a
