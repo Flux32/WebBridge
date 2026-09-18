@@ -163,8 +163,13 @@ export class MockHost implements PhaserHostBridge {
     });
   }
 
-  /** Кэшаут: React закрывает раунд и просит собрать сцену заново. */
+  /**
+   * Кэшаут. Порядок как у настоящего React-хоста: сначала `CashoutPressed` — он уходит в
+   * движок по самому нажатию, до payout-запроса и до окна, — и только потом `RestartRound`.
+   * Игра на этой форе сворачивает раунд, пока окно открывается.
+   */
   public cashout(): void {
+    this.send({ type: 'CashoutPressed' });
     this.restart('cashout');
   }
 
