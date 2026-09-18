@@ -31,7 +31,6 @@ export class CrushBridge extends BridgeBase {
   public readonly autoplayChanged = new Signal<boolean>();
   public readonly restartRequested = new Signal<RestartRequest>();
   public readonly bonusStartRequested = new Signal<StartBonusPayload>();
-  public readonly cashoutPressed = new Signal();
 
   public lastGameConfig: GameConfigPayload | null = null;
   public lastGameState: unknown = null;
@@ -86,9 +85,6 @@ export class CrushBridge extends BridgeBase {
       }
       case 'StartBonus':
         this.bonusStartRequested.invoke(command.payload);
-        return;
-      case 'CashoutPressed':
-        this.cashoutPressed.invoke();
         return;
       case 'ApplyBonusPurchaseResult':
         // Бонус в Crush полноценный — C#-мост отдаёт BonusModePurchased и

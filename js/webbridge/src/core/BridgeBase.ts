@@ -29,6 +29,12 @@ export abstract class BridgeBase {
   public readonly translationsReceived = new Signal<Record<string, string>>();
   /** Игрок ткнул в заблокированный бет-баром Play — ставки нет, есть повод подсказать почему. */
   public readonly disabledPlayPressed = new Signal();
+  /**
+   * Игрок нажал Cashout. Приходит по самому нажатию — до payout-запроса и до окна результата,
+   * то есть раньше рестарта раунда, который вообще ждёт закрытия окна. Эта фора — единственный
+   * момент убрать со сцены то, что принадлежит живому раунду, пока его не накрыло окном.
+   */
+  public readonly cashoutPressed = new Signal();
   public readonly winWindowOpened = new Signal();
   public readonly winWindowClosed = new Signal();
   /** Сценарий окна результата дошёл до отметки: её имя придумал админ. */
@@ -118,6 +124,9 @@ export abstract class BridgeBase {
         return;
       case 'DisabledPlayPressed':
         this.disabledPlayPressed.invoke();
+        return;
+      case 'CashoutPressed':
+        this.cashoutPressed.invoke();
         return;
       default:
         this.handleGameCommand(command);
