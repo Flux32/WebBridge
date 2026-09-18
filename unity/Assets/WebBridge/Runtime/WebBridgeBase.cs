@@ -36,6 +36,12 @@ namespace WebBridge
         // the player why nothing happened.
         public event Action DisabledPlayPressed;
 
+        // Fires the moment the player presses Cashout — before the payout request and before
+        // the result window opens, so roughly half a second ahead of the round's restart, which
+        // does not arrive until that window has closed. That head start is the only point at
+        // which the game can clear what belongs to the live round before the window covers it.
+        public event Action CashoutPressed;
+
         // Fires when a result window's scenario reaches a named mark. The admin authors both the
         // scenario and the name in games-configurator, so the bridge does not interpret it: the
         // game subscribes to the names it knows and ignores the rest.
@@ -146,6 +152,14 @@ namespace WebBridge
         {
             WebBridgeLogger.Log($"[{typeof(T).Name}] OnDisabledPlayPressed");
             DisabledPlayPressed?.Invoke();
+        }
+
+        // React entry point (SendMessage): the player pressed Cashout. Carries nothing — the
+        // amount is not settled yet at this point and reaches the game with the restart.
+        public void OnCashoutPressed()
+        {
+            WebBridgeLogger.Log($"[{typeof(T).Name}] OnCashoutPressed");
+            CashoutPressed?.Invoke();
         }
 
         // React entry point (SendMessage): a named mark of a result window's scenario, as JSON

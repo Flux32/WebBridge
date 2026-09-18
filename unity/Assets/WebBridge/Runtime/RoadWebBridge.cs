@@ -58,11 +58,6 @@ namespace Modules.Road
         // resolved). Carries the reason and an optional win amount string so the game can
         // decide what to show (e.g. a win table on cashout/win) before re-arming.
         public event Action<RestartReason, string> RestartRequested;
-        // Fires the moment the player presses Cashout — before the payout request and before
-        // the result window opens, so roughly half a second ahead of RestartRequested. The game
-        // uses that head start to wind the round down (drop the coefficient, park the camera)
-        // while the window is still opening, instead of waiting for the restart.
-        public event Action CashoutPressed;
         public event Action<string, int> BonusModePurchased;
         public event Action<string> BonusModePurchaseFailed;
         // Unified bonus entry point. Fires from `StartBonus(payload)` — used by
@@ -160,14 +155,6 @@ namespace Modules.Road
         }
 #endif
         
-        // React entry point (SendMessage): the player pressed Cashout. Carries nothing — the
-        // amount is not known yet at this point, it arrives later with RestartRound.
-        public void OnCashoutPressed()
-        {
-            WebBridgeLogger.Log("[RoadWebBridge] OnCashoutPressed");
-            CashoutPressed?.Invoke();
-        }
-
         // React entry point. Payload is "<reason>|<amount>" (e.g. "cashout|$5.00", "lose|").
         // Empty/null payload -> RestartReason.None.
         public void RestartRound(string payload)
@@ -538,7 +525,7 @@ namespace Modules.Road
                 // cashout reason + amount. Subscribers settle the win from RestartRequested
                 // when reason == RestartReason.Cashout.
                 string mockAmount = BuildMockAutoCashoutAmount();
-                CashoutPressed?.Invoke();
+                OnCashoutPressed();
                 RestartRequested?.Invoke(RestartReason.Cashout, mockAmount);
             }
         }

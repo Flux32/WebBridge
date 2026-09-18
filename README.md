@@ -141,6 +141,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
 | `FastGameChanged` | `bool` | Сменился режим ускоренной игры — и когда его переключил игрок в бет-баре, и когда сама игра (`NotifyFastGameChanged`) |
 | `DisabledPlayPressed` | — | Игрок нажал Play, пока бет-бар держит кнопку неактивной. Ставки нет — повод подсказать игроку причину |
+| `CashoutPressed` | — | Игрок нажал Cashout: по самому нажатию, до payout-запроса и до окна результата, то есть раньше рестарта раунда — тот ждёт закрытия окна. Суммы ещё нет, она придёт с рестартом. Эта фора — единственный момент убрать со сцены то, что принадлежит живому раунду, пока его не накрыло окном |
 | `WinWindowSignalReceived` | `WebWinWindowSignalPayload` | Сценарий окна результата дошёл до именованной отметки. Имя придумывает админ в games-configurator, мост его не толкует — игра подписывается на те, что знает |
 
 #### Методы React → Unity (через `SendMessage`)
@@ -151,6 +152,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `SetLoggingEnabled(int)` | `1` / `0` | Включить/выключить логи моста (в сборке по умолчанию выключены) |
 | `SetFastGame(int)` | `1` / `0` | Ускоренная игра: 1 = включена. Тумблер живёт в бет-баре React, значением владеет и хранит его React — это единственный вход настройки в Unity |
 | `OnDisabledPlayPressed()` | — | Нажатие по неактивной кнопке Play в бет-баре: раунд ещё идёт, не хватает баланса или ставка вне лимитов. Причину блокировки знает только React, в Unity приходит сам факт нажатия |
+| `OnCashoutPressed()` | — | Игрок нажал Cashout. Поднимает `CashoutPressed`; параметров нет — сумма приедет позже с `RestartRound` |
 | `OnWinWindowSignal(string)` | JSON отметки | Сценарий окна результата дошёл до отметки: ключ окна, имя отметки и необязательное значение при ней |
 
 > **Отметки окна результата.** Сценарий окна — анимации, звуки и отметки на общей
@@ -203,8 +205,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `StepResultActionReady` | `StepResultAction` | Результат хода обработан и готов для геймплея (`IsWin`, `BonusStepTriggered`) |
 | `CoefficientsReceived` | `float[]` | Пришли новые коэффициенты дорожки (поднимается только при изменении) |
 | `SpinRequested` | `int` | Запрос спина не в mock-режиме (win=1, lose=0). Только из редактора (`DoSpin`) |
-| `RestartRequested` | `RestartReason, string` | React просит перезапустить раунд. Несёт причину (`Win`/`Cashout`/`Lose`/`None`) и опциональную сумму выигрыша. **Итог кешаута приходит сюда с `reason == Cashout` и суммой** — и только после того, как окно результата закрылось |
-| `CashoutPressed` | — | Игрок нажал Cashout. Уходит в движок по самому нажатию — до payout-запроса и до окна, примерно за полсекунды до `RestartRequested`. Суммы ещё нет, она придёт с рестартом. Эта фора нужна сцене, чтобы свернуть раунд, ПОКА окно открывается |
+| `RestartRequested` | `RestartReason, string` | React просит перезапустить раунд. Несёт причину (`Win`/`Cashout`/`Lose`/`None`) и опциональную сумму выигрыша. **Итог кешаута приходит сюда с `reason == Cashout` и суммой** — и только после того, как окно результата закрылось; само нажатие приезжает намного раньше, событием `CashoutPressed` на базе моста |
 | `BonusModePurchased` | `string, int` | Бонус куплен (modeId, кол-во позиций) |
 | `BonusModePurchaseFailed` | `string` | Покупка бонуса не удалась (modeId) |
 | `GameRestored` | `WebGameStatePayload` | Игра восстановлена (рестор после перезагрузки страницы) |
@@ -224,7 +225,6 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `RestoreGame(json)` | JSON `WebGameRestorePayload` | Восстановить игру (config + state) после F5 |
 | `UpdateCoeffs(csv)` | строка `"1.1,1.2,1.4"` | Обновить коэффициенты (CSV, InvariantCulture) |
 | `RestartRound(payload)` | `"<reason>\|<amount>"` напр. `"cashout\|$5.00"` | Перезапустить раунд |
-| `OnCashoutPressed()` | — | Игрок нажал Cashout. Поднимает `CashoutPressed`; параметров нет — сумма приедет позже с `RestartRound` |
 | `StartBonus(json)` | JSON `WebBonusStartPayload` | Войти в бонус (покупка или F5-рестор) |
 | `ApplyBonusPurchaseResult(json)` | JSON `WebBonusPurchasePayload` | Результат покупки бонуса |
 | `ApplyWhiteLabel(int)` | `1` / `0` | Ответ React на `RequestWhiteLabel`: 1 = white-label, 0 = брендированная |
@@ -952,10 +952,10 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 Методы перечислены в таблицах компонентов выше. Сводно:
 
 - **WebBridgeBase** (есть на любом мосте): `ApplyWhiteLabel`, `SetLoggingEnabled`,
-  `SetFastGame`, `OnDisabledPlayPressed`, `OnWinWindowSignal`.
+  `SetFastGame`, `OnDisabledPlayPressed`, `OnCashoutPressed`, `OnWinWindowSignal`.
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
-  `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `OnCashoutPressed`,
-  `StartBonus`, `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
+  `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
+  `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **PlinkoAztecWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyDropResult`,
   `ApplyStepResult`, `SetBallsAmount`.
