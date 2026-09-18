@@ -13,6 +13,7 @@ export type {
   StepResultPayload,
   UiVisibilityPayload,
   UnityFrameSamplePayload,
+  WinWindowSignalPayload,
 } from './payloads';
 
 export { SLOT_ACTIONS } from './payloads';

@@ -36,6 +36,11 @@ namespace WebBridge
         // the player why nothing happened.
         public event Action DisabledPlayPressed;
 
+        // Fires when a result window's scenario reaches a named mark. The admin authors both the
+        // scenario and the name in games-configurator, so the bridge does not interpret it: the
+        // game subscribes to the names it knows and ignores the rest.
+        public event Action<WebWinWindowSignalPayload> WinWindowSignalReceived;
+
         public bool? CurrentIsWhiteLabel { get; private set; }
 
         // Fast game speeds the round presentation up (no showcase pauses). Off until React says
@@ -141,6 +146,23 @@ namespace WebBridge
         {
             WebBridgeLogger.Log($"[{typeof(T).Name}] OnDisabledPlayPressed");
             DisabledPlayPressed?.Invoke();
+        }
+
+        // React entry point (SendMessage): a named mark of a result window's scenario, as JSON
+        // ({ window, name }). Reaching a mark is a moment of the window's animation — the game
+        // uses it to line its own presentation up with what the player sees.
+        public void OnWinWindowSignal(string payload)
+        {
+            WebWinWindowSignalPayload parsed =
+                WebBridgeUtils.DeserializePayload<WebWinWindowSignalPayload>(payload, nameof(OnWinWindowSignal));
+            if (parsed == null)
+            {
+                WebBridgeLogger.LogWarning($"[{typeof(T).Name}] OnWinWindowSignal payload parse failed: {payload}");
+                return;
+            }
+
+            WebBridgeLogger.Log($"[{typeof(T).Name}] OnWinWindowSignal: {parsed.Window}/{parsed.Name}");
+            WinWindowSignalReceived?.Invoke(parsed);
         }
 
         // Asks React for the current fast-game status; it replies by calling SetFastGame. React

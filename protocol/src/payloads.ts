@@ -177,3 +177,14 @@ export interface SlotSpinResult {
   boards: string[];
   actions: SlotAction[][];
 }
+
+/**
+ * Именованная отметка сценария окна результата. Сценарий собирают в
+ * games-configurator: он расставляет по времени анимации, звуки и такие вот
+ * отметки. Что значит имя, знает только игра — хост его не толкует.
+ */
+export interface WinWindowSignalPayload {
+  /** Ключ окна: `cashout`, `bigWin`, … — одно имя могут слать разные окна. */
+  readonly window: string;
+  readonly name: string;
+}

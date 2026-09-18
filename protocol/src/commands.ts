@@ -11,6 +11,7 @@ import type {
   Orientation,
   StartBonusPayload,
   StepResultPayload,
+  WinWindowSignalPayload,
 } from './payloads';
 
 /** Команды, которые понимает любой мост независимо от игры (см. C# WebBridgeBase + Layout/Orientation/UI). */
@@ -40,6 +41,10 @@ export type CoreCommand =
   // событиям раунда движок не может отличить «окно ещё висит» от «экран свободен».
   | { type: 'WinWindowOpened' }
   | { type: 'WinWindowClosed' }
+  // Сценарий окна результата дошёл до именованной отметки. Имя расставляет
+  // админ в games-configurator, и смысл его знает игра: хост только доносит
+  // имя вместе с ключом окна, которое его назвало.
+  | { type: 'WinWindowSignal'; payload: WinWindowSignalPayload }
   | { type: 'TransitionScreenOpenStarted' }
   | { type: 'TransitionScreenOpenFinished' }
   | { type: 'TransitionScreenCloseStarted' }

@@ -10,6 +10,7 @@ import type {
   CoreCommand,
   EngineCommand,
   Orientation,
+  WinWindowSignalPayload,
 } from '@omega/webbridge-protocol';
 import { BridgeLogger } from './BridgeLogger';
 import type { BridgeTransport } from './BridgeTransport';
@@ -30,6 +31,8 @@ export abstract class BridgeBase {
   public readonly disabledPlayPressed = new Signal();
   public readonly winWindowOpened = new Signal();
   public readonly winWindowClosed = new Signal();
+  /** Сценарий окна результата дошёл до отметки: её имя придумал админ. */
+  public readonly winWindowSignal = new Signal<WinWindowSignalPayload>();
   public readonly transitionScreenOpenStarted = new Signal();
   public readonly transitionScreenOpenFinished = new Signal();
   public readonly transitionScreenCloseStarted = new Signal();
@@ -90,6 +93,9 @@ export abstract class BridgeBase {
         return;
       case 'WinWindowClosed':
         this.winWindowClosed.invoke();
+        return;
+      case 'WinWindowSignal':
+        this.winWindowSignal.invoke(command.payload);
         return;
       case 'TransitionScreenOpenStarted':
         this.transitionScreenOpenStarted.invoke();
