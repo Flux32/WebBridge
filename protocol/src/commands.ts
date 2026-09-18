@@ -35,6 +35,12 @@ export type CoreCommand =
   // баланса, ставка вне лимитов). Ставка при этом не уходит: команда нужна движку, чтобы
   // отыграть отказ — состояния кнопки у него нет, её блокировку знает только React.
   | { type: 'DisabledPlayPressed' }
+  // Игрок нажал Cashout. Уходит в движок сразу по нажатию — до payout-запроса и до открытия
+  // окна, то есть примерно за полсекунды до RestartRound, который вообще приходит лишь когда
+  // окно закрылось. Эта фора — единственный момент, когда игра может убрать со сцены то, что
+  // принадлежит живому раунду, до того как окно его накроет. Команда общая: кэшаут есть не
+  // только в Crush, и приёмник для неё стоит на базе моста, а не на режиме.
+  | { type: 'CashoutPressed' }
   // Окно результата раунда (cashout / win / mega / super и финальное окно бонуски) появилось на
   // экране / полностью ушло. Движок гасит на это свой геймплейный UI (кэф-бар, бонус-панель) и
   // возвращает его только после закрытия: RestartRound уходит ещё во время показа окна, поэтому по
@@ -61,11 +67,7 @@ export type CrushCommand =
   | { type: 'UpdateCoeffs'; payload: number[] }
   | { type: 'ApplyStepResult'; payload: StepResultPayload }
   | { type: 'StartBonus'; payload: StartBonusPayload }
-  | { type: 'ApplyBonusPurchaseResult'; payload: BonusPurchaseResultPayload }
-  // Игрок нажал Cashout. Уходит в движок сразу по нажатию — до payout-запроса и до открытия окна,
-  // то есть примерно за полсекунды до RestartRound. Движок использует эту фору, чтобы поднять
-  // камеру к верхушке башни, ПОКА окно открывается.
-  | { type: 'CashoutPressed' };
+  | { type: 'ApplyBonusPurchaseResult'; payload: BonusPurchaseResultPayload };
 
 /** Команды Plinko: шарики и их падение. */
 export type PlinkoCommand =
