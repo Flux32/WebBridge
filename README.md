@@ -141,6 +141,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
 | `FastGameChanged` | `bool` | Сменился режим ускоренной игры — и когда его переключил игрок в бет-баре, и когда сама игра (`NotifyFastGameChanged`) |
 | `DisabledPlayPressed` | — | Игрок нажал Play, пока бет-бар держит кнопку неактивной. Ставки нет — повод подсказать игроку причину |
+| `WinWindowSignalReceived` | `WebWinWindowSignalPayload` | Сценарий окна результата дошёл до именованной отметки. Имя придумывает админ в games-configurator, мост его не толкует — игра подписывается на те, что знает |
 
 #### Методы React → Unity (через `SendMessage`)
 
@@ -150,6 +151,19 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 | `SetLoggingEnabled(int)` | `1` / `0` | Включить/выключить логи моста (в сборке по умолчанию выключены) |
 | `SetFastGame(int)` | `1` / `0` | Ускоренная игра: 1 = включена. Тумблер живёт в бет-баре React, значением владеет и хранит его React — это единственный вход настройки в Unity |
 | `OnDisabledPlayPressed()` | — | Нажатие по неактивной кнопке Play в бет-баре: раунд ещё идёт, не хватает баланса или ставка вне лимитов. Причину блокировки знает только React, в Unity приходит сам факт нажатия |
+| `OnWinWindowSignal(string)` | JSON отметки | Сценарий окна результата дошёл до отметки: ключ окна, имя отметки и необязательное значение при ней |
+
+> **Отметки окна результата.** Сценарий окна — анимации, звуки и отметки на общей
+> дорожке — собирается в games-configurator, а играет его React. Отметка доезжает до
+> игры вместе с ключом окна и, если админ его задал, значением своего типа
+> (`WebWinWindowSignalPayload`):
+>
+> ```csharp
+> RoadWebBridge.Instance.WinWindowSignalReceived += signal =>
+> {
+>     if (signal.Name == "win.tier") PlayTier(signal.AsInt());
+> };
+> ```
 
 #### Методы Unity → React
 
@@ -848,6 +862,25 @@ class WebBonusAutoPlayProgress
 - `WebBetBarHideStatePayload` — состояние видимости бет-баров.
 - `WebGameRestorePayload` — `{ config, state }` для `RestoreGame`.
 
+### WebWinWindowSignalPayload
+
+Именованная отметка сценария окна результата (событие `WinWindowSignalReceived`):
+
+```csharp
+class WebWinWindowSignalPayload
+{
+    string Window;     // "window" — ключ окна, чей сценарий дошёл до отметки
+    string Name;       // "name" — имя отметки из админки
+    string ValueType;  // "valueType" — "int" | "float" | "bool" | "string"; пусто, когда значения нет
+    string Value;      // "value" — значение текстом
+    bool HasValue;     // есть ли значение при отметке
+}
+```
+
+Тип приходит рядом со значением, а не выводится из него: по `2` не отличить `int`
+от `float`, а тип отметки задан в админке. Значение читается геттером своего типа —
+`AsInt()`, `AsFloat()`, `AsBool()`, `AsString()`; геттер чужого типа бросает исключение.
+
 ### PlinkoAztecBallsAmountChange
 
 Аргумент события `BallsAmountChanged`:
@@ -917,7 +950,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 Методы перечислены в таблицах компонентов выше. Сводно:
 
 - **WebBridgeBase** (есть на любом мосте): `ApplyWhiteLabel`, `SetLoggingEnabled`,
-  `SetFastGame`, `OnDisabledPlayPressed`.
+  `SetFastGame`, `OnDisabledPlayPressed`, `OnWinWindowSignal`.
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
   `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
   `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.

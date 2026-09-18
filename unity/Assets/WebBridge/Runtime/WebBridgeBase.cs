@@ -149,8 +149,8 @@ namespace WebBridge
         }
 
         // React entry point (SendMessage): a named mark of a result window's scenario, as JSON
-        // ({ window, name }). Reaching a mark is a moment of the window's animation — the game
-        // uses it to line its own presentation up with what the player sees.
+        // ({ window, name, valueType?, value? }). Reaching a mark is a moment of the window's
+        // animation — the game uses it to line its own presentation up with what the player sees.
         public void OnWinWindowSignal(string payload)
         {
             WebWinWindowSignalPayload parsed =
