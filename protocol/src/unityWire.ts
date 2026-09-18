@@ -49,5 +49,13 @@ export const UNITY_PREFIXED_MESSAGES = {
   bonusProgressSave: 'BonusProgressSave_',
 } as const;
 
+/**
+ * Значение отметки сценария окна уходит в Unity разложенным на две строки:
+ * `valueType` (`int` | `float` | `bool` | `string`) и `value` — само значение
+ * текстом. Одно поле с числом, флагом или строкой в C# читалось бы вручную,
+ * а так payload остаётся обычным типизированным классом.
+ */
+export const UNITY_SIGNAL_VALUE_FIELDS = { type: 'valueType', value: 'value' } as const;
+
 export type UnityPlainMessage = (typeof UNITY_PLAIN_MESSAGES)[number];
 export type UnityPrefix = (typeof UNITY_PREFIXED_MESSAGES)[keyof typeof UNITY_PREFIXED_MESSAGES];

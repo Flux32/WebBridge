@@ -14,6 +14,7 @@ export type {
   UiVisibilityPayload,
   UnityFrameSamplePayload,
   WinWindowSignalPayload,
+  WinWindowSignalValue,
 } from './payloads';
 
 export { SLOT_ACTIONS } from './payloads';

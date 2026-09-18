@@ -179,6 +179,17 @@ export interface SlotSpinResult {
 }
 
 /**
+ * Значение отметки. Тип назван явно, а не выведен из самого значения: игра
+ * читает его типизированно (в C# `int` и `float` — разные типы), а по числу 2
+ * не понять, целое оно или дробное.
+ */
+export type WinWindowSignalValue =
+  | { readonly type: 'int'; readonly value: number }
+  | { readonly type: 'float'; readonly value: number }
+  | { readonly type: 'bool'; readonly value: boolean }
+  | { readonly type: 'string'; readonly value: string };
+
+/**
  * Именованная отметка сценария окна результата. Сценарий собирают в
  * games-configurator: он расставляет по времени анимации, звуки и такие вот
  * отметки. Что значит имя, знает только игра — хост его не толкует.
@@ -187,4 +198,6 @@ export interface WinWindowSignalPayload {
   /** Ключ окна: `cashout`, `bigWin`, … — одно имя могут слать разные окна. */
   readonly window: string;
   readonly name: string;
+  /** Не задано — отметка без значения: игре важен сам факт и его момент. */
+  readonly value?: WinWindowSignalValue;
 }

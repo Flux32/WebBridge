@@ -300,21 +300,6 @@ namespace Modules.Road
         public bool HideMobileBetBar;
     }
 
-    // Named mark of a result window's scenario. The scenario is authored in
-    // games-configurator: it lays out the window's animations, sounds and marks
-    // like this one on a timeline. What the name means is up to the game — the
-    // bridge only carries it, together with the key of the window that called it.
-    [Preserve]
-    [Serializable]
-    public class WebWinWindowSignalPayload
-    {
-        [JsonName("window")]
-        public string Window;
-
-        [JsonName("name")]
-        public string Name;
-    }
-
     [Preserve]
     public class StepResultAction
     {
