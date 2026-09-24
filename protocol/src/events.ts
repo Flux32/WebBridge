@@ -6,7 +6,7 @@ import type {
   BonusPurchaseRequestPayload,
   UiVisibilityPayload,
   UnityFrameSamplePayload,
-} from './payloads';
+} from './payloads.js';
 
 /** События, которые шлёт любой мост независимо от игры. */
 export type CoreEvent =

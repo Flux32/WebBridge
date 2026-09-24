@@ -12,8 +12,8 @@
  *
  * Реализация фабрики — `@omega/webbridge-js` (`createPhaserBoot`).
  */
-import type { EngineCommand } from './commands';
-import type { EngineEvent } from './events';
+import type { EngineCommand } from './commands.js';
+import type { EngineEvent } from './events.js';
 
 /** Сторона React, передаётся в бандл. */
 export interface PhaserHostBridge {

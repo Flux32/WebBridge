@@ -12,7 +12,7 @@ import type {
   StartBonusPayload,
   StepResultPayload,
   WinWindowSignalPayload,
-} from './payloads';
+} from './payloads.js';
 
 /** Команды, которые понимает любой мост независимо от игры (см. C# WebBridgeBase + Layout/Orientation/UI). */
 export type CoreCommand =

@@ -15,9 +15,9 @@ export type {
   UnityFrameSamplePayload,
   WinWindowSignalPayload,
   WinWindowSignalValue,
-} from './payloads';
+} from './payloads.js';
 
-export { SLOT_ACTIONS } from './payloads';
+export { SLOT_ACTIONS } from './payloads.js';
 
 export type {
   CoreCommand,
@@ -29,7 +29,7 @@ export type {
   SpinCommand,
   TwistCommand,
   WheelCommand,
-} from './commands';
+} from './commands.js';
 
 export type {
   BonusEngineEvent,
@@ -41,23 +41,23 @@ export type {
   RoundEvent,
   UnityOnlyEvent,
   WheelEvent,
-} from './events';
-export { isBonusEngineEvent } from './events';
+} from './events.js';
+export { isBonusEngineEvent } from './events.js';
 
-export type { ModeChannel, ModeProtocolId, ModeProtocols } from './modes';
+export type { ModeChannel, ModeProtocolId, ModeProtocols } from './modes.js';
 
 export type {
   PhaserBootFn,
   PhaserBootOptions,
   PhaserGameBridge,
   PhaserHostBridge,
-} from './phaser';
-export { PHASER_CONTAINER_ID } from './phaser';
+} from './phaser.js';
+export { PHASER_CONTAINER_ID } from './phaser.js';
 
 export {
   UNITY_BRIDGE_OBJECT,
   UNITY_PLAIN_MESSAGES,
   UNITY_PREFIXED_MESSAGES,
   UNITY_REACT_EVENT,
-} from './unityWire';
-export type { UnityPlainMessage, UnityPrefix } from './unityWire';
+} from './unityWire.js';
+export type { UnityPlainMessage, UnityPrefix } from './unityWire.js';

@@ -4,8 +4,8 @@
  * `CoreCommand`/`CoreEvent` are not repeated here — a mode's port adds them
  * on top (`CoreCommand | ModeProtocols[id]['commands']`).
  */
-import type { CrushCommand, PlinkoCommand, SpinCommand, TwistCommand, WheelCommand } from './commands';
-import type { CrushEvent, PlinkoEvent, RoundEvent, WheelEvent } from './events';
+import type { CrushCommand, PlinkoCommand, SpinCommand, TwistCommand, WheelCommand } from './commands.js';
+import type { CrushEvent, PlinkoEvent, RoundEvent, WheelEvent } from './events.js';
 
 export interface ModeChannel<TCommand extends { type: string }, TEvent extends { type: string }> {
   readonly commands: TCommand;
