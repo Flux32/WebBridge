@@ -27,11 +27,18 @@ type PlinkoAztecCommand =
   | Extract<PlinkoCommand, { type: 'SetBallsAmount' | 'ApplyDropResult' }>
   | Extract<TwistCommand, { type: 'ApplyBonusStepResult' }>;
 
+/**
+ * Twist shares crush's round-ready signal and its three bonus lifecycle
+ * events (TwistReact's bridge emits them: SlotScene.ts / bridgeEntry.ts),
+ * but never BonusProgressClear, BonusCleared or BonusPurchaseRequest — the
+ * host drives twist's bonus purchase itself via StartBonus, not an engine
+ * event, and clears twist's bonus progress without a dedicated signal.
+ */
+type TwistEventChannel = RoundEvent | Extract<CrushEvent, { type: 'BonusActive' | 'BonusProgressSave' | 'BonusEnded' }>;
+
 export interface ModeProtocols {
   readonly crush: ModeChannel<CrushCommand, CrushEvent>;
-  // Twist runs the same server-driven round/bonus lifecycle as crush on the
-  // wire, so it reuses CrushEvent as-is instead of repeating its members.
-  readonly twist: ModeChannel<TwistCommandChannel, CrushEvent>;
+  readonly twist: ModeChannel<TwistCommandChannel, TwistEventChannel>;
   readonly slot: ModeChannel<SpinCommand, RoundEvent>;
   readonly wheel: ModeChannel<WheelCommand, WheelEvent>;
   readonly plinko: ModeChannel<

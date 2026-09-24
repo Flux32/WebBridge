@@ -39,9 +39,19 @@ const _plinkoAztecHasApplyBonusStepResult: ModeProtocols['plinkoAztec']['command
 const _twistHasSpinReady: ModeProtocols['twist']['events'] = { type: 'SpinReady' };
 const _slotHasSpinReady: ModeProtocols['slot']['events'] = { type: 'SpinReady' };
 
+// The twist bridge (TwistReact) never sends these; the host drives twist's
+// bonus purchase itself via StartBonus, and BonusCleared is crush-only.
+// @ts-expect-error BonusPurchaseRequest is not sent by the twist bridge.
+const _twistHasNoBonusPurchaseRequest: ModeProtocols['twist']['events'] = { type: 'BonusPurchaseRequest', payload: {} };
+
+// @ts-expect-error BonusCleared is not sent by the twist bridge.
+const _twistHasNoBonusCleared: ModeProtocols['twist']['events'] = { type: 'BonusCleared' };
+
 void _crushHasNoApplySpinResult;
 void _plinkoHasNoApplyStepResult;
 void _wheelHasNoSpinReady;
 void _plinkoAztecHasApplyBonusStepResult;
 void _twistHasSpinReady;
 void _slotHasSpinReady;
+void _twistHasNoBonusPurchaseRequest;
+void _twistHasNoBonusCleared;
