@@ -29,6 +29,13 @@ export type CoreEvent =
   | { type: 'OpenTransitionScreen' }
   | { type: 'CloseTransitionScreen' };
 
+/**
+ * Движок доиграл анимацию шага/спина и готов принять следующий ход: этим
+ * React разблокирует бет-бар. Общее для всех server-driven раундовых
+ * режимов (crush, twist, slot), не только Crush.
+ */
+export type RoundEvent = { type: 'SpinReady' };
+
 /** События режима Crush. */
 export type CrushEvent =
   | { type: 'BonusProgressSave'; raw: string }
@@ -36,9 +43,7 @@ export type CrushEvent =
   | { type: 'BonusActive' }
   | { type: 'BonusEnded' }
   | { type: 'BonusCleared' }
-  // Движок доиграл анимацию шага и готов принять следующий: этим React
-  // разблокирует бет-бар.
-  | { type: 'SpinReady' }
+  | RoundEvent
   | { type: 'BonusPurchaseRequest'; payload: BonusPurchaseRequestPayload };
 
 /** События Plinko. */

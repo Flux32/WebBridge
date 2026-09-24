@@ -38,10 +38,13 @@ export type {
   EngineEvent,
   EngineEventType,
   PlinkoEvent,
+  RoundEvent,
   UnityOnlyEvent,
   WheelEvent,
 } from './events';
 export { isBonusEngineEvent } from './events';
+
+export type { ModeChannel, ModeProtocolId, ModeProtocols } from './modes';
 
 export type {
   PhaserBootFn,

@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc -b && tsc -p typetests",
     "prepack": "tsc -b"
   },
   "devDependencies": {
