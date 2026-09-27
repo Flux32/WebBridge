@@ -69,9 +69,11 @@ export type CrushCommand =
   | { type: 'StartBonus'; payload: StartBonusPayload }
   | { type: 'ApplyBonusPurchaseResult'; payload: BonusPurchaseResultPayload };
 
-/** Команды Plinko: шарики и их падение. */
+/** Команды Plinko: шарики, ставка за шар и падение. */
 export type PlinkoCommand =
   | { type: 'SetBallsAmount'; payload: number }
+  // Ставка за шар — десятичная строка как `betPerBall` бэкенда ("0.2", "2"): деньги не идут через number.
+  | { type: 'SetBetPerBall'; payload: string }
   | { type: 'ApplyDropResult'; payload: string };
 
 /** Команды колеса. */

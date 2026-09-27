@@ -11,6 +11,7 @@ import type {
   ModeProtocolId,
   ModeProtocols,
   UnityOnlyEvent,
+  UnityPlainMessage,
 } from '../src';
 import type { Equal, Expect } from './typeEqual';
 
@@ -36,6 +37,22 @@ const _plinkoAztecHasApplyBonusStepResult: ModeProtocols['plinkoAztec']['command
   payload: '',
 };
 
+const _plinkoAztecHasSetBetPerBall: ModeProtocols['plinkoAztec']['commands'] = {
+  type: 'SetBetPerBall',
+  payload: '0.2',
+};
+const _plinkoAztecHasRequestBetPerBall: ModeProtocols['plinkoAztec']['events'] = { type: 'RequestBetPerBall' };
+
+// The bet-per-ball request is a bare string on the Unity wire, like RequestBallsAmount.
+const _requestBetPerBallIsPlain: UnityPlainMessage = 'RequestBetPerBall';
+
+// Classic plinko has no bet bar of its own on the engine side.
+// @ts-expect-error SetBetPerBall belongs to plinko-aztec's channel, not plinko's.
+const _plinkoHasNoSetBetPerBall: ModeProtocols['plinko']['commands'] = { type: 'SetBetPerBall', payload: '1' };
+
+// @ts-expect-error RequestBetPerBall belongs to plinko-aztec's channel, not plinko's.
+const _plinkoHasNoRequestBetPerBall: ModeProtocols['plinko']['events'] = { type: 'RequestBetPerBall' };
+
 const _twistHasSpinReady: ModeProtocols['twist']['events'] = { type: 'SpinReady' };
 const _slotHasSpinReady: ModeProtocols['slot']['events'] = { type: 'SpinReady' };
 
@@ -51,6 +68,11 @@ void _crushHasNoApplySpinResult;
 void _plinkoHasNoApplyStepResult;
 void _wheelHasNoSpinReady;
 void _plinkoAztecHasApplyBonusStepResult;
+void _plinkoAztecHasSetBetPerBall;
+void _plinkoAztecHasRequestBetPerBall;
+void _requestBetPerBallIsPlain;
+void _plinkoHasNoSetBetPerBall;
+void _plinkoHasNoRequestBetPerBall;
 void _twistHasSpinReady;
 void _slotHasSpinReady;
 void _twistHasNoBonusPurchaseRequest;

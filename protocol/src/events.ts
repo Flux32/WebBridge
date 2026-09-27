@@ -50,6 +50,7 @@ export type CrushEvent =
 export type PlinkoEvent =
   | { type: 'DropFinished' }
   | { type: 'RequestBallsAmount' }
+  | { type: 'RequestBetPerBall' }
   | { type: 'RequestStep' };
 
 /** События колеса: раунд показан игроку. */

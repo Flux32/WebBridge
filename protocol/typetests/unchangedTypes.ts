@@ -1,7 +1,8 @@
 /**
- * Guards the 1.7.0 shape of the types this step does not touch. `RoundEvent`
- * is a new alias for the same `{ type: 'SpinReady' }` shape `CrushEvent`
- * carried inline before, so it must stay structurally invisible here.
+ * Guards the 1.7.0 shape of the engine unions. `RoundEvent` (1.8.0) is an
+ * alias for the same `{ type: 'SpinReady' }` shape `CrushEvent` carried
+ * inline before, so it must stay structurally invisible here. 1.9.0 only
+ * adds the plinko-aztec bet-per-ball pair: every older member keeps its shape.
  */
 import type {
   BonusPurchaseRequestPayload,
@@ -61,7 +62,9 @@ type EngineCommand170 =
   | { type: 'ApplyBonusStepResult'; payload: string }
   | { type: 'FreeGamesIntroFinished' };
 
-type _engineCommandUnchanged = Expect<Equal<EngineCommand, EngineCommand170>>;
+type BetPerBallCommand190 = { type: 'SetBetPerBall'; payload: string };
+
+type _engineCommandUnchanged = Expect<Equal<EngineCommand, EngineCommand170 | BetPerBallCommand190>>;
 
 type EngineEvent170 =
   | { type: 'PlaySound'; key: string; volume?: number }
@@ -86,4 +89,6 @@ type EngineEvent170 =
   | { type: 'RoundShown' }
   | { type: 'UnityFrameSample'; payload: UnityFrameSamplePayload };
 
-type _engineEventUnchanged = Expect<Equal<EngineEvent, EngineEvent170>>;
+type BetPerBallEvent190 = { type: 'RequestBetPerBall' };
+
+type _engineEventUnchanged = Expect<Equal<EngineEvent, EngineEvent170 | BetPerBallEvent190>>;

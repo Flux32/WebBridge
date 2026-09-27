@@ -24,7 +24,7 @@ type TwistCommandChannel =
   | Extract<TwistCommand, { type: 'FreeGamesIntroFinished' }>;
 
 type PlinkoAztecCommand =
-  | Extract<PlinkoCommand, { type: 'SetBallsAmount' | 'ApplyDropResult' }>
+  | Extract<PlinkoCommand, { type: 'SetBallsAmount' | 'SetBetPerBall' | 'ApplyDropResult' }>
   | Extract<TwistCommand, { type: 'ApplyBonusStepResult' }>;
 
 /**
