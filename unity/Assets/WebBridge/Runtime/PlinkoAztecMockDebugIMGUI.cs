@@ -45,7 +45,7 @@ namespace Modules.PlinkoAztec
                                   + ScenarioButtonHeight * Scenarios.Length
                                   + ScenarioGap * (Scenarios.Length - 1);
 
-            return RowHeight + Padding
+            return (RowHeight + Padding) * 2f
                    + scenarioBlock + Padding
                    + ActionsHeight + Padding
                    + HintHeight;
@@ -62,6 +62,14 @@ namespace Modules.PlinkoAztec
                 bridge.CurrentBallsAmount.ToString(),
                 () => StepBallsAmount(bridge, -1),
                 () => StepBallsAmount(bridge, 1));
+            y += RowHeight + Padding;
+
+            DrawArrowRow(
+                new Rect(content.x, y, content.width, RowHeight),
+                "Bet",
+                bridge.CurrentBetPerBall,
+                () => StepBetPerBall(bridge, -1),
+                () => StepBetPerBall(bridge, 1));
             y += RowHeight + Padding;
 
             GUI.Label(new Rect(content.x, y, content.width, ScenarioLabelHeight), "Scenario", LabelStyle);
@@ -105,6 +113,14 @@ namespace Modules.PlinkoAztec
             int currentIndex = Array.IndexOf(options, bridge.CurrentBallsAmount);
             int nextIndex = (currentIndex + direction + options.Length) % options.Length;
             bridge.SetBallsAmount(options[nextIndex]);
+        }
+
+        private static void StepBetPerBall(PlinkoAztecWebBridge bridge, int direction)
+        {
+            string[] options = bridge.MockBetPerBallOptions;
+            int currentIndex = Array.IndexOf(options, bridge.CurrentBetPerBall);
+            int nextIndex = (currentIndex + direction + options.Length) % options.Length;
+            bridge.SetBetPerBall(options[nextIndex]);
         }
 
         private static string ScenarioLabel(PlinkoAztecMockScenario scenario)

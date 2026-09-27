@@ -503,7 +503,7 @@ Play Mode редактора.
 
 `PlinkoAztecWebBridge` в mock-режиме полностью заменяет React: `PlinkoAztecMockHost`
 отвечает на `RequestGameConfig` / `RequestGameState` / `RequestStep` /
-`RequestBallsAmount` / `RequestWhiteLabel` теми же JSON-payload'ами, что приходят с
+`RequestBallsAmount` / `RequestBetPerBall` / `RequestWhiteLabel` теми же JSON-payload'ами, что приходят с
 платформы, а панель `PlinkoAztecMockDebugIMGUI` (кнопка **PLK**) заменяет бет-бар.
 Панель добавляется мостом себе на GameObject в `Start`, поэтому видна только на
 сценах, где лежит именно Aztec-мост.
@@ -511,6 +511,7 @@ Play Mode редактора.
 | Элемент панели | Что делает |
 |---|---|
 | `Balls` | Переключает balls-per-drop из `Balls Amount Options` (как свитч в бет-баре) |
+| `Bet` | Переключает ставку за шарик из `Bet Per Ball Options` (как выбор ставки в бет-баре) |
 | `Scenario` | Куда лягут шарики: случайно, всё в топ-слот, всё в нижний слот, колесо фортуны, колесо → бонус-игра |
 | `DROP` | Раунд по выбранному сценарию → `ApplyDropResult` |
 | `STEP` | Шаг бонус-игры (активна, только пока бонус идёт) → `ApplyStepResult` |
@@ -522,7 +523,8 @@ Play Mode редактора.
 |---|---|
 | `Slot Coefficients` | Линия слотов слева направо; `0` помечает spin-слот (колесо) |
 | `Balls Amount Options` | Варианты balls-per-drop |
-| `Bet Per Ball` / `Currency` / `Decimal Places` | Ставка на шарик и формат сумм |
+| `Bet Per Ball Options` | Варианты ставки на шарик строкой бэкенда; первый — ставка на старте |
+| `Currency` / `Decimal Places` | Валюта и формат сумм |
 | `Bumper Chance` | Шанс бампер-хита на шарик |
 | `Bonus Level Threshold` | Бампер-хитов на уровень бонус-игры |
 | `Bonus Steps` / `Bonus Balls Per Step` | Длина бонус-игры и шариков за шаг |

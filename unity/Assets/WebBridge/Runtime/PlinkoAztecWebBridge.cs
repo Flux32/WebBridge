@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Scripting;
 using WebBridge;
@@ -18,10 +19,19 @@ namespace Modules.PlinkoAztec
         // Balls-per-drop is unknown until React pushes the bet-bar selection.
         private const int UnknownBallsAmount = 0;
 
+        // Bet per ball is unknown until React pushes the bet-bar selection.
+        private const decimal UnknownBetPerBallAmount = 0m;
+
+        // Backend bet amounts are plain decimals ("0.2", "2"): no sign, no grouping, no exponent.
+        private const NumberStyles BetPerBallStyle = NumberStyles.AllowDecimalPoint;
+
         [Header("Mock")]
         [SerializeField] private PlinkoAztecMockSettings _mockSettings = new PlinkoAztecMockSettings();
 
         private PlinkoAztecMockHost _mockHost;
+
+        // CurrentBetPerBall parsed once, so a change is compared by amount ("2" equals "2.0").
+        private decimal _currentBetPerBallAmount = UnknownBetPerBallAmount;
 
         public event Action<WebPlinkoAztecConfigPayload> GameConfigReceived;
         public event Action<WebPlinkoAztecStatePayload> GameStateReceived;
@@ -34,6 +44,10 @@ namespace Modules.PlinkoAztec
         // it instead of waiting for the next change.
         public event Action<PlinkoAztecBallsAmountChange> BallsAmountChanged;
 
+        // Fires on every bet-per-ball change, the same way BallsAmountChanged does for the
+        // balls; the value is cached in CurrentBetPerBall.
+        public event Action<PlinkoAztecBetPerBallChange> BetPerBallChanged;
+
         public WebPlinkoAztecConfigPayload LastGameConfig { get; private set; }
         public WebPlinkoAztecStatePayload LastGameState { get; private set; }
         public WebPlinkoAztecStatePayload LastDropResult { get; private set; }
@@ -43,8 +57,15 @@ namespace Modules.PlinkoAztec
         // reports the selection — call RequestBallsAmount to ask for it.
         public int CurrentBallsAmount { get; private set; } = UnknownBallsAmount;
 
+        // Bet per ball the next drop will place, as the backend's decimal string ("0.2", "2").
+        // null until React reports the bet — call RequestBetPerBall to ask for it.
+        public string CurrentBetPerBall { get; private set; }
+
         // Balls-per-drop options the mock bet bar offers — the debug panel cycles through them.
         public int[] MockBallsAmountOptions => _mockSettings.BallsAmountOptions;
+
+        // Bet-per-ball options the mock bet bar offers — the debug panel cycles through them.
+        public string[] MockBetPerBallOptions => _mockSettings.BetPerBallOptions;
 
         // True while the emulated session is inside a bonus game, so the panel knows a step is
         // something the board can ask for.
@@ -83,7 +104,7 @@ namespace Modules.PlinkoAztec
         {
             if (IsMockEnabled)
             {
-                ApplyGameState(_mockHost.BuildGameState(CurrentBallsAmount));
+                ApplyGameState(_mockHost.BuildGameState(CurrentBallsAmount, CurrentBetPerBall));
                 return;
             }
 
@@ -109,7 +130,7 @@ namespace Modules.PlinkoAztec
         {
             if (IsMockEnabled)
             {
-                ApplyStepResult(_mockHost.BuildStepResult(CurrentBallsAmount));
+                ApplyStepResult(_mockHost.BuildStepResult(CurrentBallsAmount, CurrentBetPerBall));
                 return;
             }
 
@@ -131,6 +152,21 @@ namespace Modules.PlinkoAztec
             WebBridgeUtils.Send("RequestBallsAmount");
         }
 
+        // Unity -> React: asks for the bet per ball currently selected in the bet bar; React
+        // answers by calling SetBetPerBall. Like the balls, React also pushes it on load and on
+        // every change.
+        public void RequestBetPerBall()
+        {
+            if (IsMockEnabled)
+            {
+                BetPerBallChanged?.Invoke(new PlinkoAztecBetPerBallChange(
+                    CurrentBetPerBall, CurrentBetPerBall, PlinkoAztecBetPerBallDirection.None));
+                return;
+            }
+
+            WebBridgeUtils.Send("RequestBetPerBall");
+        }
+
         // React entry point (SendMessage): balls-per-drop selected in the bet bar. React owns
         // the value (the allowed options come from the backend config) — this is the only way
         // the selection enters Unity. Re-sending the same value raises no event.
@@ -150,6 +186,31 @@ namespace Modules.PlinkoAztec
             WebBridgeLogger.Log($"[PlinkoAztecWebBridge] BallsAmount: {previousAmount} -> {amount}");
             BallsAmountChanged?.Invoke(
                 new PlinkoAztecBallsAmountChange(amount, previousAmount, ResolveDirection(previousAmount, amount)));
+        }
+
+        // React entry point (SendMessage): bet per ball selected in the bet bar, as the backend's
+        // decimal string. Parsed only to validate and to tell the direction — the string itself
+        // is what the bridge keeps. Re-sending the same amount raises no event.
+        public void SetBetPerBall(string betPerBall)
+        {
+            bool isAmount =
+                decimal.TryParse(betPerBall, BetPerBallStyle, CultureInfo.InvariantCulture, out decimal amount);
+            if (!isAmount || amount <= UnknownBetPerBallAmount)
+            {
+                WebBridgeLogger.LogWarning($"[PlinkoAztecWebBridge] SetBetPerBall ignored: {betPerBall}");
+                return;
+            }
+
+            if (amount == _currentBetPerBallAmount)
+                return;
+
+            string previousBetPerBall = CurrentBetPerBall;
+            decimal previousAmount = _currentBetPerBallAmount;
+            CurrentBetPerBall = betPerBall;
+            _currentBetPerBallAmount = amount;
+            WebBridgeLogger.Log($"[PlinkoAztecWebBridge] BetPerBall: {previousBetPerBall} -> {betPerBall}");
+            BetPerBallChanged?.Invoke(new PlinkoAztecBetPerBallChange(
+                betPerBall, previousBetPerBall, ResolveBetPerBallDirection(previousAmount, amount)));
         }
 
         // React entry point (SendMessage): platform game config with the slot line and
@@ -223,7 +284,7 @@ namespace Modules.PlinkoAztec
         // runs the same parse-and-animate path it does on the web.
         public void PlayMockDrop(PlinkoAztecMockScenario scenario)
         {
-            ApplyDropResult(_mockHost.BuildDropResult(CurrentBallsAmount, scenario));
+            ApplyDropResult(_mockHost.BuildDropResult(CurrentBallsAmount, CurrentBetPerBall, scenario));
         }
 
         // Mock only: back to a fresh player — bumper progress cleared, bonus game dropped.
@@ -231,7 +292,7 @@ namespace Modules.PlinkoAztec
         {
             _mockHost.Reset();
             ApplyGameConfig(_mockHost.BuildGameConfig());
-            ApplyGameState(_mockHost.BuildGameState(CurrentBallsAmount));
+            ApplyGameState(_mockHost.BuildGameState(CurrentBallsAmount, CurrentBetPerBall));
         }
 
         // Mock mode replaces React entirely: the host answers the requests the web side would,
@@ -242,6 +303,7 @@ namespace Modules.PlinkoAztec
             gameObject.AddComponent<PlinkoAztecMockDebugIMGUI>();
 
             SetBallsAmount(_mockSettings.DefaultBallsAmount);
+            SetBetPerBall(_mockSettings.DefaultBetPerBall);
             RequestGameConfig();
             RequestGameState();
         }
@@ -256,6 +318,17 @@ namespace Modules.PlinkoAztec
             return amount > previousAmount
                 ? PlinkoAztecBallsAmountDirection.Increased
                 : PlinkoAztecBallsAmountDirection.Decreased;
+        }
+
+        // Same rule as the balls: the first bet the bridge learns is a sync, not a player step.
+        private static PlinkoAztecBetPerBallDirection ResolveBetPerBallDirection(decimal previousAmount, decimal amount)
+        {
+            if (previousAmount == UnknownBetPerBallAmount)
+                return PlinkoAztecBetPerBallDirection.None;
+
+            return amount > previousAmount
+                ? PlinkoAztecBetPerBallDirection.Increased
+                : PlinkoAztecBetPerBallDirection.Decreased;
         }
     }
 }

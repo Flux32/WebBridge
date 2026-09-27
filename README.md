@@ -294,6 +294,7 @@ Unity его визуализирует и сообщает, когда доиг
 | `DropResultReceived` | `WebPlinkoAztecStatePayload` | Пришёл результат броска (`ballsResult`, колесо, бонус) |
 | `StepResultReceived` | `WebPlinkoAztecStatePayload` | Пришёл результат шага бонусной игры |
 | `BallsAmountChanged` | `PlinkoAztecBallsAmountChange` | Сменилось число шариков в броске: игрок нажал ± в бет-баре либо React прислал текущий выбор (загрузка, ответ на `RequestBallsAmount`) |
+| `BetPerBallChanged` | `PlinkoAztecBetPerBallChange` | Сменилась ставка за шарик: игрок поменял ставку в бет-баре либо React прислал текущую (загрузка, ответ на `RequestBetPerBall`) |
 
 #### Методы React → Unity (через `SendMessage`)
 
@@ -304,6 +305,7 @@ Unity его визуализирует и сообщает, когда доиг
 | `ApplyDropResult(json)` | JSON `WebPlinkoAztecStatePayload` | Результат броска |
 | `ApplyStepResult(json)` | JSON `WebPlinkoAztecStatePayload` | Результат шага бонусной игры |
 | `SetBallsAmount(int)` | напр. `20` | Число шариков в броске, выбранное в бет-баре. Набор допустимых значений диктует бэкенд (`ballsAmountOptions`), значением владеет React — это единственный вход выбора в Unity |
+| `SetBetPerBall(string)` | напр. `"0.2"` | Ставка за шарик, выбранная в бет-баре, — десятичная строка как `betPerBall` бэкенда. Невалидное (пусто, не число, `<= 0`) — предупреждение в лог и игнор; та же сумма (`"2"` и `"2.0"`) событие не поднимает |
 
 #### Методы Unity → React
 
@@ -313,6 +315,7 @@ Unity его визуализирует и сообщает, когда доиг
 | `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
 | `RequestStep()` | `RequestStep` — игрок тапнул поле в бонусной игре | → `ApplyStepResult(json)` |
 | `RequestBallsAmount()` | `RequestBallsAmount` | → `SetBallsAmount(int)` |
+| `RequestBetPerBall()` | `RequestBetPerBall` | → `SetBetPerBall(string)` |
 | `NotifyDropFinished()` | `DropFinished` — анимация доиграна, шарики сели | — |
 
 #### Свойства
@@ -324,6 +327,7 @@ Unity его визуализирует и сообщает, когда доиг
 | `LastDropResult` | `WebPlinkoAztecStatePayload` | Последний результат броска |
 | `LastStepResult` | `WebPlinkoAztecStatePayload` | Последний результат шага бонуса |
 | `CurrentBallsAmount` | `int` | Число шариков, которое уйдёт в следующий бросок. `0`, пока React не прислал выбор |
+| `CurrentBetPerBall` | `string` | Ставка за шарик следующего броска, строкой бэкенда. `null`, пока React не прислал ставку |
 
 > **Число шариков.** React пушит выбор, как только движок загрузился, и дальше — на
 > каждое нажатие ± в бет-баре. Ждать события не нужно: подписался позже — прочитай
@@ -338,6 +342,10 @@ Unity его визуализирует и сообщает, когда доиг
 >     else ShowBalls(change.Amount); // первый синк после загрузки
 > };
 > ```
+>
+> **Ставка за шарик** живёт так же: `BetPerBallChanged`, `CurrentBetPerBall`,
+> `RequestBetPerBall()`. Значение — строка бэкенда без округления, поэтому из неё
+> напрямую собирается ключ прогресса бонуса `CUR-balls-betPerBall`.
 
 ---
 
@@ -903,6 +911,26 @@ enum PlinkoAztecBallsAmountDirection { None = 0, Increased = 1, Decreased = 2 }
 `None` — сменил не игрок: первый синк после загрузки, ответ на `RequestBallsAmount`
 или пересчёт выбора, когда конфиг бэкенда убрал выбранный вариант.
 
+### PlinkoAztecBetPerBallChange
+
+Аргумент события `BetPerBallChanged`:
+
+```csharp
+readonly struct PlinkoAztecBetPerBallChange
+{
+    string BetPerBall;                          // новая ставка за шарик, строка бэкенда ("0.2")
+    string PreviousBetPerBall;                  // прежняя; null — ставка пришла впервые
+    PlinkoAztecBetPerBallDirection Direction;   // None | Increased | Decreased (по сумме, decimal)
+    bool IsIncrease;                            // Direction == Increased
+    bool IsDecrease;                            // Direction == Decreased
+}
+
+enum PlinkoAztecBetPerBallDirection { None = 0, Increased = 1, Decreased = 2 }
+```
+
+`None` — сменил не игрок: первый синк после загрузки, ответ на `RequestBetPerBall`
+или пересчёт ставки, когда лимиты бэкенда убрали выбранную.
+
 ### RestartReason
 
 ```csharp
@@ -936,6 +964,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `FastGame_1` / `FastGame_0` | `WebBridgeBase.NotifyFastGameChanged` |
 | `RequestStep` | `PlinkoAztecWebBridge.RequestStep` |
 | `RequestBallsAmount` | `PlinkoAztecWebBridge.RequestBallsAmount` |
+| `RequestBetPerBall` | `PlinkoAztecWebBridge.RequestBetPerBall` |
 | `DropFinished` | `PlinkoWebBridge` / `PlinkoAztecWebBridge.NotifyDropFinished` |
 | `BonusProgressSave_{json}` | `GameWebBridge.SaveBonusAutoPlayProgress` |
 | `BonusProgressClear` | `GameWebBridge.ClearBonusAutoPlayProgress` |
@@ -958,7 +987,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
   `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **PlinkoAztecWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyDropResult`,
-  `ApplyStepResult`, `SetBallsAmount`.
+  `ApplyStepResult`, `SetBallsAmount`, `SetBetPerBall`.
 - **WheelWebBridge:** `ApplyRound`.
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.

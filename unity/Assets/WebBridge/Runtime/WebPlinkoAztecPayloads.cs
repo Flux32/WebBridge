@@ -159,6 +159,43 @@ namespace Modules.PlinkoAztec
         public bool IsDecrease => Direction == PlinkoAztecBallsAmountDirection.Decreased;
     }
 
+    // Where a bet-per-ball change came from. None marks the pushes the player did not make:
+    // the first value after load, the answer to RequestBetPerBall, and the re-clamp React does
+    // when the backend bet limits drop the selected bet.
+    public enum PlinkoAztecBetPerBallDirection
+    {
+        None = 0,
+        Increased = 1,
+        Decreased = 2
+    }
+
+    // Argument of PlinkoAztecWebBridge.BetPerBallChanged. Values stay the backend's decimal
+    // strings ("0.2", "2") so game code can build the "CUR-balls-betPerBall" progress key from
+    // them verbatim.
+    public readonly struct PlinkoAztecBetPerBallChange
+    {
+        public PlinkoAztecBetPerBallChange(
+            string betPerBall,
+            string previousBetPerBall,
+            PlinkoAztecBetPerBallDirection direction)
+        {
+            BetPerBall = betPerBall;
+            PreviousBetPerBall = previousBetPerBall;
+            Direction = direction;
+        }
+
+        public string BetPerBall { get; }
+
+        // null until React reports the first bet.
+        public string PreviousBetPerBall { get; }
+
+        public PlinkoAztecBetPerBallDirection Direction { get; }
+
+        public bool IsIncrease => Direction == PlinkoAztecBetPerBallDirection.Increased;
+
+        public bool IsDecrease => Direction == PlinkoAztecBetPerBallDirection.Decreased;
+    }
+
     // Bet limits shared by the platform (get-game-config betConfig object). Amounts come as
     // strings with currency precision.
     [Preserve]

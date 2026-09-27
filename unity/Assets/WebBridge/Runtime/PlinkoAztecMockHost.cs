@@ -48,6 +48,7 @@ namespace Modules.PlinkoAztec
 
         public string BuildGameConfig()
         {
+            float defaultBetPerBall = ParseAmount(_settings.DefaultBetPerBall);
             float[] coefficients = _settings.SlotCoefficients;
             WebPlinkoAztecPositionPayload[] positions = new WebPlinkoAztecPositionPayload[coefficients.Length];
             float probability = 1f / coefficients.Length;
@@ -64,10 +65,10 @@ namespace Modules.PlinkoAztec
             {
                 BetConfig = new WebPlinkoAztecBetConfigPayload
                 {
-                    MinBetAmount = FormatAmount(_settings.BetPerBall),
-                    MaxBetAmount = FormatAmount(_settings.BetPerBall * 100f),
-                    MaxWinAmount = FormatAmount(_settings.BetPerBall * 10000f),
-                    DefaultBetAmount = FormatAmount(_settings.BetPerBall),
+                    MinBetAmount = FormatAmount(defaultBetPerBall),
+                    MaxBetAmount = FormatAmount(defaultBetPerBall * 100f),
+                    MaxWinAmount = FormatAmount(defaultBetPerBall * 10000f),
+                    DefaultBetAmount = FormatAmount(defaultBetPerBall),
                     DecimalPlaces = _settings.DecimalPlaces.ToString(CultureInfo.InvariantCulture),
                     Currency = _settings.Currency,
                 },
@@ -79,17 +80,18 @@ namespace Modules.PlinkoAztec
         }
 
         /// <summary>Session state as the platform reports it on load: nothing played yet.</summary>
-        public string BuildGameState(int ballsAmount)
+        public string BuildGameState(int ballsAmount, string betPerBall)
         {
-            WebPlinkoAztecStatePayload state = CreateState(ballsAmount);
+            WebPlinkoAztecStatePayload state = CreateState(ballsAmount, ParseAmount(betPerBall));
             state.Status = _activeBonus == null ? StatusIdle : StatusInGame;
             state.IsFinished = _activeBonus == null;
             return Json.Serialize(state);
         }
 
         /// <summary>Resolved play result: every ball placed, wheel and bonus entry included.</summary>
-        public string BuildDropResult(int ballsAmount, PlinkoAztecMockScenario scenario)
+        public string BuildDropResult(int ballsAmount, string betPerBall, PlinkoAztecMockScenario scenario)
         {
+            float betPerBallAmount = ParseAmount(betPerBall);
             WebPlinkoAztecBallResult[] balls = new WebPlinkoAztecBallResult[ballsAmount];
             float totalCoefficient = 0f;
             int totalBumps = 0;
@@ -114,9 +116,9 @@ namespace Modules.PlinkoAztec
                 };
             }
 
-            AddBonusProgress(ballsAmount, totalBumps);
+            AddBonusProgress(ballsAmount, betPerBallAmount, totalBumps);
 
-            float win = totalCoefficient * _settings.BetPerBall;
+            float win = totalCoefficient * betPerBallAmount;
             WebPlinkoAztecFreeSpinResult freeSpin = null;
 
             if (wheelTriggered)
@@ -129,7 +131,7 @@ namespace Modules.PlinkoAztec
                     win *= _settings.FortuneWheelCoefficient;
             }
 
-            WebPlinkoAztecStatePayload result = CreateState(ballsAmount);
+            WebPlinkoAztecStatePayload result = CreateState(ballsAmount, betPerBallAmount);
             result.Status = _activeBonus == null ? StatusWin : StatusInGame;
             result.IsFinished = _activeBonus == null;
             result.IsWin = win > 0f;
@@ -142,8 +144,9 @@ namespace Modules.PlinkoAztec
         }
 
         /// <summary>Resolved bonus-step result: one bonus throw, its counters advanced.</summary>
-        public string BuildStepResult(int ballsAmount)
+        public string BuildStepResult(int ballsAmount, string betPerBall)
         {
+            float betPerBallAmount = ParseAmount(betPerBall);
             int ballsPerStep = _activeBonus.BallPerDrop.Value;
             WebPlinkoAztecBallResult[] balls = new WebPlinkoAztecBallResult[ballsPerStep];
             float stepCoefficient = 0f;
@@ -167,10 +170,10 @@ namespace Modules.PlinkoAztec
                 };
             }
 
-            float stepWin = stepCoefficient * _settings.BetPerBall;
+            float stepWin = stepCoefficient * betPerBallAmount;
             AdvanceBonusGame(stepWin, stepBumps);
 
-            WebPlinkoAztecStatePayload result = CreateState(ballsAmount);
+            WebPlinkoAztecStatePayload result = CreateState(ballsAmount, betPerBallAmount);
             result.Status = _activeBonus == null ? StatusWin : StatusInGame;
             result.IsFinished = _activeBonus == null;
             result.IsWin = stepWin > 0f;
@@ -181,9 +184,9 @@ namespace Modules.PlinkoAztec
             return Json.Serialize(result);
         }
 
-        private WebPlinkoAztecStatePayload CreateState(int ballsAmount)
+        private WebPlinkoAztecStatePayload CreateState(int ballsAmount, float betPerBallAmount)
         {
-            string betAmount = FormatAmount(_settings.BetPerBall * ballsAmount);
+            string betAmount = FormatAmount(betPerBallAmount * ballsAmount);
             return new WebPlinkoAztecStatePayload
             {
                 Bet = new WebBetPayload
@@ -195,7 +198,7 @@ namespace Modules.PlinkoAztec
                 BetAmount = betAmount,
                 Currency = _settings.Currency,
                 BallsAmount = ballsAmount,
-                BetPerBall = FormatAmount(_settings.BetPerBall),
+                BetPerBall = FormatAmount(betPerBallAmount),
                 BonusGameState = new WebPlinkoAztecBonusGameState
                 {
                     Progress = new Dictionary<string, int>(_bonusProgress),
@@ -264,9 +267,9 @@ namespace Modules.PlinkoAztec
 
         // Progress counters are independent per "CUR-balls-betPerBall" combination, the way the
         // backend keeps them, so switching the bet bar in the editor switches the counter too.
-        private void AddBonusProgress(int ballsAmount, int bumps)
+        private void AddBonusProgress(int ballsAmount, float betPerBallAmount, int bumps)
         {
-            string key = $"{_settings.Currency}-{ballsAmount}-{FormatCoefficient(_settings.BetPerBall)}";
+            string key = $"{_settings.Currency}-{ballsAmount}-{FormatCoefficient(betPerBallAmount)}";
             _bonusProgress.TryGetValue(key, out int current);
             _bonusProgress[key] = current + bumps;
         }

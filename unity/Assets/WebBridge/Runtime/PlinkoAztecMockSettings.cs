@@ -21,7 +21,9 @@ namespace Modules.PlinkoAztec
         [Tooltip("Balls-per-drop options the fake bet bar offers.")]
         [SerializeField] private int[] _ballsAmountOptions = { 10, 20, 50 };
 
-        [SerializeField, Min(0f)] private float _betPerBall = 1f;
+        [Tooltip("Bet-per-ball options the fake bet bar offers, as the backend formats them (\"0.2\", \"2\").")]
+        [SerializeField] private string[] _betPerBallOptions = { "1", "2", "5", "10" };
+
         [SerializeField] private string _currency = "USD";
         [SerializeField, Min(0)] private int _decimalPlaces = 2;
 
@@ -49,7 +51,9 @@ namespace Modules.PlinkoAztec
 
         public int DefaultBallsAmount => _ballsAmountOptions[0];
 
-        public float BetPerBall => _betPerBall;
+        public string[] BetPerBallOptions => _betPerBallOptions;
+
+        public string DefaultBetPerBall => _betPerBallOptions[0];
 
         public string Currency => _currency;
 
