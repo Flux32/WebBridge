@@ -57,6 +57,15 @@ export type CoreCommand =
   | { type: 'TransitionScreenCloseFinished' };
 
 /**
+ * Crush difficulty levels by the backend's names (`value.difficulty`). The set
+ * is closed and travels by name, not by index, so the wire never depends on
+ * the order of an engine-side enum.
+ */
+export const CRUSH_DIFFICULTIES = ['EASY', 'MEDIUM', 'HARD', 'DAREDEVIL'] as const;
+
+export type CrushDifficulty = (typeof CRUSH_DIFFICULTIES)[number];
+
+/**
  * Команды режима Crush — «шаг по лесенке коэффициентов + кэшаут». Это режим
  * бэка (`gameType` в play/step/payout), а не одна игра: на нём живут Road,
  * MegaGrab и AngryMoney. Режим с другой механикой добавляет свой союз рядом.
@@ -64,6 +73,9 @@ export type CoreCommand =
 export type CrushCommand =
   | { type: 'SetAutoplay'; payload: boolean }
   | { type: 'RestartRound'; payload: string }
+  // The difficulty in play. The host sends it before the ladder (UpdateCoeffs/ApplyGameConfig)
+  // of the same sync pass, so the engine already knows it when the new coefficients arrive.
+  | { type: 'SetDifficulty'; payload: CrushDifficulty }
   | { type: 'UpdateCoeffs'; payload: number[] }
   | { type: 'ApplyStepResult'; payload: StepResultPayload }
   | { type: 'StartBonus'; payload: StartBonusPayload }

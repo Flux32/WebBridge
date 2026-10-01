@@ -22,6 +22,7 @@ export { SLOT_ACTIONS } from './payloads.js';
 export type {
   CoreCommand,
   CrushCommand,
+  CrushDifficulty,
   EngineCommand,
   EngineCommandType,
   PlinkoCommand,
@@ -30,6 +31,7 @@ export type {
   TwistCommand,
   WheelCommand,
 } from './commands.js';
+export { CRUSH_DIFFICULTIES } from './commands.js';
 
 export type {
   BonusEngineEvent,

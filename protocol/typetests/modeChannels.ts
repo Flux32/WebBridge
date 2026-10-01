@@ -6,6 +6,7 @@
 import type {
   CoreCommand,
   CoreEvent,
+  CrushDifficulty,
   EngineCommand,
   EngineEvent,
   ModeProtocolId,
@@ -13,6 +14,7 @@ import type {
   UnityOnlyEvent,
   UnityPlainMessage,
 } from '../src';
+import { CRUSH_DIFFICULTIES } from '../src';
 import type { Equal, Expect } from './typeEqual';
 
 type AllChannelCommands = ModeProtocols[ModeProtocolId]['commands'];
@@ -53,6 +55,22 @@ const _plinkoHasNoSetBetPerBall: ModeProtocols['plinko']['commands'] = { type: '
 // @ts-expect-error RequestBetPerBall belongs to plinko-aztec's channel, not plinko's.
 const _plinkoHasNoRequestBetPerBall: ModeProtocols['plinko']['events'] = { type: 'RequestBetPerBall' };
 
+// The difficulty travels by the backend's names, the same closed set the runtime list holds.
+type _crushDifficultiesAreClosed = Expect<Equal<CrushDifficulty, 'EASY' | 'MEDIUM' | 'HARD' | 'DAREDEVIL'>>;
+type _crushDifficultiesListTheType = Expect<Equal<(typeof CRUSH_DIFFICULTIES)[number], CrushDifficulty>>;
+
+const _crushHasSetDifficulty: ModeProtocols['crush']['commands'] = { type: 'SetDifficulty', payload: 'HARD' };
+
+// Twist borrows only the round commands from crush; the difficulty stays crush's.
+// @ts-expect-error SetDifficulty belongs to crush's channel, not twist's.
+const _twistHasNoSetDifficulty: ModeProtocols['twist']['commands'] = { type: 'SetDifficulty', payload: 'HARD' };
+
+// @ts-expect-error SetDifficulty belongs to crush's channel, not plinko's.
+const _plinkoHasNoSetDifficulty: ModeProtocols['plinko']['commands'] = { type: 'SetDifficulty', payload: 'HARD' };
+
+// @ts-expect-error The wire carries the backend's upper-case names only.
+const _crushHasNoLowerCaseDifficulty: ModeProtocols['crush']['commands'] = { type: 'SetDifficulty', payload: 'easy' };
+
 const _twistHasSpinReady: ModeProtocols['twist']['events'] = { type: 'SpinReady' };
 const _slotHasSpinReady: ModeProtocols['slot']['events'] = { type: 'SpinReady' };
 
@@ -73,6 +91,10 @@ void _plinkoAztecHasRequestBetPerBall;
 void _requestBetPerBallIsPlain;
 void _plinkoHasNoSetBetPerBall;
 void _plinkoHasNoRequestBetPerBall;
+void _crushHasSetDifficulty;
+void _twistHasNoSetDifficulty;
+void _plinkoHasNoSetDifficulty;
+void _crushHasNoLowerCaseDifficulty;
 void _twistHasSpinReady;
 void _slotHasSpinReady;
 void _twistHasNoBonusPurchaseRequest;
