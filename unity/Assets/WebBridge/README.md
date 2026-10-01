@@ -129,6 +129,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `BonusModePurchaseFailed` | `string` | Покупка бонуса не удалась (modeId) |
 | `GameRestored` | `WebGameStatePayload` | Игра восстановлена (рестор после перезагрузки страницы) |
 | `BonusStartRequested` | `WebBonusStartPayload` | Единая точка входа в бонус: и при свежей покупке, и при F5-восстановлении |
+| `DifficultyChanged` | `RoadDifficultyChange` | Сменилась сложность в игре: React прислал её после готовности моста, при смене выбора, на входе в бонус и выходе из него, при ресинке. Та же сложность повторно событие не поднимает |
 | `MockDifficultyChanged` | `string` | Сменилась сложность в mock-режиме |
 | `BalanceReceived` | `float` | Получен баланс игрока (из конфига) |
 | `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
@@ -142,6 +143,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `ApplyStepResult(json)` | JSON `WebGameStatePayload` | Применить результат хода |
 | `CreateStep(json)` | JSON `WebGameStatePayload` | Создать ход (в mock — генерирует локально; умеет ветку рестора) |
 | `RestoreGame(json)` | JSON `WebGameRestorePayload` | Восстановить игру (config + state) после F5 |
+| `SetDifficulty(string)` | `"EASY"` / `"MEDIUM"` / `"HARD"` / `"DAREDEVIL"` | Сложность в игре (бонусная главнее выбранной) — имя бэкенда. Приходит раньше лесенки того же синка (`UpdateCoeffs` / `ApplyGameConfig`). Принимается только точное имя: `"hard"`, `"1"`, пусто — предупреждение в лог и игнор |
 | `UpdateCoeffs(csv)` | строка `"1.1,1.2,1.4"` | Обновить коэффициенты (CSV, InvariantCulture) |
 | `RestartRound(payload)` | `"<reason>\|<amount>"` напр. `"cashout\|$5.00"` | Перезапустить раунд |
 | `StartBonus(json)` | JSON `WebBonusStartPayload` | Войти в бонус (покупка или F5-рестор) |
@@ -190,6 +192,7 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 | `LastGameState` | `WebGameStatePayload` | Последнее состояние |
 | `LastStepResult` | `WebGameStatePayload` | Последний результат хода |
 | `LastBalance` | `float?` | Последний баланс |
+| `CurrentDifficulty` | `RoadDifficulty?` | Сложность в игре. `null`, пока React её не прислал |
 | `CurrentIsWhiteLabel` | `bool?` | Кешированный флаг white-label (доступен и тем, кто подписался после ответа) |
 | `CurrentMockDifficulty` | `string` | Текущая сложность в mock |
 | `IsRestoring` | `bool` | Идёт ли восстановление |
@@ -706,6 +709,30 @@ class WebBonusAutoPlayProgress
 - `WebBetBarHideStatePayload` — состояние видимости бет-баров.
 - `WebGameRestorePayload` — `{ config, state }` для `RestoreGame`.
 
+### RoadDifficulty
+
+```csharp
+enum RoadDifficulty { Easy = 0, Medium = 1, Hard = 2, Daredevil = 3 }
+```
+
+На проводе сложность — имя бэкенда (`"EASY"`, `"MEDIUM"`, `"HARD"`, `"DAREDEVIL"`), а не число:
+`RoadDifficultyWireNames.TryParse` принимает только эти четыре строки, `ToWireName()` даёт имя
+обратно. Числа enum — внутренние значения моста.
+
+### RoadDifficultyChange
+
+Аргумент события `DifficultyChanged`:
+
+```csharp
+readonly struct RoadDifficultyChange
+{
+    RoadDifficulty? Previous;   // прежняя; null — сложность пришла впервые
+    RoadDifficulty Current;     // новая
+}
+```
+
+Подписался позже первого синка — прочитай `CurrentDifficulty`, не жди следующей смены.
+
 ### RestartReason
 
 ```csharp
@@ -750,7 +777,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 Методы перечислены в таблицах компонентов выше. Сводно:
 
 - **GameWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyStepResult`,
-  `CreateStep`, `RestoreGame`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
+  `CreateStep`, `RestoreGame`, `SetDifficulty`, `UpdateCoeffs`, `RestartRound`, `StartBonus`,
   `ApplyBonusPurchaseResult`, `ApplyWhiteLabel`.
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,

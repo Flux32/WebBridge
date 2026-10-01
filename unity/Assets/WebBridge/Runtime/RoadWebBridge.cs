@@ -66,6 +66,9 @@ namespace Modules.Road
         // subscribes to this and runs a single setup path (no separate restore
         // vs purchase branches).
         public event Action<WebBonusStartPayload> BonusStartRequested;
+        // Fires only when the difficulty really changes; a late subscriber reads CurrentDifficulty
+        // instead of waiting for the next change.
+        public event Action<RoadDifficultyChange> DifficultyChanged;
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
 
@@ -86,6 +89,9 @@ namespace Modules.Road
         public WebGameStatePayload LastGameState { get; private set; }
         public WebGameStatePayload LastStepResult { get; private set; }
         public float? LastBalance { get; private set; }
+        // Difficulty in play, the bonus one included. null until React reports it: the host
+        // pushes it once the bridge is ready and again on every change and resync.
+        public RoadDifficulty? CurrentDifficulty { get; private set; }
         public string CurrentMockDifficulty => _currentMockDifficulty;
         
         public bool SuppressCoefficientUpdates { get; set; }
@@ -186,6 +192,31 @@ namespace Modules.Road
                 case "lose": reason = RestartReason.Lose; break;
                 default: reason = RestartReason.None; break;
             }
+        }
+
+        // React entry point (SendMessage): the difficulty in play by the backend's name ("HARD").
+        // It arrives before the ladder of the same sync pass, so CoefficientsReceived subscribers
+        // already see the matching CurrentDifficulty. Re-sending the same difficulty raises no event.
+        public void SetDifficulty(string wireName)
+        {
+            if (!RoadDifficultyWireNames.TryParse(wireName, out RoadDifficulty difficulty))
+            {
+                WebBridgeLogger.LogWarning($"[RoadWebBridge] SetDifficulty ignored: '{wireName}'");
+                return;
+            }
+
+            ApplyDifficulty(difficulty);
+        }
+
+        private void ApplyDifficulty(RoadDifficulty difficulty)
+        {
+            if (difficulty == CurrentDifficulty)
+                return;
+
+            RoadDifficulty? previous = CurrentDifficulty;
+            CurrentDifficulty = difficulty;
+            WebBridgeLogger.Log($"[RoadWebBridge] Difficulty: {previous?.ToWireName()} -> {difficulty.ToWireName()}");
+            DifficultyChanged?.Invoke(new RoadDifficultyChange(previous, difficulty));
         }
 
         public void UpdateCoeffs(string payload)
