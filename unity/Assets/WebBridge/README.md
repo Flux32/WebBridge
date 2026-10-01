@@ -487,7 +487,10 @@ Play Mode редактора.
 
 Коэффициенты по сложностям берутся из ScriptableObject `MockConfig`
 (`Resources/MockConfig`), редактируется через **Tools → WebBridge → MockConfig**.
-Сложность записи — `RoadDifficulty`; по умолчанию заданы `Easy` / `Medium` / `Hard`.
+По умолчанию заданы `easy` / `medium` / `hard`. Имя записи и `Default Difficulty` — строки, одно из
+`EASY` / `MEDIUM` / `HARD` / `DAREDEVIL` в любом регистре (`easy`, `DareDevil`); в API моста они
+приходят как `RoadDifficulty`. Неизвестное имя записи — ошибка в логе, запись в цикл мока не попадает.
+Неизвестный дефолт или дефолт без своей записи — `InvalidOperationException` на старте мока.
 
 Параметры эмуляции настраиваются прямо в инспекторе `GameWebBridge` (секция `Mock`):
 
