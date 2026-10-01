@@ -187,7 +187,7 @@ namespace Modules.Road
             y += rowHeight + padding;
 
             DrawRow(contentX, y, contentWidth, rowHeight, arrowWidth,
-                "Difficulty", bridge.CurrentMockDifficulty,
+                "Difficulty", bridge.CurrentDifficulty?.ToWireName(),
                 () => CycleDifficulty(bridge, -1),
                 () => CycleDifficulty(bridge, 1));
             y += rowHeight + padding;
@@ -236,8 +236,7 @@ namespace Modules.Road
             int currentIndex = -1;
             for (int i = 0; i < config.Difficulties.Count; i++)
             {
-                if (string.Equals(config.Difficulties[i].Name, bridge.CurrentMockDifficulty,
-                        StringComparison.OrdinalIgnoreCase))
+                if (config.Difficulties[i].Name == bridge.CurrentDifficulty)
                 {
                     currentIndex = i;
                     break;
@@ -249,7 +248,7 @@ namespace Modules.Road
 
             int count = config.Difficulties.Count;
             int nextIndex = (currentIndex + direction % count + count) % count;
-            string newDifficulty = config.Difficulties[nextIndex].Name;
+            RoadDifficulty newDifficulty = config.Difficulties[nextIndex].Name;
 
             SetMockDifficultyMethod.Invoke(bridge, new object[] { newDifficulty });
         }

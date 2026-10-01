@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,12 +41,13 @@ namespace Modules.Road.Editor
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
             EditorGUILayout.PropertyField(_difficulties, new GUIContent("Difficulties"), true);
 
-            string[] names = BuildDifficultyNames();
-            int currentIndex = FindIndex(names, _defaultDifficulty.stringValue);
+            RoadDifficulty[] difficulties = ReadConfiguredDifficulties();
+            string[] names = Array.ConvertAll(difficulties, difficulty => difficulty.ToWireName());
+            int currentIndex = FindIndex(difficulties, (RoadDifficulty)_defaultDifficulty.intValue);
             int selectedIndex = EditorGUILayout.Popup("Default Difficulty", currentIndex, names);
 
-            if (selectedIndex >= 0 && selectedIndex < names.Length)
-                _defaultDifficulty.stringValue = names[selectedIndex];
+            if (selectedIndex >= 0 && selectedIndex < difficulties.Length)
+                _defaultDifficulty.intValue = (int)difficulties[selectedIndex];
 
             EditorGUILayout.EndScrollView();
 
@@ -77,31 +79,24 @@ namespace Modules.Road.Editor
             _defaultDifficulty = _serializedObject.FindProperty("_defaultDifficulty");
         }
 
-        private string[] BuildDifficultyNames()
+        private RoadDifficulty[] ReadConfiguredDifficulties()
         {
             int count = _difficulties.arraySize;
-            string[] names = new string[count];
+            RoadDifficulty[] difficulties = new RoadDifficulty[count];
 
             for (int i = 0; i < count; i++)
             {
                 SerializedProperty entry = _difficulties.GetArrayElementAtIndex(i);
-                SerializedProperty nameProperty = entry.FindPropertyRelative("Name");
-                string name = nameProperty?.stringValue;
-                names[i] = string.IsNullOrWhiteSpace(name) ? $"[{i}]" : name;
+                difficulties[i] = (RoadDifficulty)entry.FindPropertyRelative("Name").intValue;
             }
 
-            return names;
+            return difficulties;
         }
 
-        private static int FindIndex(string[] names, string value)
+        private static int FindIndex(RoadDifficulty[] difficulties, RoadDifficulty value)
         {
-            for (int i = 0; i < names.Length; i++)
-            {
-                if (names[i] == value)
-                    return i;
-            }
-
-            return 0;
+            int index = Array.IndexOf(difficulties, value);
+            return index < 0 ? 0 : index;
         }
     }
 }

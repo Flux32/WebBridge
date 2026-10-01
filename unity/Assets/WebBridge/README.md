@@ -130,7 +130,7 @@ Unity-пакет для связи между React-фронтендом и Unit
 | `GameRestored` | `WebGameStatePayload` | Игра восстановлена (рестор после перезагрузки страницы) |
 | `BonusStartRequested` | `WebBonusStartPayload` | Единая точка входа в бонус: и при свежей покупке, и при F5-восстановлении |
 | `DifficultyChanged` | `RoadDifficultyChange` | Сменилась сложность в игре: React прислал её после готовности моста, при смене выбора, на входе в бонус и выходе из него, при ресинке. Та же сложность повторно событие не поднимает |
-| `MockDifficultyChanged` | `string` | Сменилась сложность в mock-режиме |
+| `MockDifficultyChanged` | `string` | **Устарело**, подписывайтесь на `DifficultyChanged` — мок поднимает и его. Сменилась сложность в mock-режиме; имя строчными, как раньше (`"easy"`) |
 | `BalanceReceived` | `float` | Получен баланс игрока (из конфига) |
 | `WhiteLabelReceived` | `bool` | Пришёл флаг white-label (`true` — без брендинга) |
 
@@ -194,7 +194,7 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 | `LastBalance` | `float?` | Последний баланс |
 | `CurrentDifficulty` | `RoadDifficulty?` | Сложность в игре. `null`, пока React её не прислал |
 | `CurrentIsWhiteLabel` | `bool?` | Кешированный флаг white-label (доступен и тем, кто подписался после ответа) |
-| `CurrentMockDifficulty` | `string` | Текущая сложность в mock |
+| `CurrentMockDifficulty` | `string` | **Устарело**, читайте `CurrentDifficulty`. Сложность в mock строчными (`"easy"`); `null` вне mock |
 | `IsRestoring` | `bool` | Идёт ли восстановление |
 | `SuppressCoefficientUpdates` | `bool` (set) | Подавить поднятие `CoefficientsReceived` |
 | `CanProcessMockSpin` | `Func<bool>` (set) | Необязательный гейт для мок-спинов |
@@ -474,7 +474,8 @@ Play Mode редактора.
 
 При включённом mock `GameWebBridge` в `Start` инициализирует мок-данные и
 добавляет отладочную панель `MockDebugIMGUI`. Клавиша **D** переключает сложность
-по кругу.
+по кругу — тем же путём, что `SetDifficulty` из React: поднимает `DifficultyChanged`,
+а следом мок присылает лесенку новой сложности.
 
 ### Включение в сборке
 
@@ -486,7 +487,7 @@ Play Mode редактора.
 
 Коэффициенты по сложностям берутся из ScriptableObject `MockConfig`
 (`Resources/MockConfig`), редактируется через **Tools → WebBridge → MockConfig**.
-По умолчанию заданы сложности `easy` / `medium` / `hard`.
+Сложность записи — `RoadDifficulty`; по умолчанию заданы `Easy` / `Medium` / `Hard`.
 
 Параметры эмуляции настраиваются прямо в инспекторе `GameWebBridge` (секция `Mock`):
 

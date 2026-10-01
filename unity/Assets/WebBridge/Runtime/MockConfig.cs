@@ -12,7 +12,7 @@ namespace Modules.Road
         [Serializable]
         public struct DifficultyEntry
         {
-            public string Name;
+            public RoadDifficulty Name;
             public float[] Coefficients;
         }
 
@@ -22,22 +22,22 @@ namespace Modules.Road
         {
             new DifficultyEntry
             {
-                Name = "easy",
+                Name = RoadDifficulty.Easy,
                 Coefficients = new[] { 1.1f, 1.2f, 1.4f, 1.8f, 2.2f, 2.6f, 3.2f, 4.1f, 5.8f }
             },
             new DifficultyEntry
             {
-                Name = "medium",
+                Name = RoadDifficulty.Medium,
                 Coefficients = new[] { 1.2f, 1.5f, 1.8f, 2.4f, 3.0f, 3.8f, 5.0f, 7.0f, 10.0f }
             },
             new DifficultyEntry
             {
-                Name = "hard",
+                Name = RoadDifficulty.Hard,
                 Coefficients = new[] { 1.5f, 2.0f, 3.0f, 4.5f, 6.5f, 9.0f, 13.0f, 18.0f, 25.0f }
             },
         };
 
-        [SerializeField] private string _defaultDifficulty = "easy";
+        [SerializeField] private RoadDifficulty _defaultDifficulty = RoadDifficulty.Easy;
 
         private static MockConfig _instance;
 
@@ -52,24 +52,24 @@ namespace Modules.Road
         }
 
         public IReadOnlyList<DifficultyEntry> Difficulties => _difficulties;
-        public string DefaultDifficulty => _defaultDifficulty;
+        public RoadDifficulty DefaultDifficulty => _defaultDifficulty;
 
-        public float[] GetCoefficients(string difficultyName)
+        public float[] GetCoefficients(RoadDifficulty difficulty)
         {
             for (int i = 0; i < _difficulties.Length; i++)
             {
-                if (string.Equals(_difficulties[i].Name, difficultyName, StringComparison.OrdinalIgnoreCase))
+                if (_difficulties[i].Name == difficulty)
                     return _difficulties[i].Coefficients;
             }
 
             return Array.Empty<float>();
         }
 
-        public string GetNextDifficulty(string current)
+        public RoadDifficulty GetNextDifficulty(RoadDifficulty current)
         {
             for (int i = 0; i < _difficulties.Length; i++)
             {
-                if (string.Equals(_difficulties[i].Name, current, StringComparison.OrdinalIgnoreCase))
+                if (_difficulties[i].Name == current)
                     return _difficulties[(i + 1) % _difficulties.Length].Name;
             }
 

@@ -44,7 +44,6 @@ namespace Modules.Road
         private readonly List<int> _mockBonusStepsCollected = new List<int>();
         private System.Random _mockRandom;
         private int _mockMoveIndex;
-        private string _currentMockDifficulty;
         private bool _mockInitialized;
         private float[] _lastRaisedCoefficients;
 
@@ -69,20 +68,19 @@ namespace Modules.Road
         // Fires only when the difficulty really changes; a late subscriber reads CurrentDifficulty
         // instead of waiting for the next change.
         public event Action<RoadDifficultyChange> DifficultyChanged;
+        [Obsolete("Subscribe to DifficultyChanged: the mock raises it as well.")]
         public event Action<string> MockDifficultyChanged;
         public event Action<float> BalanceReceived;
 
         public Func<bool> CanProcessMockSpin { get; set; }
 
-        private void SetMockDifficulty(string difficulty)
+        // Called by MockDebugIMGUI through reflection: keep the name and the signature in sync with it.
+        private void SetMockDifficulty(RoadDifficulty difficulty)
         {
-            if (!IsMockEnabled || string.IsNullOrWhiteSpace(difficulty))
+            if (!IsMockEnabled)
                 return;
 
-            _currentMockDifficulty = difficulty;
-            WebBridgeLogger.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
-            ApplyGameConfig(BuildMockGameConfig(), true);
-            MockDifficultyChanged?.Invoke(_currentMockDifficulty);
+            ApplyMockDifficulty(difficulty);
         }
 
         public WebGameConfigPayload LastGameConfig { get; private set; }
@@ -92,7 +90,13 @@ namespace Modules.Road
         // Difficulty in play, the bonus one included. null until React reports it: the host
         // pushes it once the bridge is ready and again on every change and resync.
         public RoadDifficulty? CurrentDifficulty { get; private set; }
-        public string CurrentMockDifficulty => _currentMockDifficulty;
+        [Obsolete("Read CurrentDifficulty: in mock mode it holds the mock difficulty.")]
+        public string CurrentMockDifficulty => LegacyMockDifficultyName;
+
+        // The mock difficulty as games read it before RoadDifficulty: MockConfig's lower-case
+        // entry name ("easy"), and null outside mock mode.
+        private string LegacyMockDifficultyName =>
+            IsMockEnabled ? CurrentDifficulty?.ToWireName().ToLowerInvariant() : null;
         
         public bool SuppressCoefficientUpdates { get; set; }
 
@@ -648,7 +652,7 @@ namespace Modules.Road
 
             _mockInitialized = true;
             _mockRandom = new System.Random();
-            _currentMockDifficulty = MockConfig.Instance.DefaultDifficulty;
+            ApplyDifficulty(MockConfig.Instance.DefaultDifficulty);
 
             WebGameConfigPayload mockConfig = BuildMockGameConfig();
             ApplyGameConfig(mockConfig, true);
@@ -657,10 +661,16 @@ namespace Modules.Road
 
         private void CycleMockDifficulty()
         {
-            _currentMockDifficulty = MockConfig.Instance.GetNextDifficulty(_currentMockDifficulty);
-            WebBridgeLogger.Log($"[RoadWebBridge] Mock difficulty changed to: {_currentMockDifficulty}");
+            ApplyMockDifficulty(MockConfig.Instance.GetNextDifficulty(CurrentDifficulty.Value));
+        }
+
+        // The mock plays React: the difficulty goes through the same setter as SetDifficulty,
+        // before the ladder it selects, the way the host sends both in one sync pass.
+        private void ApplyMockDifficulty(RoadDifficulty difficulty)
+        {
+            ApplyDifficulty(difficulty);
             ApplyGameConfig(BuildMockGameConfig(), true);
-            MockDifficultyChanged?.Invoke(_currentMockDifficulty);
+            MockDifficultyChanged?.Invoke(LegacyMockDifficultyName);
         }
 
         private WebGameConfigPayload BuildMockGameConfig()
@@ -675,7 +685,7 @@ namespace Modules.Road
 
         private float[] ResolveMockCoefficients()
         {
-            return MockConfig.Instance.GetCoefficients(_currentMockDifficulty);
+            return MockConfig.Instance.GetCoefficients(CurrentDifficulty.Value);
         }
 
         private Dictionary<string, int> BuildMockBonusCounts()

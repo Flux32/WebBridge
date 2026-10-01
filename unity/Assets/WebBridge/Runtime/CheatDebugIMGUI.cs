@@ -11,8 +11,6 @@ namespace Modules.Road
         private const float ButtonSize = 60f;
         private const float DragThreshold = 10f;
 
-        private enum Difficulty { Easy, Medium, Hard, Daredevil }
-
         private enum Scenario
         {
             FullPath,
@@ -22,9 +20,9 @@ namespace Modules.Road
             BonusCoef25To49,
         }
 
-        private static readonly Difficulty[] Difficulties =
+        private static readonly RoadDifficulty[] Difficulties =
         {
-            Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.Daredevil,
+            RoadDifficulty.Easy, RoadDifficulty.Medium, RoadDifficulty.Hard, RoadDifficulty.Daredevil,
         };
 
         private static readonly Scenario[] Scenarios =
@@ -36,26 +34,26 @@ namespace Modules.Road
             Scenario.BonusCoef25To49,
         };
 
-        private static readonly Dictionary<(Difficulty, Scenario), int> NonceTable =
-            new Dictionary<(Difficulty, Scenario), int>
+        private static readonly Dictionary<(RoadDifficulty, Scenario), int> NonceTable =
+            new Dictionary<(RoadDifficulty, Scenario), int>
             {
-                { (Difficulty.Easy,      Scenario.FullPath), 43 },
-                { (Difficulty.Medium,    Scenario.FullPath), 1461 },
-                { (Difficulty.Hard,      Scenario.FullPath), 82613 },
-                { (Difficulty.Daredevil, Scenario.FullPath), 3670057 },
+                { (RoadDifficulty.Easy,      Scenario.FullPath), 43 },
+                { (RoadDifficulty.Medium,    Scenario.FullPath), 1461 },
+                { (RoadDifficulty.Hard,      Scenario.FullPath), 82613 },
+                { (RoadDifficulty.Daredevil, Scenario.FullPath), 3670057 },
 
-                { (Difficulty.Easy,      Scenario.FullPathPlusCoins), 4146 },
-                { (Difficulty.Medium,    Scenario.FullPathPlusCoins), 23749 },
-                { (Difficulty.Hard,      Scenario.FullPathPlusCoins), 333805 },
-                { (Difficulty.Daredevil, Scenario.FullPathPlusCoins), 3670057 },
+                { (RoadDifficulty.Easy,      Scenario.FullPathPlusCoins), 4146 },
+                { (RoadDifficulty.Medium,    Scenario.FullPathPlusCoins), 23749 },
+                { (RoadDifficulty.Hard,      Scenario.FullPathPlusCoins), 333805 },
+                { (RoadDifficulty.Daredevil, Scenario.FullPathPlusCoins), 3670057 },
 
-                { (Difficulty.Easy,      Scenario.FullBonusPath), 1 },
-                { (Difficulty.Medium,    Scenario.FullBonusPath), 242 },
-                { (Difficulty.Hard,      Scenario.FullBonusPath), 1062 },
-                { (Difficulty.Daredevil, Scenario.FullBonusPath), 79008 },
+                { (RoadDifficulty.Easy,      Scenario.FullBonusPath), 1 },
+                { (RoadDifficulty.Medium,    Scenario.FullBonusPath), 242 },
+                { (RoadDifficulty.Hard,      Scenario.FullBonusPath), 1062 },
+                { (RoadDifficulty.Daredevil, Scenario.FullBonusPath), 79008 },
 
-                { (Difficulty.Easy, Scenario.BonusCoef50Plus), 1 },
-                { (Difficulty.Easy, Scenario.BonusCoef25To49), 111 },
+                { (RoadDifficulty.Easy, Scenario.BonusCoef50Plus), 1 },
+                { (RoadDifficulty.Easy, Scenario.BonusCoef25To49), 111 },
             };
 
         private Vector2 _buttonPosition;
@@ -263,7 +261,7 @@ namespace Modules.Road
             y += headerHeight;
 
             DrawRow(contentX, y, contentWidth, rowHeight, arrowWidth,
-                "Difficulty", DifficultyLabel(Difficulties[_difficultyIndex]),
+                "Difficulty", Difficulties[_difficultyIndex].ToWireName(),
                 () => _difficultyIndex = (_difficultyIndex - 1 + Difficulties.Length) % Difficulties.Length,
                 () => _difficultyIndex = (_difficultyIndex + 1) % Difficulties.Length);
             y += rowHeight + padding;
@@ -317,18 +315,6 @@ namespace Modules.Road
         {
             var key = (Difficulties[_difficultyIndex], Scenarios[_scenarioIndex]);
             return NonceTable.TryGetValue(key, out int v) ? v : (int?)null;
-        }
-
-        private static string DifficultyLabel(Difficulty d)
-        {
-            switch (d)
-            {
-                case Difficulty.Easy:      return "EASY";
-                case Difficulty.Medium:    return "MEDIUM";
-                case Difficulty.Hard:      return "HARD";
-                case Difficulty.Daredevil: return "DAREDEVIL";
-                default:                   return d.ToString();
-            }
         }
 
         private static string ScenarioLabel(Scenario s)
