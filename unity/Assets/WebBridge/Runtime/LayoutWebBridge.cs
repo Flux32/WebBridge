@@ -32,6 +32,7 @@ namespace Modules.Road
 
         public float MobileBetBarViewportWidth { get; private set; }
         public float MobileBetBarViewportHeightEnd { get; private set; }
+        public float MobileViewportHeightStart { get; private set; }
         public float MobileBetBarViewportWithoutBonusHeightEnd { get; private set; }
         public Vector2 MobileBetBarBonusButtonRight { get; private set; }
         public Vector2 MobileBetBarRight { get; private set; }
@@ -85,6 +86,7 @@ namespace Modules.Road
 
             float width = Mathf.Clamp01(viewport.WidthViewport);
             float heightEnd = Mathf.Clamp01(viewport.HeightEndViewport);
+            float heightStart = Mathf.Clamp01(viewport.HeightStartViewport);
             float heightEndWithoutBonus = Mathf.Clamp01(viewport.HeightEndWithoutBonusViewport);
             Vector2 bonusButtonRight = ClampViewportPoint(viewport.BonusButtonRight);
             Vector2 betBarRight = ClampViewportPoint(viewport.BetBarRight);
@@ -108,6 +110,7 @@ namespace Modules.Road
 
             bool hasChanged = !Mathf.Approximately(MobileBetBarViewportWidth, width)
                               || !Mathf.Approximately(MobileBetBarViewportHeightEnd, heightEnd)
+                              || !Mathf.Approximately(MobileViewportHeightStart, heightStart)
                               || !Mathf.Approximately(MobileBetBarViewportWithoutBonusHeightEnd, heightEndWithoutBonus)
                               || MobileBetBarBonusButtonRight != bonusButtonRight
                               || MobileBetBarRight != betBarRight
@@ -119,6 +122,7 @@ namespace Modules.Road
 
             MobileBetBarViewportWidth = width;
             MobileBetBarViewportHeightEnd = heightEnd;
+            MobileViewportHeightStart = heightStart;
             MobileBetBarViewportWithoutBonusHeightEnd = heightEndWithoutBonus;
             MobileBetBarBonusButtonRight = bonusButtonRight;
             MobileBetBarRight = betBarRight;
@@ -136,6 +140,7 @@ namespace Modules.Road
             {
                 WidthViewport = width,
                 HeightEndViewport = heightEnd,
+                HeightStartViewport = heightStart,
                 HeightEndWithoutBonusViewport = heightEndWithoutBonus,
                 BonusButtonRight = new WebViewportPoint { X = bonusButtonRight.x, Y = bonusButtonRight.y },
                 BetBarRight = new WebViewportPoint { X = betBarRight.x, Y = betBarRight.y },

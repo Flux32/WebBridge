@@ -248,6 +248,13 @@ namespace Modules.Road
         [JsonName("heightEndViewport")]
         public float HeightEndViewport;
 
+        /// <summary>
+        /// Доля холста сверху, которую закрывает интерфейс хоста у верхнего края экрана
+        /// (полоса Live wins): от верхнего края до его нижней кромки. 0 — сверху ничего.
+        /// </summary>
+        [JsonName("heightStartViewport")]
+        public float HeightStartViewport;
+
         [JsonName("heightEndWithoutBonusViewport")]
         public float HeightEndWithoutBonusViewport;
 

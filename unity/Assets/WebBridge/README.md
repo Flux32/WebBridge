@@ -248,6 +248,12 @@ SetMobileBetBarViewportMetrics(json)  // React → Unity: метрики моб�
 `MobileBetBarBonusProgressIndicatorTopLeft/TopRight/BottomLeft/BottomRight`,
 `HasMobileBetBarBonusProgressIndicator`.
 
+Сверху тем же сообщением приходит `MobileViewportHeightStart` (JSON-поле
+`heightStartViewport`): доля холста от верхнего края до нижней кромки того, что хост
+держит у верхнего края экрана поверх игры (полоса Live wins). 0 — сверху ничего,
+в том числе у хоста, который поле ещё не шлёт. Игра опускает под него то, что
+стоит у верхнего края, — как поднимает над бет-баром то, что стоит у нижнего.
+
 ---
 
 ### ScreenOrientationWebBridge
