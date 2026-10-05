@@ -25,6 +25,14 @@
 3. **Игра зависит от моста, мост от игры — нет.** То же правило, что и в Unity:
    сцены подписываются на сигналы моста, мост не импортирует ни одной игровой сущности.
 
+## Метрики хоста
+
+`desktopBetBarViewportMetricsReceived` / `mobileBetBarViewportMetricsReceived` отдают
+JSON-строку как есть; её форма — `BetBarViewportMetricsPayload` (реэкспорт из
+протокола). Все величины — доли холста 0..1: `heightEndViewport` — сколько снизу
+закрывает бет-бар, `heightStartViewport` — сколько сверху закрывает полоса Live wins
+(нет поля — сверху ничего).
+
 ## Точка входа
 
 ```ts

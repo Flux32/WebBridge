@@ -43,7 +43,11 @@ export abstract class BridgeBase {
   public readonly transitionScreenOpenFinished = new Signal();
   public readonly transitionScreenCloseStarted = new Signal();
   public readonly transitionScreenCloseFinished = new Signal();
-  /** Метрики бет-бара приходят строкой от билдера во фронтенде. */
+  /**
+   * Метрики бет-бара приходят строкой от билдера во фронтенде — JSON в форме
+   * `BetBarViewportMetricsPayload`: сколько холста хост закрывает снизу (бет-бар) и
+   * сверху (`heightStartViewport`, полоса Live wins). Разбирает игра.
+   */
   public readonly desktopBetBarViewportMetricsReceived = new Signal<string>();
   public readonly mobileBetBarViewportMetricsReceived = new Signal<string>();
 

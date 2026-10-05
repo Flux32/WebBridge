@@ -20,3 +20,11 @@ export type { MockHostOptions } from './mock/MockHost';
 
 export { createPhaserBoot } from './phaser/createPhaserBoot';
 export type { PhaserBootConfig } from './phaser/createPhaserBoot';
+
+// Форма JSON, что приходит строкой в `*BetBarViewportMetricsReceived`: игре — чтобы
+// разбирать её по контракту, а не по памяти.
+export type {
+  BetBarViewportMetricsPayload,
+  ViewportPoint,
+  ViewportRect,
+} from '@omega/webbridge-protocol';
