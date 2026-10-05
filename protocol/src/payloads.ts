@@ -84,6 +84,42 @@ export interface UiVisibilityPayload {
   mobileBetBarInteractable?: boolean;
 }
 
+/** Точка в долях холста движка (0..1); `y` отсчитан от нижнего края, как у Unity viewport. */
+export interface ViewportPoint {
+  x: number;
+  y: number;
+}
+
+/** Четыре угла прямоугольника в долях холста движка. */
+export interface ViewportRect {
+  topLeft: ViewportPoint;
+  topRight: ViewportPoint;
+  bottomLeft: ViewportPoint;
+  bottomRight: ViewportPoint;
+}
+
+/**
+ * JSON-строка команд `SetDesktopBetBarViewportMetrics` / `SetMobileBetBarViewportMetrics`:
+ * сколько холста движка закрывает интерфейс хоста. Все величины — доли холста 0..1, так
+ * что игра раскладывается под них в своих координатах, не зная ни DOM, ни CSS-пикселей.
+ */
+export interface BetBarViewportMetricsPayload {
+  widthViewport: number;
+  /** Снизу: от нижнего края холста до верхней кромки бет-бара (вместе с кнопкой бонуса). */
+  heightEndViewport: number;
+  /**
+   * Сверху: от верхнего края холста до нижней кромки того, что хост держит у верхнего
+   * края экрана поверх игры (полоса Live wins на мобильной раскладке). 0 — сверху ничего.
+   * Хост, который поля ещё не знает, его не шлёт — тогда сверху тоже ничего.
+   */
+  heightStartViewport?: number;
+  /** Снизу, но без кнопки бонуса: до верхней кромки самих панелей бара. */
+  heightEndWithoutBonusViewport?: number;
+  bonusButtonRight?: ViewportPoint;
+  betBarRight?: ViewportPoint;
+  bonusProgressIndicator?: ViewportRect;
+}
+
 /** Запрос движком покупки бонуса (bet-action). */
 export interface BonusPurchaseRequestPayload {
   betAmount?: unknown;

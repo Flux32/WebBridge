@@ -1,4 +1,5 @@
 export type {
+  BetBarViewportMetricsPayload,
   BonusPurchaseRequestPayload,
   BonusPurchaseResultPayload,
   GameConfigPayload,
@@ -13,6 +14,8 @@ export type {
   StepResultPayload,
   UiVisibilityPayload,
   UnityFrameSamplePayload,
+  ViewportPoint,
+  ViewportRect,
   WinWindowSignalPayload,
   WinWindowSignalValue,
 } from './payloads.js';
