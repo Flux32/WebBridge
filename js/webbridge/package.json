@@ -11,8 +11,8 @@
       "default": "./dist/index.js"
     },
     "./vite": {
-      "types": "./dist/vite/buildEndpoint.d.ts",
-      "default": "./dist/vite/buildEndpoint.js"
+      "types": "./dist/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
     }
   },
   "files": [

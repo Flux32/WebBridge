@@ -45,6 +45,30 @@ window.__PHASER_BOOT__ = createPhaserBoot({
 });
 ```
 
+## Игра в настоящем шелле без сборки
+
+Плагин отдаёт игру с dev-сервера стенду шелла: конфигурация, редактор раскладки и
+бэк — стендовые, код игры — тот, что пишется прямо сейчас.
+
+```ts
+import { localBuildServer } from '@omega/webbridge-js/vite';
+
+export default defineConfig({
+  plugins: [localBuildServer({ entry: '/src/bridge/boot.ts' })],
+  server: { port: 5180 },
+});
+```
+
+Ссылка на игру со стенда + `&localBuild=http://localhost:5180`. Шелл возьмёт
+`/game.js` модулем; правка кода перезагружает страницу.
+
+- Только ПК в Chrome: шелл пускает код лишь с `localhost` / `127.0.0.1` / `[::1]`.
+  Chrome один раз спросит доступ к локальной сети — разрешить.
+- Порт фиксированный (`strictPort`): по нему строятся полные адреса ассетов.
+- Ассеты игра адресует от своего модуля (`import`, `new URL(…, import.meta.url)`):
+  `document.currentScript` у модуля пуст.
+- Релизный пакет шелла этой возможности не содержит.
+
 ## Что осталось (скелет)
 
 - `CrushBridge` покрывает базовый цикл (config/state/step/coeffs) и запуск бонуса
