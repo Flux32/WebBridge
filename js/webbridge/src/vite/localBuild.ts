@@ -48,10 +48,14 @@ const VITE_DEFAULT_PORT = 5173;
 const BUNDLE_MODULE_ID = '\0webbridge-local-build';
 const BUNDLE_MODULE_URL = '/@id/__x00__webbridge-local-build';
 
+type Middleware = (req: IncomingMessage, res: ServerResponse, next: () => void) => void;
+
 interface ViteDevServerLike {
   config: { root: string; logger: { info(message: string): void } };
   middlewares: {
-    use(handler: (req: IncomingMessage, res: ServerResponse, next: () => void) => void): void;
+    use(handler: Middleware): void;
+    /** Стек middleware connect в порядке вызова. */
+    stack: { unshift(layer: { route: string; handle: Middleware }): void };
   };
 }
 
@@ -95,7 +99,13 @@ export const localBuildServer = (options: Pick<LocalBuildOptions, 'entry'> & Par
     },
     configureServer(server: ViteDevServerLike): void {
       server.config.logger.info(`  WebBridge admin: ${openedAdmin}`);
-      server.middlewares.use(projectLinkMiddleware(server.config.root, new URL(configuratorUrl).origin));
+      // CORS Vite ставит раньше хуков configureServer, и `use` встал бы за ним, а
+      // тот отвечает на preflight любого loopback-origin. Связь с игрой — в голову
+      // стека: свои запросы она принимает и отклоняет сама.
+      server.middlewares.stack.unshift({
+        route: '',
+        handle: projectLinkMiddleware(server.config.root, new URL(configuratorUrl).origin),
+      });
       server.middlewares.use((req, _res, next) => {
         if (req.url?.split('?')[0] === BUNDLE_PATH) req.url = BUNDLE_MODULE_URL;
         next();

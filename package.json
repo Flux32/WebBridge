@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc -b js/webbridge",
     "typecheck": "tsc -b js/webbridge && npm run typecheck -w protocol",
-    "clean": "tsc -b --clean js/webbridge"
+    "clean": "tsc -b --clean js/webbridge",
+    "test": "npm test -w js/webbridge"
   }
 }

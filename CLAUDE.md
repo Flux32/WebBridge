@@ -40,6 +40,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 2. TS-мост зеркалит имена C#: `WebBridgeBase<T>` → `BridgeBase`, `RoadWebBridge` → `RoadBridge`, `event Action<T>` → `Signal<T>`.
 3. Ядро TS-моста не знает ни про движок, ни про строки: хост веб-игры появляется только в `web/createWebBoot.ts`, парсинг строк — только в Unity.
 4. Сборка: `npm run build` в корне (TS project references, `tsc -b js/webbridge`).
+5. Тесты: `npm test` в корне (Vitest в `js/webbridge/test`; плагины dev-сервера проверяются на настоящем Vite).
 
 ### Связь с Unity-мостом
 - React адресует Unity-объект по имени GameObject (`"WebBridge"`) + имени публичного метода моста — имя C#-класса роли не играет.

@@ -20,14 +20,17 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "typecheck": "tsc -b",
-    "prepack": "tsc -b"
+    "typecheck": "tsc -b && tsc -p tsconfig.test.json",
+    "prepack": "tsc -b",
+    "test": "vitest run"
   },
   "dependencies": {
     "@omega/webbridge-protocol": "https://github.com/Flux32/WebBridge/releases/download/protocol-v1.11.0/omega-webbridge-protocol-1.11.0.tgz"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vite": "^7.3.7",
+    "vitest": "^4.1.11"
   }
 }

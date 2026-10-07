@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "types": ["node"],
+    "paths": {
+      "@omega/webbridge-protocol": ["../../protocol/src/index.ts"]
+    }
+  },
+  "include": ["src", "test"]
+}

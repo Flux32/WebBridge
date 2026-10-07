@@ -86,8 +86,11 @@ const parseJson = (text: string): unknown => {
 
 /**
  * Приём связи от админки. Пускает только её origin: иначе любая открытая у
- * разработчика страница могла бы перепривязать проект. Стоит до CORS Vite и
- * отвечает сам, включая preflight: JSON-тело его требует.
+ * разработчика страница могла бы перепривязать проект. На preflight (его требует
+ * JSON-тело) отвечает сам, с доступом к локальной сети, а чужому origin отказывает
+ * без CORS-заголовков. Поэтому должен стоять раньше CORS Vite — `localBuildServer`
+ * кладёт его в голову стека, раньше и проверки Host у Vite: от подмены DNS здесь
+ * защищает та же проверка origin.
  */
 export const projectLinkMiddleware =
   (root: string, configuratorOrigin: string) =>
