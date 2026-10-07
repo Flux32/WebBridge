@@ -67,6 +67,9 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 `SendMessage`/`SendToReact`, веб-игра (JS-бандл) — структуры в том же `window`. Всё
 ниже по документу описывает Unity-сторону; TS-зеркало см. `js/webbridge/README.md`.
 
+Как запустить веб-игру в редакторе конфигуратора прямо с dev-сервера, без сборки, —
+[пошаговая инструкция со скриншотами](js/webbridge/README.md#как-связать-игру-с-конфигуратором).
+
 **Зависимости** (подтягиваются автоматически):
 - `com.unity.nuget.newtonsoft-json` — сериализация JSON-payload;
 - `com.unity.modules.unitywebrequestaudio` — проигрывание звуков из файлов в редакторе.
