@@ -4,13 +4,13 @@
  * и ведёт раунд сам: раздаёт лесенку, решает исход шага, закрывает раунд.
  *
  * Смысл в том, что игра при этом идёт по НАСТОЯЩЕМУ пути — тот же
- * `__PHASER_BOOT__`, тот же мост, те же команды. Подменяется только
+ * `__WEB_GAME_BOOT__`, тот же мост, те же команды. Подменяется только
  * собеседник, поэтому мок проверяет интеграцию, а не обходит её.
  */
 import type {
   EngineEvent,
-  PhaserGameBridge,
-  PhaserHostBridge,
+  WebGameBridge,
+  WebHostBridge,
 } from '@omega/webbridge-protocol';
 
 export interface MockHostOptions {
@@ -51,9 +51,9 @@ const DEFAULTS: MockHostOptions = {
   currency: 'USD',
 };
 
-export class MockHost implements PhaserHostBridge {
+export class MockHost implements WebHostBridge {
   private readonly options: MockHostOptions;
-  private game: PhaserGameBridge | null = null;
+  private game: WebGameBridge | null = null;
 
   // Шаг занят, пока движок не доиграл анимацию и не прислал SpinReady —
   // ровно так же бет-бар React блокирует кнопку между шагами.
@@ -107,8 +107,8 @@ export class MockHost implements PhaserHostBridge {
     this.restart('difficulty');
   }
 
-  /** Отдать мока игре, поднятой через `__PHASER_BOOT__`. */
-  public attach(game: PhaserGameBridge): void {
+  /** Отдать мока игре, поднятой через `__WEB_GAME_BOOT__`. */
+  public attach(game: WebGameBridge): void {
     this.game = game;
   }
 
@@ -222,7 +222,7 @@ export class MockHost implements PhaserHostBridge {
     });
   }
 
-  private send(command: Parameters<PhaserGameBridge['receive']>[0]): void {
+  private send(command: Parameters<WebGameBridge['receive']>[0]): void {
     this.game?.receive(command);
   }
 }

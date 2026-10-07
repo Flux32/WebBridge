@@ -6,7 +6,7 @@
  * Шелл грузит `<localBuild>/game.js` модулем, как и билд из конфигуратора
  * (`<baseUrl>/game.js`), поэтому здесь `/game.js` — модуль-обёртка: клиент Vite
  * (перезагрузка страницы на правку) и точка входа игры, та же, что у релизного
- * бандла. Игра регистрирует `__PHASER_BOOT__` как обычно.
+ * бандла. Игра регистрирует `__WEB_GAME_BOOT__` как обычно.
  *
  * Страница стенда живёт на другом origin, и модульные скрипты она берёт только с
  * CORS. Vite по умолчанию пускает лишь localhost, поэтому плагин добавляет
@@ -18,7 +18,7 @@ import { resolve } from 'node:path';
 import { adminUrl, projectLinkMiddleware, readProjectGameId } from './projectLink';
 
 export interface LocalBuildOptions {
-  /** Точка входа бандла игры — та, что регистрирует `__PHASER_BOOT__`. */
+  /** Точка входа бандла игры — та, что регистрирует `__WEB_GAME_BOOT__`. */
   entry: string;
   /** Origin страниц шелла, которым dev-сервер отдаёт код игры. */
   shellOrigins: readonly string[];

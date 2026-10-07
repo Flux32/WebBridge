@@ -33,12 +33,12 @@ Unity-часть (этот репозиторий) — только Unity-сто
 ## Структура репозитория
 ```
 protocol/          @omega/webbridge-protocol — движко-агностичный контракт (команды, события, payload'ы)
-js/webbridge/      @omega/webbridge-js — игровая сторона моста для Phaser (зеркало C#-пакета)
+js/webbridge/      @omega/webbridge-js — игровая сторона моста для веб-игр на любом JS-движке (зеркало C#-пакета)
 unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ```
 1. Контракт правится ТОЛЬКО в `protocol/` — остальные стороны его потребляют.
 2. TS-мост зеркалит имена C#: `WebBridgeBase<T>` → `BridgeBase`, `RoadWebBridge` → `RoadBridge`, `event Action<T>` → `Signal<T>`.
-3. Ядро TS-моста не знает ни про Phaser, ни про строки: движок появляется только в `phaser/createPhaserBoot.ts`, парсинг строк — только в Unity.
+3. Ядро TS-моста не знает ни про движок, ни про строки: хост веб-игры появляется только в `web/createWebBoot.ts`, парсинг строк — только в Unity.
 4. Сборка: `npm run build` в корне (TS project references, `tsc -b js/webbridge`).
 
 ### Связь с Unity-мостом

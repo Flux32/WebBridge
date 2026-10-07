@@ -1,7 +1,7 @@
 /**
  * Аналог WebBridgeUtils.IsMockEnabled / IsCheatsEnabled. В Unity источник —
  * дефайны сборки и EditorPrefs; в вебе достаточно URL-параметров, как это уже
- * сделано во фронтенде (`?mock=1`, `?engine=phaser`).
+ * сделано во фронтенде (`?mock=1`, `?engine=web`).
  */
 const hasFlag = (name: string): boolean => {
   const raw = new URLSearchParams(window.location.search).get(name);

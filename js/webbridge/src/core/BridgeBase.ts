@@ -119,7 +119,7 @@ export abstract class BridgeBase {
       case 'TransitionScreenCloseFinished':
         this.transitionScreenCloseFinished.invoke();
         return;
-      // SetAssetsBasePath — наследие Unity Addressables: Phaser-хост шлёт сюда
+      // SetAssetsBasePath — наследие Unity Addressables: хост веб-игры шлёт сюда
       // пустую строку, ассеты бандл резолвит сам.
       case 'SetAssetsBasePath':
         return;

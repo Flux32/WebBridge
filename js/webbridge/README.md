@@ -1,6 +1,6 @@
 # @omega/webbridge-js
 
-Игровая сторона моста для Phaser — то же, что `unity/Assets/WebBridge` для Unity.
+Игровая сторона моста для веб-игр — Phaser, Pixi, three.js, любой JS-движок — то же, что `unity/Assets/WebBridge` для Unity.
 Имена классов, методов и событий сознательно зеркалят C#, чтобы корневой
 `README.md` описывал оба моста разом:
 
@@ -15,9 +15,9 @@
 
 ## Архитектурные границы
 
-1. **Ядро не знает про Phaser.** `BridgeBase`/`CrushBridge` работают с
-   `BridgeTransport` — интерфейсом «отправить `EngineEvent`». Phaser появляется
-   только в `phaser/createPhaserBoot.ts`.
+1. **Ядро не знает про движок.** `BridgeBase`/`CrushBridge` работают с
+   `BridgeTransport` — интерфейсом «отправить `EngineEvent`». Хост веб-игры
+   появляется только в `web/createWebBoot.ts`.
 2. **Ядро не знает про строки.** Парсинг `SendMessage`-строк — беда одного лишь
    Unity; сюда команда приходит уже структурой. Исключение — `ApplyGameConfig` /
    `ApplyGameState` / `ApplyTranslations`, которые контрактом объявлены строками
@@ -36,14 +36,22 @@ JSON-строку как есть; её форма — `BetBarViewportMetricsPay
 ## Точка входа
 
 ```ts
-import { createPhaserBoot, CrushBridge } from '@omega/webbridge-js';
+import { createWebBoot, registerWebBoot, CrushBridge } from '@omega/webbridge-js';
 
-window.__PHASER_BOOT__ = createPhaserBoot({
-  createBridge: (transport) => new CrushBridge(transport),
-  createGame: (bridge, container, options) => new Phaser.Game(makeConfig(bridge, container, options)),
-  destroyGame: (game) => game.destroy(true),
-});
+registerWebBoot(
+  createWebBoot({
+    createBridge: (transport) => new CrushBridge(transport),
+    createGame: (bridge, container, options) => new Phaser.Game(makeConfig(bridge, container, options)),
+    destroyGame: (game) => game.destroy(true),
+  }),
+);
 ```
+
+Движок любой: для Pixi `createGame` создаёт `Application` в `container` (разрешение —
+`options.devicePixelRatio`), `destroyGame` зовёт `app.destroy()`. `registerWebBoot`
+выставляет фабрику как `__WEB_GAME_BOOT__` и под прежним именем `__PHASER_BOOT__` —
+его ищут шеллы старых тегов. `createPhaserBoot` / `PhaserBootConfig` остаются
+устаревшими синонимами.
 
 ## Игра в настоящем шелле без сборки
 

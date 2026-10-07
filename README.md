@@ -59,12 +59,12 @@ Unity-пакет для связи между React-фронтендом и Unit
 
 ```
 protocol/          @omega/webbridge-protocol — контракт React <-> игра (источник истины)
-js/webbridge/      @omega/webbridge-js — игровая сторона для Phaser
+js/webbridge/      @omega/webbridge-js — игровая сторона для веб-игр (любой JS-движок)
 unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ```
 
 Контракт один на всех, реализации две: C# отдаёт и принимает строки через
-`SendMessage`/`SendToReact`, Phaser-бандл — структуры в том же `window`. Всё
+`SendMessage`/`SendToReact`, веб-игра (JS-бандл) — структуры в том же `window`. Всё
 ниже по документу описывает Unity-сторону; TS-зеркало см. `js/webbridge/README.md`.
 
 **Зависимости** (подтягиваются автоматически):

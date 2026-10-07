@@ -18,8 +18,10 @@ export { MockPanel } from './mock/MockPanel';
 export type { MockPanelAction } from './mock/MockPanel';
 export type { MockHostOptions } from './mock/MockHost';
 
-export { createPhaserBoot } from './phaser/createPhaserBoot';
-export type { PhaserBootConfig } from './phaser/createPhaserBoot';
+export { createWebBoot, registerWebBoot } from './web/createWebBoot';
+export type { WebBootConfig } from './web/createWebBoot';
+export { createPhaserBoot } from './web/legacyPhaserNames';
+export type { PhaserBootConfig } from './web/legacyPhaserNames';
 
 // Форма JSON, что приходит строкой в `*BetBarViewportMetricsReceived`: игре — чтобы
 // разбирать её по контракту, а не по памяти.

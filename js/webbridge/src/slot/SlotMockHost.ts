@@ -3,7 +3,7 @@
  * другую механику: у слота нет ни лесенки, ни шага, ни кэшаута, а раунд
  * приходит одним ответом.
  *
- * Смысл тот же: игра идёт по НАСТОЯЩЕМУ пути — тот же `__PHASER_BOOT__`, тот же
+ * Смысл тот же: игра идёт по НАСТОЯЩЕМУ пути — тот же `__WEB_GAME_BOOT__`, тот же
  * мост, те же команды. Подменяется только собеседник, поэтому мок проверяет
  * интеграцию, а не обходит её.
  *
@@ -13,11 +13,11 @@
  */
 import type {
   EngineEvent,
-  PhaserGameBridge,
-  PhaserHostBridge,
   SlotAction,
   SlotCoin,
   SlotSpinResult,
+  WebGameBridge,
+  WebHostBridge,
 } from '@omega/webbridge-protocol';
 import { SLOT_ACTIONS } from '@omega/webbridge-protocol';
 
@@ -63,9 +63,9 @@ const DEFAULTS: SlotMockHostOptions = {
 
 const pick = <T>(items: readonly T[]): T => items[Math.floor(Math.random() * items.length)]!;
 
-export class SlotMockHost implements PhaserHostBridge {
+export class SlotMockHost implements WebHostBridge {
   private readonly options: SlotMockHostOptions;
-  private game: PhaserGameBridge | null = null;
+  private game: WebGameBridge | null = null;
 
   /**
    * Раунд занят, пока игра не доиграла и не прислала SpinReady — ровно так же
@@ -78,8 +78,8 @@ export class SlotMockHost implements PhaserHostBridge {
     this.options = { ...DEFAULTS, ...options };
   }
 
-  /** Отдать мока игре, поднятой через `__PHASER_BOOT__`. */
-  public attach(game: PhaserGameBridge): void {
+  /** Отдать мока игре, поднятой через `__WEB_GAME_BOOT__`. */
+  public attach(game: WebGameBridge): void {
     this.game = game;
   }
 
@@ -277,7 +277,7 @@ export class SlotMockHost implements PhaserHostBridge {
     this.send({ type: 'ApplySpinResult', payload: JSON.stringify(result) });
   }
 
-  private send(command: Parameters<PhaserGameBridge['receive']>[0]): void {
+  private send(command: Parameters<WebGameBridge['receive']>[0]): void {
     this.game?.receive(command);
   }
 }
