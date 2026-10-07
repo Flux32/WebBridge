@@ -128,7 +128,7 @@ export interface BonusPurchaseRequestPayload {
   bonusType?: unknown;
 }
 
-/** Телеметрия кадров: только Unity-сборка, Phaser её не шлёт. */
+/** Телеметрия кадров: только Unity-сборка, веб-игра её не шлёт. */
 export interface UnityFrameSamplePayload {
   startTimeSeconds: number;
   sampleDurationMs: number;

@@ -51,13 +51,16 @@ export { isBonusEngineEvent } from './events.js';
 
 export type { ModeChannel, ModeProtocolId, ModeProtocols } from './modes.js';
 
+export type { WebBootFn, WebBootOptions, WebGameBridge, WebHostBridge } from './web.js';
+export { WEB_GAME_CONTAINER_ID } from './web.js';
+
 export type {
   PhaserBootFn,
   PhaserBootOptions,
   PhaserGameBridge,
   PhaserHostBridge,
-} from './phaser.js';
-export { PHASER_CONTAINER_ID } from './phaser.js';
+} from './legacyPhaserNames.js';
+export { PHASER_CONTAINER_ID } from './legacyPhaserNames.js';
 
 export {
   UNITY_BRIDGE_OBJECT,

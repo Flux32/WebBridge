@@ -1,7 +1,7 @@
 # @omega/webbridge-protocol
 
 Словарь, на котором говорят **все** участники: React-фронтенд, Unity-мост
-(`unity/Assets/WebBridge`, C#) и JS-мост (`js/webbridge`, Phaser).
+(`unity/Assets/WebBridge`, C#) и JS-мост (`js/webbridge`, веб-игры на любом JS-движке).
 
 Правило одно: **ничего движко-специфичного здесь нет**. Имена доменные
 (`ApplyStepResult`, `StartBonus`), а как они лягут на провод — забота стороны:
@@ -9,7 +9,7 @@
 | | транспорт | где живёт маппинг |
 |---|---|---|
 | Unity | `SendMessage('WebBridge', method, string)` + строка в `SendToReact` | `src/unityWire.ts` (константы) + C#-мост |
-| Phaser | тот же `window`, структурированный объект | `js/webbridge` |
+| веб-игра | тот же `window`, структурированный объект | `js/webbridge` |
 
 ## Состав
 
@@ -18,7 +18,9 @@
 - `events.ts` — игра → React;
 - `modes.ts` — канал каждого режима (`ModeProtocols`): что хост шлёт ему сверх
   ядра и что шлёт в ответ его игровой мост; типы, в рантайме ничего не несёт;
-- `phaser.ts` — контракт загрузки Phaser-бандла (`__PHASER_BOOT__`);
+- `web.ts` — контракт загрузки веб-игры (`__WEB_GAME_BOOT__`);
+- `legacyPhaserNames.ts` — прежние имена того же контракта (`__PHASER_BOOT__`,
+  `PhaserHostBridge`, …) для выпущенных игр и шеллов;
 - `unityWire.ts` — имена и префиксы проводного формата Unity.
 
 `typetests/` проверяет `modes.ts` компиляцией (`tsc -p typetests`, входит в
