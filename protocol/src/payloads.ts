@@ -120,6 +120,21 @@ export interface BetBarViewportMetricsPayload {
   bonusProgressIndicator?: ViewportRect;
 }
 
+/**
+ * JSON-строка команды `SetWheelBetBarMetrics`: где бет-бар колеса закрывает холст движка.
+ * Высоты — доли холста 0..1 от его нижнего края, как у Unity viewport.
+ */
+export interface WheelBetBarMetricsPayload {
+  /** Ширина колонки бара (полоса отсчёта, панель ставок, доска) в долях ширины холста. */
+  widthViewport: number;
+  /** До верхней кромки бара: надпись «PLACE YOUR BETS» над полосой отсчёта раунда. */
+  betBarTopViewport: number;
+  /** До верхней кромки ленты истории (шарики прошлых раундов) под полосой отсчёта. */
+  historyTopViewport: number;
+  /** Масштаб бара относительно его макета 1920×1080: 1 — дизайн-размер, 0.5 — вдвое меньше. */
+  betBarScale: number;
+}
+
 /** Запрос движком покупки бонуса (bet-action). */
 export interface BonusPurchaseRequestPayload {
   betAmount?: unknown;

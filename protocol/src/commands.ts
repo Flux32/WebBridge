@@ -89,7 +89,13 @@ export type PlinkoCommand =
   | { type: 'ApplyDropResult'; payload: string };
 
 /** Команды колеса. */
-export type WheelCommand = { type: 'ApplyRound'; payload: string };
+export type WheelCommand =
+  | { type: 'ApplyRound'; payload: string }
+  // Где бар колеса встречается с игрой: JSON `WheelBetBarMetricsPayload`. Своя команда, а не
+  // общий `Set*BetBarViewportMetrics`: у бара колеса нет ни кнопки, ни панели бонуса, его края —
+  // полоса отсчёта раунда и лента истории. Хост шлёт её заново, когда бар сдвинулся или сменил
+  // масштаб, и в ответ на `RequestBetBarViewportMetrics`.
+  | { type: 'SetWheelBetBarMetrics'; payload: string };
 
 /**
  * Результат спина — общий для всех барабанных механик. Payload сериализован:

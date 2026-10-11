@@ -16,6 +16,7 @@ export type {
   UnityFrameSamplePayload,
   ViewportPoint,
   ViewportRect,
+  WheelBetBarMetricsPayload,
   WinWindowSignalPayload,
   WinWindowSignalValue,
 } from './payloads.js';

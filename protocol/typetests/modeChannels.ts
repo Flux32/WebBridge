@@ -33,6 +33,11 @@ const _plinkoHasNoApplyStepResult: ModeProtocols['plinko']['commands'] = { type:
 // @ts-expect-error SpinReady is the crush/twist/slot round-ready event, not wheel's.
 const _wheelHasNoSpinReady: ModeProtocols['wheel']['events'] = { type: 'SpinReady' };
 
+const _wheelHasSetWheelBetBarMetrics: ModeProtocols['wheel']['commands'] = { type: 'SetWheelBetBarMetrics', payload: '' };
+
+// @ts-expect-error SetWheelBetBarMetrics is the wheel bar's own command, not crush's.
+const _crushHasNoSetWheelBetBarMetrics: ModeProtocols['crush']['commands'] = { type: 'SetWheelBetBarMetrics', payload: '' };
+
 // Positive cases from the brief.
 const _plinkoAztecHasApplyBonusStepResult: ModeProtocols['plinkoAztec']['commands'] = {
   type: 'ApplyBonusStepResult',
@@ -86,6 +91,8 @@ const _twistHasNoBonusCleared: ModeProtocols['twist']['events'] = { type: 'Bonus
 void _crushHasNoApplySpinResult;
 void _plinkoHasNoApplyStepResult;
 void _wheelHasNoSpinReady;
+void _wheelHasSetWheelBetBarMetrics;
+void _crushHasNoSetWheelBetBarMetrics;
 void _plinkoAztecHasApplyBonusStepResult;
 void _plinkoAztecHasSetBetPerBall;
 void _plinkoAztecHasRequestBetPerBall;
