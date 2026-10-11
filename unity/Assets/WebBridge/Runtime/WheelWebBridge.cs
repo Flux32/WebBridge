@@ -18,7 +18,12 @@ namespace Modules.Wheel
         // Fires on every phase report: betting, spinning, finished, stopped.
         public event Action<WebWheelRoundPayload> RoundReceived;
 
+        // Fires when the React bet bar moved or changed its scale.
+        public event Action<WebWheelBetBarMetricsPayload> BetBarMetricsReceived;
+
         public WebWheelRoundPayload LastRound { get; private set; }
+
+        public WebWheelBetBarMetricsPayload LastBetBarMetrics { get; private set; }
 
         private void Start()
         {
@@ -51,6 +56,18 @@ namespace Modules.Wheel
             HasReceivedInitialConfig = true;
             LastRound = round;
             RoundReceived?.Invoke(round);
+        }
+
+        // React entry point (SendMessage): where the bet bar covers the canvas and how it is scaled.
+        public void SetWheelBetBarMetrics(string payload)
+        {
+            WebWheelBetBarMetricsPayload metrics =
+                WebBridgeUtils.DeserializePayload<WebWheelBetBarMetricsPayload>(payload, nameof(SetWheelBetBarMetrics));
+            if (metrics == null)
+                return;
+
+            LastBetBarMetrics = metrics;
+            BetBarMetricsReceived?.Invoke(metrics);
         }
 
         // Unity -> React: the outcome has been played out on screen. React settles the win UI on

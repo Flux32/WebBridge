@@ -370,12 +370,19 @@ Unity его визуализирует и сообщает, когда доиг
 | Событие | Аргументы | Когда срабатывает |
 |---|---|---|
 | `RoundReceived` | `WebWheelRoundPayload` | Пришло состояние раунда: смена фазы, отсчёт до старта, исход |
+| `BetBarMetricsReceived` | `WebWheelBetBarMetricsPayload` | Бет-бар React сдвинулся или сменил масштаб |
 
 #### Методы React → Unity
 
 | Метод | Аргумент | Что делает |
 |---|---|---|
 | `ApplyRound` | JSON `WebWheelRoundPayload` | Фаза раунда и, когда он разыгран, выпавший цвет |
+| `SetWheelBetBarMetrics` | JSON `WebWheelBetBarMetricsPayload` | Где бет-бар закрывает холст и его масштаб (последний — `LastBetBarMetrics`) |
+
+Высоты в `WebWheelBetBarMetricsPayload` — доли холста от нижнего края (0..1, как Unity
+viewport): `BetBarTopViewport` — верх бара (надпись «PLACE YOUR BETS» над полосой
+отсчёта), `HistoryTopViewport` — верх ленты истории под полосой. `WidthViewport` —
+ширина колонки бара, `BetBarScale` — его масштаб к макету 1920×1080 (1 — дизайн-размер).
 
 #### Методы Unity → React
 
@@ -1030,7 +1037,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
   (`Request*` — это исходящие запросы Unity, см. таблицу Unity → React выше.)
 - **PlinkoAztecWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyDropResult`,
   `ApplyStepResult`, `SetBallsAmount`, `SetBetPerBall`.
-- **WheelWebBridge:** `ApplyRound`.
+- **WheelWebBridge:** `ApplyRound`, `SetWheelBetBarMetrics`.
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.
 - **ScreenOrientationWebBridge:** `ChangeOrientation`.

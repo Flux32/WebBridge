@@ -87,4 +87,30 @@ namespace Modules.Wheel
             }
         }
     }
+
+    /// <summary>
+    /// Where the React bet bar covers the canvas. Heights are canvas shares from the bottom edge
+    /// (0..1, as a Unity viewport): lay out the game above <see cref="BetBarTopViewport"/>, or above
+    /// <see cref="HistoryTopViewport"/> for what may run under the countdown bar.
+    /// </summary>
+    [Preserve]
+    [Serializable]
+    public class WebWheelBetBarMetricsPayload
+    {
+        // Width of the bar column (countdown, bet panel, board) as a share of the canvas width.
+        [JsonName("widthViewport")]
+        public float WidthViewport;
+
+        // Top edge of the bar: the "PLACE YOUR BETS" call over the countdown bar.
+        [JsonName("betBarTopViewport")]
+        public float BetBarTopViewport;
+
+        // Top edge of the history strip (past rounds) under the countdown bar.
+        [JsonName("historyTopViewport")]
+        public float HistoryTopViewport;
+
+        // Scale of the bar against its 1920x1080 design: 1 is the design size.
+        [JsonName("betBarScale")]
+        public float BetBarScale;
+    }
 }
