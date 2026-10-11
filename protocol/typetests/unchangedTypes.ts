@@ -69,8 +69,10 @@ type DifficultyCommand1100 = { type: 'SetDifficulty'; payload: 'EASY' | 'MEDIUM'
 
 type WheelBetBarMetricsCommand1130 = { type: 'SetWheelBetBarMetrics'; payload: string };
 
+type CanvasSizeCommand1140 = { type: 'SetCanvasSize'; payload: string };
+
 type _engineCommandUnchanged = Expect<
-  Equal<EngineCommand, EngineCommand170 | BetPerBallCommand190 | DifficultyCommand1100 | WheelBetBarMetricsCommand1130>
+  Equal<EngineCommand, EngineCommand170 | BetPerBallCommand190 | DifficultyCommand1100 | WheelBetBarMetricsCommand1130 | CanvasSizeCommand1140>
 >;
 
 type EngineEvent170 =

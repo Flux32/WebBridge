@@ -121,6 +121,16 @@ export interface BetBarViewportMetricsPayload {
 }
 
 /**
+ * JSON-строка команды `SetCanvasSize`: размер холста движка в CSS-пикселях страницы — в тех же
+ * единицах, что и интерфейс хоста. Через него игра переводит размеры интерфейса хоста
+ * (например, масштаб бет-бара) в свои координаты.
+ */
+export interface CanvasSizePayload {
+  widthPx: number;
+  heightPx: number;
+}
+
+/**
  * JSON-строка команды `SetWheelBetBarMetrics`: где бет-бар колеса закрывает холст движка.
  * Высоты — доли холста 0..1 от его нижнего края, как у Unity viewport.
  */

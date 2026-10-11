@@ -30,6 +30,11 @@ export type CoreCommand =
   | { type: 'ApplyGameState'; payload: string }
   | { type: 'SetDesktopBetBarViewportMetrics'; payload: string }
   | { type: 'SetMobileBetBarViewportMetrics'; payload: string }
+  // Размер холста движка в CSS-пикселях страницы: JSON `CanvasSizePayload`. Игра сама его не
+  // узнает: `Screen` в WebGL меряет буфер холста, а он умножен на devicePixelRatio, который хост
+  // подбирает под устройство и меняет на ходу. Хост шлёт размер после загрузки движка, при
+  // каждом ресайзе холста и в ответ на `RequestBetBarViewportMetrics`.
+  | { type: 'SetCanvasSize'; payload: string }
   | { type: 'SyncUiVisibility' }
   // Игрок нажал Play, пока бет-бар держит кнопку неактивной (раунд ещё идёт, не хватает
   // баланса, ставка вне лимитов). Ставка при этом не уходит: команда нужна движку, чтобы

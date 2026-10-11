@@ -1,5 +1,6 @@
 export type {
   BetBarViewportMetricsPayload,
+  CanvasSizePayload,
   BonusPurchaseRequestPayload,
   BonusPurchaseResultPayload,
   GameConfigPayload,
