@@ -230,6 +230,7 @@ BeginBatch() / EndBatch()             // батчинг: SyncUiVisibility отк
 SyncUiVisibility()                    // шлёт в React UiVisibility_{json}
 RequestBetBarViewportMetrics()        // шлёт в React RequestBetBarViewportMetrics
 SetMobileBetBarViewportMetrics(json)  // React → Unity: метрики мобильного бет-бара
+SetCanvasSize(json)                   // React → Unity: размер холста в CSS-пикселях страницы
 ```
 
 Любой `SetHide*` при изменении значения автоматически вызывает `SyncUiVisibility()`.
@@ -253,6 +254,12 @@ SetMobileBetBarViewportMetrics(json)  // React → Unity: метрики моб�
 держит у верхнего края экрана поверх игры (полоса Live wins). 0 — сверху ничего,
 в том числе у хоста, который поле ещё не шлёт. Игра опускает под него то, что
 стоит у верхнего края, — как поднимает над бет-баром то, что стоит у нижнего.
+
+`CanvasWidthPx` / `CanvasHeightPx` (команда `SetCanvasSize`, событие `CanvasSizeChanged`) —
+размер холста в CSS-пикселях страницы, в единицах интерфейса хоста; 0, пока хост его не
+прислал. Нужен, чтобы перевести размеры интерфейса хоста (например, `betBarScale` бара
+колеса) в координаты игры: `Screen` в WebGL меряет буфер холста, умноженный на
+devicePixelRatio, который хост подбирает под устройство и меняет на ходу.
 
 ---
 

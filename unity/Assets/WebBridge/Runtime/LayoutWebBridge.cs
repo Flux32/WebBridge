@@ -29,6 +29,13 @@ namespace Modules.Road
 
         public event Action<WebMobileBetBarViewportPayload> MobileBetBarViewportChanged;
         public event Action<WebBetBarHideStatePayload> BetBarHideStateChanged;
+        public event Action<WebCanvasSizePayload> CanvasSizeChanged;
+
+        // Размер холста в CSS-пикселях страницы, в единицах интерфейса хоста; 0, пока хост его не прислал.
+        // Screen в WebGL меряет буфер холста, умноженный на devicePixelRatio хоста, поэтому для пересчёта
+        // размеров интерфейса хоста он не годится.
+        public float CanvasWidthPx { get; private set; }
+        public float CanvasHeightPx { get; private set; }
 
         public float MobileBetBarViewportWidth { get; private set; }
         public float MobileBetBarViewportHeightEnd { get; private set; }
@@ -154,6 +161,22 @@ namespace Modules.Road
                     }
                     : null
             });
+        }
+
+        public void SetCanvasSize(string payload)
+        {
+            WebCanvasSizePayload size = WebBridgeUtils.DeserializePayload<WebCanvasSizePayload>(payload, nameof(SetCanvasSize));
+            if (size == null)
+                return;
+
+            float width = Mathf.Max(0f, size.WidthPx);
+            float height = Mathf.Max(0f, size.HeightPx);
+            if (Mathf.Approximately(CanvasWidthPx, width) && Mathf.Approximately(CanvasHeightPx, height))
+                return;
+
+            CanvasWidthPx = width;
+            CanvasHeightPx = height;
+            CanvasSizeChanged?.Invoke(new WebCanvasSizePayload { WidthPx = width, HeightPx = height });
         }
 
         private static Vector2 ClampViewportPoint(WebViewportPoint point)

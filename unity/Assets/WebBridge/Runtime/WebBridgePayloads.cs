@@ -268,6 +268,20 @@ namespace Modules.Road
         public WebViewportRect BonusProgressIndicator;
     }
 
+    /// <summary>
+    /// Размер холста движка в CSS-пикселях страницы (команда SetCanvasSize).
+    /// </summary>
+    [Preserve]
+    [Serializable]
+    public class WebCanvasSizePayload
+    {
+        [JsonName("widthPx")]
+        public float WidthPx;
+
+        [JsonName("heightPx")]
+        public float HeightPx;
+    }
+
     [Preserve]
     [Serializable]
     public class WebViewportPoint
