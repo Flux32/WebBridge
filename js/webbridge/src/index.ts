@@ -9,6 +9,8 @@ export { isCheatsEnabled, isMockEnabled } from './core/mockMode';
 export { CrushBridge } from './crush/CrushBridge';
 export type { RestartRequest } from './crush/CrushBridge';
 
+export { PlinkoBridge } from './plinko/PlinkoBridge';
+
 export { SlotBridge } from './slot/SlotBridge';
 export { SlotMockHost } from './slot/SlotMockHost';
 export type { SlotMockHostOptions } from './slot/SlotMockHost';
