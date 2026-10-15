@@ -355,6 +355,27 @@ namespace Modules.Road
             base.RequestWhiteLabel();
         }
 
+        // In the editor (no React) the mock plays the move the way React would: a mock step, or
+        // the refusal while the mock spin gate is closed.
+        public override void RequestPlay()
+        {
+            if (!IsMockEnabled)
+            {
+                base.RequestPlay();
+                return;
+            }
+
+            InitializeMockIfNeeded();
+
+            if (CanProcessMockSpin != null && !CanProcessMockSpin())
+            {
+                OnDisabledPlayPressed();
+                return;
+            }
+
+            ApplyStepResult(CreateMockStepResult());
+        }
+
         // Единая точка входа в бонус с React-стороны. Используется и при свежей
         // покупке (после showYouWinFreeGames+открытия TransitionScreen), и при
         // F5-восстановлении (после того же UX). payload содержит всё нужное

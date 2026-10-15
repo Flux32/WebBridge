@@ -167,6 +167,7 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 | `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
 | `RequestActiveGameState()` | `RequestActiveGameState` | → `RestoreGame` / `ApplyGameState`, если есть активный раунд |
 | `RequestWhiteLabel()` | `RequestWhiteLabel` | → `ApplyWhiteLabel(int)` |
+| `RequestPlay()` | `RequestPlay` — игрок сделал ход в самой сцене, а не кнопкой Play бет-бара. Ставку делает React | → ход как от кнопки Play (`ApplyStepResult`), либо `OnDisabledPlayPressed`, если Play сейчас неактивна. В mock — мок-ход или отказ по `CanProcessMockSpin` |
 | `SaveBonusAutoPlayProgress(progress)` | `BonusProgressSave_{json}` — сохранить прогресс автоигры бонуса | — |
 | `ClearBonusAutoPlayProgress()` | `BonusProgressClear` | — |
 | `NotifyBonusActive()` | `BonusActive` | — |

@@ -179,6 +179,16 @@ namespace WebBridge
             WinWindowSignalReceived?.Invoke(parsed);
         }
 
+        // Unity -> React: the player made a move in the scene itself (a tap on the field, the
+        // game's own button) instead of the bet-bar Play. The game never places the bet: React
+        // answers exactly as for its Play button — the move arrives through the mode's usual
+        // command, or DisabledPlayPressed fires while Play is unavailable (round still running,
+        // autoplay, balance or limits). Derived bridges override it to answer locally in mock mode.
+        public virtual void RequestPlay()
+        {
+            WebBridgeUtils.Send("RequestPlay");
+        }
+
         // Asks React for the current fast-game status; it replies by calling SetFastGame. React
         // also pushes the value on load, so this is only for game code that wires up later and
         // needs the state it may have missed.
