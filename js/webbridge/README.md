@@ -158,6 +158,82 @@ bridge.ballsAmountChanged.add(({ amount, previousAmount, direction }) => {
 > Шаг бонуса в домене называется `ApplyBonusStepResult`; в Unity тот же шаг приходит
 > методом `ApplyStepResult` — имя метода на проводе, а не другая команда.
 
+## Без хоста: mock-хосты
+
+Mock-хост встаёт на место React-шелла: отвечает на запросы игры и сам ведёт раунд.
+Игра идёт по настоящему пути — та же фабрика `createWebBoot`, тот же мост, те же
+команды; подменяется только собеседник. Так игру можно гонять на голом dev-сервере,
+без шелла и бэкенда. Суммы в ответах иллюстративные.
+
+| Режим | Mock-хост | Ведётся |
+|---|---|---|
+| `crush` | `MockHost` | Клавишами и панелью `MockPanel` |
+| `slot` | `SlotMockHost` | Клавишами |
+| `plinko` | `PlinkoMockHost` | Клавишами |
+| `plinko-aztec` | `PlinkoAztecMockHost` | Клавишами |
+
+```ts
+import { isMockEnabled, PlinkoAztecMockHost } from '@omega/webbridge-js';
+
+const boot = createWebBoot({ /* createBridge, createGame, destroyGame */ });
+
+if (isMockEnabled()) {          // страница открыта с ?mock=1
+  const host = new PlinkoAztecMockHost();
+  host.attach(boot(host, document.getElementById('game')!));
+  host.bindKeys();
+} else {
+  registerWebBoot(boot);
+}
+```
+
+Стартовую синхронизацию `start()` мост в мок-режиме не гоняет, поэтому `MockHost` и
+Plinko-моки сами пушат конфиг и состояние по `host.ready()` (`PlinkoAztecMockHost` —
+сначала выбор бет-бара). `ready()` игра зовёт, когда готова принимать команды; к этому
+моменту мок уже должен быть привязан через `attach` — игра, которая зовёт `ready()`
+синхронно прямо в `createGame`, свои стартовые данные не получит.
+
+Бросок держит бет-бар занятым, пока игра не пришлёт `DropFinished`, — как шелл.
+Повторное нажатие в это время мок игнорирует, а `requestPlay()` из сцены получает
+`DisabledPlayPressed`. Не прислала игра `DropFinished` — мок залипнет, и это видно сразу.
+
+### PlinkoMockHost
+
+| Клавиша | Метод | Что делает |
+|---|---|---|
+| Пробел | `drop()` | Бросок: ячейка выпадает по рядам штырьков, крайние — реже всего |
+| T / B | `drop('top')` / `drop('bottom')` | Шарик в самую дорогую / дешёвую ячейку |
+| R | `cycleRisk()` | Следующий риск: `LOW` → `MEDIUM` → `HIGH` |
+
+Опции конструктора: `coefficients` (линия ячеек по каждому риску), `risk`, `currency`,
+`decimalPlaces`, `betAmount`, `balance`, `random`.
+
+### PlinkoAztecMockHost
+
+Зеркало мок-режима `PlinkoAztecWebBridge`. Держит выбор бет-бара (число шариков и
+ставку за шар) и пушит его в игру, как шелл. Бонусную игру ведёт по `requestStep()`
+игры. Прогресс бамперов считает отдельно для каждой комбинации `CUR-balls-betPerBall`,
+как бэкенд, и отдаёт его в `bonusGameState.progress` и `bonusGameProgress` конфига.
+
+| Клавиша | Метод | Что делает |
+|---|---|---|
+| Пробел | `drop()` | Бросок, каждый шарик — в случайную ячейку |
+| T / B | `drop('top')` / `drop('bottom')` | Все шарики в самую дорогую / самую дешёвую платящую ячейку |
+| W | `drop('fortune-wheel')` | Первый шарик — в ячейку колеса; колесо встаёт на множитель |
+| G | `drop('bonus-game')` | Первый шарик — в ячейку колеса; колесо даёт бонусную игру |
+| S | `step()` | Шаг бонуса — то же, что `RequestStep` из игры |
+| ↑ / ↓ | `changeBallsAmount(1 \| -1)` | Следующий / предыдущий вариант числа шариков |
+| → / ← | `changeBetPerBall(1 \| -1)` | Следующий / предыдущий вариант ставки за шар |
+| R | `reset()` | Новый игрок: прогресс и бонус сброшены, конфиг и состояние переотправлены |
+
+Пока шарики летят и пока идёт бонусная игра, бар заблокирован, как в шелле: бросок и
+переключатели игнорируются, `requestPlay()` получает `DisabledPlayPressed`. Шаг вне
+бонусной игры мок игнорирует.
+
+Опции конструктора — те же, что `PlinkoAztecMockSettings` в C#: `slotCoefficients`
+(ноль — ячейка колеса), `ballsAmountOptions`, `betPerBallOptions` (первые — выбор по
+умолчанию), `currency`, `decimalPlaces`, `bumperChance`, `bonusLevelThreshold`,
+`bonusSteps`, `bonusBallsPerStep`, `fortuneWheelCoefficient`, плюс `random`.
+
 ## Как связать игру с конфигуратором
 
 Плагин `localBuildServer` запускает игру, которую вы сейчас пишете, внутри настоящего
@@ -296,9 +372,9 @@ npm run dev
 - нет аналогов `AudioWebBridge`/`LayoutWebBridge` как отдельных классов — сейчас
   их сообщения уходят прямо через `BridgeBase`; выделять в отдельные модули,
   когда набежит логика;
-- нет mock-режима с данными (`MockConfig` в C#) — есть только флаг `isMockEnabled`;
-  заглушки хоста есть для Crush (`MockHost`) и слота (`SlotMockHost`), для Plinko и
-  Plinko Aztec — пока нет (в C# у Plinko Aztec есть `PlinkoAztecMockHost` со сценариями);
+- нет mock-режима с данными (`MockConfig` в C#) — есть только флаг `isMockEnabled`
+  и заглушки хоста по режимам (см. «Без хоста: mock-хосты»); отладочная панель
+  (`MockPanel`) есть только у Crush, у остальных мок водится клавишами;
 - конфиг и GameState Plinko-режимов мост отдаёт разобранным JSON без типа (`unknown`):
   форма описана в C#-payload'ах (`WebPlinkoStatePayload`, `WebPlinkoAztecStatePayload`
   и др.) и в корневом `README.md`, в протоколе её пока нет;
