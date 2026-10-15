@@ -8,6 +8,8 @@
 |---|---|
 | `WebBridgeBase<T>` | `BridgeBase` |
 | `RoadWebBridge` | `CrushBridge` |
+| `PlinkoWebBridge` | `PlinkoBridge` |
+| `PlinkoAztecWebBridge` | `PlinkoAztecBridge` |
 | `event Action<T>` | `Signal<T>` |
 | `WebBridgeUtils.Send` | `BridgeTransport.send` |
 | `WebBridgeUtils.*LocalStorage` | `BridgeStorage` |
@@ -53,6 +55,109 @@ registerWebBoot(
 его ищут шеллы старых тегов. `createPhaserBoot` / `PhaserBootConfig` остаются
 устаревшими синонимами.
 
+В `createBridge` создаётся мост своего режима — того же, что в опции `mode` плагина и
+у игры в админке:
+
+| Режим | Мост |
+|---|---|
+| `crush` | `CrushBridge` |
+| `slot` | `SlotBridge` |
+| `plinko` | `PlinkoBridge` |
+| `plinko-aztec` | `PlinkoAztecBridge` |
+
+## Общее для любого моста
+
+Всё это живёт в `BridgeBase` и есть у каждого моста режима.
+
+| Игра → React | Событие | Зачем |
+|---|---|---|
+| `playSound(key, volume?)` / `playMusic(key, volume?)` | `PlaySound` / `PlayMusic` | Звук и музыка из звуковой библиотеки хоста |
+| `playLoop(key, volume?)` / `stopLoop(key)` | `PlayLoop` / `StopLoop` | Зацикленный звук и его остановка |
+| `setUiVisibility(patch)` | `UiVisibility` | Спрятать или показать UI хоста; патч сливается с прежним состоянием, на `SyncUiVisibility` мост сам отвечает текущим |
+| `requestPlay()` | `RequestPlay` | Ход из самой сцены, а не кнопкой Play бет-бара: хост отвечает как на свою кнопку |
+| `requestWhiteLabel()` / `requestFastGame()` | `RequestWhiteLabel` / `RequestFastGame` | Переспросить значение, если код поднялся после пуша |
+| `notifyFastGameChanged(isEnabled)` | `FastGameChanged` | Игра сама переключила fast game |
+
+Сигналы базы: `whiteLabelReceived`, `fastGameChanged`, `orientationChanged`,
+`translationsReceived`, `disabledPlayPressed`, `cashoutPressed`, `winWindowOpened` /
+`winWindowClosed` / `winWindowSignal`, `transitionScreen*`, метрики бет-бара и
+`canvasSizeReceived`.
+
+## PlinkoBridge
+
+Мост Plinko — зеркало `PlinkoWebBridge`. Ставкой владеет React: он зовёт
+`play({ risk })` и присылает готовый GameState. Игра роняет шарик в `resultPosition`
+и сообщает, что он сел.
+
+```ts
+bridge.dropResultReceived.add((result) => board.drop(result as PlinkoDrop));
+board.onBallLanded(() => bridge.notifyDropFinished());
+bridge.start();
+```
+
+| Сигнал | Когда | Кэш |
+|---|---|---|
+| `gameConfigReceived` | Пришёл конфиг игры: `currency`, лимиты ставки, `balance`, `coefficients` по риску | `lastGameConfig` |
+| `gameStateReceived` | Пришло состояние сессии | `lastGameState` |
+| `dropResultReceived` | Результат броска (`ApplyDropResult`): `coeff`, `resultPosition`, `risk`, `winAmount` | `lastDropResult`, и он же `lastGameState` |
+
+| Метод | Событие | Ответ React |
+|---|---|---|
+| `start()` | `RequestGameConfig` + `RequestGameState` с ретраями, пока React не ответит | `ApplyGameConfig` / `ApplyGameState` |
+| `notifyDropFinished()` | `DropFinished` — шарик сел | Бет-бар разблокируется |
+
+## PlinkoAztecBridge
+
+Мост Plinko Aztec — зеркало `PlinkoAztecWebBridge`. React зовёт
+`play({ betPerBall, ballsAmount })` и присылает готовый GameState. Игра роняет каждый
+шарик в его `ballsResult`, играет колесо (`freeSpinResult`) и бонус (`bonusGameState`),
+если они пришли, и сообщает, что всё доиграно. Бонусная игра идёт тем же циклом: тап
+по полю → `requestStep()` → React зовёт `step()` → `stepResultReceived`.
+
+| Сигнал | Аргумент | Когда |
+|---|---|---|
+| `gameConfigReceived` | конфиг (`betConfig`, `positions`, `ballsAmountOptions`, `bonusGameProgress`) | Пришёл конфиг игры, кэш `lastGameConfig` |
+| `gameStateReceived` | GameState | Пришло состояние сессии, кэш `lastGameState` |
+| `dropResultReceived` | GameState броска | `ApplyDropResult`, кэш `lastDropResult` и `lastGameState` |
+| `stepResultReceived` | GameState шага бонуса | `ApplyBonusStepResult`, кэш `lastStepResult` и `lastGameState` |
+| `ballsAmountChanged` | `BallsAmountChange` | Сменилось число шариков в броске (`SetBallsAmount`) |
+| `betPerBallChanged` | `BetPerBallChange` | Сменилась ставка за шар (`SetBetPerBall`) |
+
+| Метод | Событие | Ответ React |
+|---|---|---|
+| `start()` | `RequestGameConfig` + `RequestGameState` с ретраями | `ApplyGameConfig` / `ApplyGameState` |
+| `requestStep()` | `RequestStep` — тап по полю в бонусной игре | `ApplyBonusStepResult` |
+| `requestBallsAmount()` | `RequestBallsAmount` | `SetBallsAmount` |
+| `requestBetPerBall()` | `RequestBetPerBall` | `SetBetPerBall` |
+| `notifyDropFinished()` | `DropFinished` — все шарики сели, колесо и бонус доиграны | Бет-бар разблокируется |
+
+**Выбор бет-бара.** React пушит число шариков и ставку за шар, как только игра
+загрузилась, и дальше на каждое переключение. Мост кэширует их в `currentBallsAmount`
+(`0`, пока выбора нет) и `currentBetPerBall` (`null`, пока ставки нет): подписался
+позже — прочитай поле, нужен явный ответ — `requestBallsAmount()` / `requestBetPerBall()`.
+Повтор того же значения сигнал не поднимает.
+
+```ts
+bridge.ballsAmountChanged.add(({ amount, previousAmount, direction }) => {
+  if (direction === 'increased') tray.add(amount - previousAmount);
+  else if (direction === 'decreased') tray.remove(previousAmount - amount);
+  else tray.show(amount); // первый синк после загрузки или ответ на запрос
+});
+```
+
+- `direction` — `'increased'` / `'decreased'`, если игрок переключил выбор, и
+  `'none'`, если React просто сообщил значение: первый синк, ответ на запрос,
+  подрезка под новый конфиг.
+- Ставка за шар — строка бэкенда (`"0.2"`, `"2"`) без округления: из неё напрямую
+  собирается ключ прогресса бонуса `CUR-balls-betPerBall`. Сравнивается по сумме,
+  поэтому `"2"` после `"2.0"` сигнал не поднимает, а `"10"` после `"9.99"` — это
+  `'increased'`.
+- Невалидное значение (шариков `<= 0` или не целое; ставка пустая, не число, `0`, со
+  знаком, запятой или экспонентой) — предупреждение в лог, выбор не меняется.
+
+> Шаг бонуса в домене называется `ApplyBonusStepResult`; в Unity тот же шаг приходит
+> методом `ApplyStepResult` — имя метода на проводе, а не другая команда.
+
 ## Как связать игру с конфигуратором
 
 Плагин `localBuildServer` запускает игру, которую вы сейчас пишете, внутри настоящего
@@ -84,7 +189,7 @@ export default defineConfig({
 | Опция | Что это |
 |---|---|
 | `entry` | Точка входа бандла — файл, который вызывает `registerWebBoot`. Обязательна. |
-| `mode` | Режим игры (`crush`, `plinko`, `slot`, …). Админка подставит его, когда вы будете заводить новую игру. |
+| `mode` | Режим игры (`crush`, `plinko`, `plinko-aztec`, `slot`, …). Админка подставит его, когда вы будете заводить новую игру. |
 | `configuratorUrl` | Адрес админки. По умолчанию боевая; для локальной — ровно тот адрес, по которому вы её открываете, например `http://127.0.0.1:3000`. |
 
 Порт задайте явно и не меняйте: плагин включает `strictPort`, и полные адреса
@@ -191,4 +296,11 @@ npm run dev
 - нет аналогов `AudioWebBridge`/`LayoutWebBridge` как отдельных классов — сейчас
   их сообщения уходят прямо через `BridgeBase`; выделять в отдельные модули,
   когда набежит логика;
-- нет mock-режима с данными (`MockConfig` в C#) — есть только флаг `isMockEnabled`.
+- нет mock-режима с данными (`MockConfig` в C#) — есть только флаг `isMockEnabled`;
+  заглушки хоста есть для Crush (`MockHost`) и слота (`SlotMockHost`), для Plinko и
+  Plinko Aztec — пока нет (в C# у Plinko Aztec есть `PlinkoAztecMockHost` со сценариями);
+- конфиг и GameState Plinko-режимов мост отдаёт разобранным JSON без типа (`unknown`):
+  форма описана в C#-payload'ах (`WebPlinkoStatePayload`, `WebPlinkoAztecStatePayload`
+  и др.) и в корневом `README.md`, в протоколе её пока нет;
+- `PlinkoWebBridge.BalanceReceived` отдельным сигналом не повторён: баланс лежит в
+  конфиге (`balance`).

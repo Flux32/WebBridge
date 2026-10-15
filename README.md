@@ -293,6 +293,10 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 он зовёт `play({ betPerBall, ballsAmount })` и присылает готовый `GameState`,
 Unity его визуализирует и сообщает, когда доиграл.
 
+> Для веб-игры то же самое делает `PlinkoAztecBridge` из `@omega/webbridge-js`, а
+> для простого Plinko — `PlinkoBridge` (зеркало `PlinkoWebBridge`), см.
+> [`js/webbridge`](js/webbridge/README.md#plinkoaztecbridge).
+
 #### События
 
 | Событие | Аргументы | Когда срабатывает |
