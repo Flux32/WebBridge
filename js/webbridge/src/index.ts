@@ -19,6 +19,12 @@ export type {
   BetPerBallChange,
   SelectionDirection,
 } from './plinko-aztec/PlinkoAztecBridge';
+export { PlinkoAztecMockHost } from './plinko-aztec/PlinkoAztecMockHost';
+export type {
+  PlinkoAztecMockHostOptions,
+  PlinkoAztecMockScenario,
+  PlinkoAztecOptionStep,
+} from './plinko-aztec/PlinkoAztecMockHost';
 
 export { SlotBridge } from './slot/SlotBridge';
 export { SlotMockHost } from './slot/SlotMockHost';
