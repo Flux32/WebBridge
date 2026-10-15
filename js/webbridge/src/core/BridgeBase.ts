@@ -10,6 +10,7 @@ import type {
   CoreCommand,
   EngineCommand,
   Orientation,
+  UiVisibilityPayload,
   WinWindowSignalPayload,
 } from '@omega/webbridge-protocol';
 import { BridgeLogger } from './BridgeLogger';
@@ -65,6 +66,7 @@ export abstract class BridgeBase {
 
   private initialSyncTimerId: number | null = null;
   private initialSyncAttempts = 0;
+  private uiVisibility: UiVisibilityPayload = {};
 
   protected constructor(protected readonly transport: BridgeTransport) {}
 
@@ -155,12 +157,6 @@ export abstract class BridgeBase {
   protected abstract handleGameCommand(command: Exclude<EngineCommand, CoreCommand>): void;
 
   /**
-   * Публикация текущей видимости игрового UI по запросу React. Наследник шлёт
-   * событие `UiVisibility` с актуальным состоянием сцены.
-   */
-  protected abstract syncUiVisibility(): void;
-
-  /**
    * Стартовая синхронизация: спрашиваем config/state, пока React не ответит.
    * Зовётся наследником, когда сцена готова принимать данные — аналог
    * `BeginInitialWebSyncAfterSceneLoad`.
@@ -217,8 +213,35 @@ export abstract class BridgeBase {
     this.transport.send({ type: 'FastGameChanged', enabled: isEnabled });
   }
 
+  public playSound(key: string, volume?: number): void {
+    this.transport.send({ type: 'PlaySound', key, ...(volume === undefined ? {} : { volume }) });
+  }
+
+  public playMusic(key: string, volume?: number): void {
+    this.transport.send({ type: 'PlayMusic', key, ...(volume === undefined ? {} : { volume }) });
+  }
+
+  public playLoop(key: string, volume?: number): void {
+    this.transport.send({ type: 'PlayLoop', key, ...(volume === undefined ? {} : { volume }) });
+  }
+
+  public stopLoop(key: string): void {
+    this.transport.send({ type: 'StopLoop', key });
+  }
+
+  /** Игра просит React перерисовать свой UI под новое состояние сцены. */
+  public setUiVisibility(patch: UiVisibilityPayload): void {
+    this.uiVisibility = { ...this.uiVisibility, ...patch };
+    this.syncUiVisibility();
+  }
+
   public dispose(): void {
     this.stopInitialSync();
+  }
+
+  /** Ответ на `SyncUiVisibility`: React переспрашивает видимость, которую игра уже выставила. */
+  private syncUiVisibility(): void {
+    this.transport.send({ type: 'UiVisibility', payload: this.uiVisibility });
   }
 
   private applyWhiteLabel(isWhiteLabel: boolean): void {

@@ -12,7 +12,6 @@ import type {
   CoreCommand,
   EngineCommand,
   SlotSpinResult,
-  UiVisibilityPayload,
 } from '@omega/webbridge-protocol';
 import { BridgeBase } from '../core/BridgeBase';
 import { BridgeLogger } from '../core/BridgeLogger';
@@ -27,8 +26,6 @@ export class SlotBridge extends BridgeBase {
   public lastSpinResult: SlotSpinResult | null = null;
   public lastGameConfig: unknown = null;
   public lastGameState: unknown = null;
-
-  private uiVisibility: UiVisibilityPayload = {};
 
   public constructor(transport: BridgeTransport) {
     super(transport);
@@ -81,24 +78,6 @@ export class SlotBridge extends BridgeBase {
   }
 
   // ───────────────────────────── Игра → React ─────────────────────────────
-
-  public playSound(key: string, volume?: number): void {
-    this.transport.send({ type: 'PlaySound', key, ...(volume === undefined ? {} : { volume }) });
-  }
-
-  public playMusic(key: string, volume?: number): void {
-    this.transport.send({ type: 'PlayMusic', key, ...(volume === undefined ? {} : { volume }) });
-  }
-
-  /** Игра просит React перерисовать свой UI под новое состояние сцены. */
-  public setUiVisibility(patch: UiVisibilityPayload): void {
-    this.uiVisibility = { ...this.uiVisibility, ...patch };
-    this.syncUiVisibility();
-  }
-
-  protected override syncUiVisibility(): void {
-    this.transport.send({ type: 'UiVisibility', payload: this.uiVisibility });
-  }
 
   /**
    * Раунд доигран — бет-бар можно разблокировать. Звать ровно один раз на

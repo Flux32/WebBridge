@@ -10,7 +10,6 @@ import type {
   GameConfigPayload,
   StartBonusPayload,
   StepResultPayload,
-  UiVisibilityPayload,
 } from '@omega/webbridge-protocol';
 import { BridgeBase } from '../core/BridgeBase';
 import { BridgeLogger } from '../core/BridgeLogger';
@@ -34,8 +33,6 @@ export class CrushBridge extends BridgeBase {
 
   public lastGameConfig: GameConfigPayload | null = null;
   public lastGameState: unknown = null;
-
-  private uiVisibility: UiVisibilityPayload = {};
 
   public constructor(transport: BridgeTransport) {
     super(transport);
@@ -98,32 +95,6 @@ export class CrushBridge extends BridgeBase {
   }
 
   // ───────────────────────────── Игра → React ─────────────────────────────
-
-  public playSound(key: string, volume?: number): void {
-    this.transport.send({ type: 'PlaySound', key, ...(volume === undefined ? {} : { volume }) });
-  }
-
-  public playMusic(key: string, volume?: number): void {
-    this.transport.send({ type: 'PlayMusic', key, ...(volume === undefined ? {} : { volume }) });
-  }
-
-  public playLoop(key: string, volume?: number): void {
-    this.transport.send({ type: 'PlayLoop', key, ...(volume === undefined ? {} : { volume }) });
-  }
-
-  public stopLoop(key: string): void {
-    this.transport.send({ type: 'StopLoop', key });
-  }
-
-  /** Игра просит React перерисовать свой UI под новое состояние сцены. */
-  public setUiVisibility(patch: UiVisibilityPayload): void {
-    this.uiVisibility = { ...this.uiVisibility, ...patch };
-    this.syncUiVisibility();
-  }
-
-  protected override syncUiVisibility(): void {
-    this.transport.send({ type: 'UiVisibility', payload: this.uiVisibility });
-  }
 
   public notifySpinReady(): void {
     this.transport.send({ type: 'SpinReady' });
