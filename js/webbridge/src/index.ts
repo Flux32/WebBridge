@@ -11,6 +11,13 @@ export type { RestartRequest } from './crush/CrushBridge';
 
 export { PlinkoBridge } from './plinko/PlinkoBridge';
 
+export { PlinkoAztecBridge } from './plinko-aztec/PlinkoAztecBridge';
+export type {
+  BallsAmountChange,
+  BetPerBallChange,
+  SelectionDirection,
+} from './plinko-aztec/PlinkoAztecBridge';
+
 export { SlotBridge } from './slot/SlotBridge';
 export { SlotMockHost } from './slot/SlotMockHost';
 export type { SlotMockHostOptions } from './slot/SlotMockHost';
