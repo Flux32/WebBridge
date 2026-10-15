@@ -2,8 +2,9 @@
  * Guards the 1.7.0 shape of the engine unions. `RoundEvent` (1.8.0) is an
  * alias for the same `{ type: 'SpinReady' }` shape `CrushEvent` carried
  * inline before, so it must stay structurally invisible here. 1.9.0 only
- * adds the plinko-aztec bet-per-ball pair and 1.10.0 only crush's difficulty
- * command: every older member keeps its shape.
+ * adds the plinko-aztec bet-per-ball pair, 1.10.0 only crush's difficulty
+ * command and 1.15.0 only the game's own play request: every older member
+ * keeps its shape.
  */
 import type {
   BonusPurchaseRequestPayload,
@@ -100,4 +101,6 @@ type EngineEvent170 =
 
 type BetPerBallEvent190 = { type: 'RequestBetPerBall' };
 
-type _engineEventUnchanged = Expect<Equal<EngineEvent, EngineEvent170 | BetPerBallEvent190>>;
+type PlayRequestEvent1150 = { type: 'RequestPlay' };
+
+type _engineEventUnchanged = Expect<Equal<EngineEvent, EngineEvent170 | BetPerBallEvent190 | PlayRequestEvent1150>>;

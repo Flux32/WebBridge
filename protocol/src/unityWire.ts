@@ -24,6 +24,7 @@ export const UNITY_PLAIN_MESSAGES = [
   'RequestFastGame',
   'RequestTranslations',
   'RequestBetBarViewportMetrics',
+  'RequestPlay',
   'RequestStep',
   'RequestBallsAmount',
   'RequestBetPerBall',

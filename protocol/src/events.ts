@@ -26,6 +26,12 @@ export type CoreEvent =
   | { type: 'FastGameChanged'; enabled: boolean }
   | { type: 'RequestTranslations' }
   | { type: 'RequestBetBarViewportMetrics' }
+  // Игрок сделал ход в самой сцене (тап по полю, своя кнопка игры), а не кнопкой Play бет-бара.
+  // Ставку игра не делает и не решает, можно ли её делать: ставка, лимиты, баланс и блокировка
+  // кнопки живут в хосте. Хост отвечает так же, как на нажатие Play бет-бара: ход идёт обычным
+  // путём (результат приходит командой своего режима), а если Play сейчас неактивна — приходит
+  // `DisabledPlayPressed`. Автоплей этим событием не переключается: пока он идёт, ответ тот же отказ.
+  | { type: 'RequestPlay' }
   | { type: 'OpenTransitionScreen' }
   | { type: 'CloseTransitionScreen' };
 
