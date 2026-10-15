@@ -50,6 +50,11 @@ export abstract class BridgeBase {
    */
   public readonly desktopBetBarViewportMetricsReceived = new Signal<string>();
   public readonly mobileBetBarViewportMetricsReceived = new Signal<string>();
+  /**
+   * Размер холста в CSS-пикселях страницы — JSON `CanvasSizePayload`: буфер холста умножен на
+   * devicePixelRatio, который хост меняет на ходу, поэтому сама игра этот размер не узнает.
+   */
+  public readonly canvasSizeReceived = new Signal<string>();
 
   /** Значения кэшируются: подписчик, поднявшийся после ответа React, их не теряет. */
   public currentIsWhiteLabel: boolean | null = null;
@@ -97,6 +102,9 @@ export abstract class BridgeBase {
         return;
       case 'SetMobileBetBarViewportMetrics':
         this.mobileBetBarViewportMetricsReceived.invoke(command.payload);
+        return;
+      case 'SetCanvasSize':
+        this.canvasSizeReceived.invoke(command.payload);
         return;
       case 'WinWindowOpened':
         this.winWindowOpened.invoke();
