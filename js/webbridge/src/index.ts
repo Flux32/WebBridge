@@ -10,6 +10,8 @@ export { CrushBridge } from './crush/CrushBridge';
 export type { RestartRequest } from './crush/CrushBridge';
 
 export { PlinkoBridge } from './plinko/PlinkoBridge';
+export { PlinkoMockHost } from './plinko/PlinkoMockHost';
+export type { PlinkoMockHostOptions, PlinkoMockScenario, PlinkoRisk } from './plinko/PlinkoMockHost';
 
 export { PlinkoAztecBridge } from './plinko-aztec/PlinkoAztecBridge';
 export type {
