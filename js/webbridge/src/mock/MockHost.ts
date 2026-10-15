@@ -134,6 +134,11 @@ export class MockHost implements WebHostBridge {
         this.isBusy = false;
         this.isRoundOver = false;
         return;
+      // Ход из самой сцены — то же, что Play: пока ходить нельзя, мок отказывает, как хост.
+      case 'RequestPlay':
+        if (this.isBusy || this.isRoundOver) this.send({ type: 'DisabledPlayPressed' });
+        else this.step();
+        return;
       default:
         return;
     }

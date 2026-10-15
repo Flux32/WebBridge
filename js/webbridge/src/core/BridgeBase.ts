@@ -186,6 +186,14 @@ export abstract class BridgeBase {
     this.initialSyncTimerId = window.setInterval(tick, INITIAL_SYNC_RETRY_INTERVAL_MS);
   }
 
+  /**
+   * Игрок сделал ход в самой сцене, а не кнопкой Play бет-бара. Ставку делает хост и отвечает как
+   * на свою кнопку: ход приходит командой режима, неактивная Play — сигналом `disabledPlayPressed`.
+   */
+  public requestPlay(): void {
+    this.transport.send({ type: 'RequestPlay' });
+  }
+
   /** Спросить white-label у React; он ответит командой ApplyWhiteLabel. */
   public requestWhiteLabel(): void {
     this.transport.send({ type: 'RequestWhiteLabel' });

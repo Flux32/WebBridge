@@ -105,6 +105,11 @@ export class SlotMockHost implements WebHostBridge {
       case 'SpinReady':
         this.isBusy = false;
         return;
+      // Спин из самой сцены — то же, что Play: пока барабан крутится, мок отказывает, как хост.
+      case 'RequestPlay':
+        if (this.isBusy) this.send({ type: 'DisabledPlayPressed' });
+        else this.spin();
+        return;
       default:
         return;
     }
