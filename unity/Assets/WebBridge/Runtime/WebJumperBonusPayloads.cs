@@ -19,8 +19,9 @@ namespace Modules.Jumper
     }
 
     /// <summary>
-    /// One free game of the bought series. The route starts at step 0; after Step the next point
-    /// is the next step, after an accelerator the step it throws the player to.
+    /// One free game of the bought series. The route lists only the platforms jumped from, starting
+    /// at step 0: after Step the next point is the next step, after an accelerator the step it throws
+    /// the player to. The last jump lands on FinalStep, which has no point of its own.
     /// </summary>
     [Preserve]
     [Serializable]

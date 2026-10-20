@@ -6,13 +6,17 @@ namespace Modules.Jumper
 {
     /// <summary>
     /// A bought bonus series as the dev game server settles it: every free game at once, each with
-    /// its final step, that step's coefficient and the route to it. A route starts at step 0; after
-    /// STEP the next point is the next step, after an accelerator the step it throws the player to,
-    /// and the last point is the final step itself.
+    /// its final step, that step's coefficient and the route to it. A route lists only the platforms
+    /// jumped from, starting at step 0: after STEP the next point is the next step, after an
+    /// accelerator the step it throws the player to, and the last jump lands on the final step,
+    /// which has no point of its own.
     /// </summary>
     internal static class JumperMockBonusSeries
     {
         private const string CoefficientFormat = "0.00";
+
+        // Every free game makes at least the jump from step 0, so it cannot end below step 1.
+        private const int LowestFinalStep = 1;
 
         public static WebJumperStartBonusPayload Build(
             JumperDifficulty difficulty,
@@ -25,7 +29,7 @@ namespace Modules.Jumper
 
             for (int i = 0; i < games.Length; i++)
             {
-                int finalStep = random.Next(coefficients.Length);
+                int finalStep = random.Next(LowestFinalStep, coefficients.Length);
                 games[i] = new WebJumperBonusGamePayload
                 {
                     FinalStep = finalStep,
@@ -56,18 +60,18 @@ namespace Modules.Jumper
             List<WebJumperRoutePointPayload> route = new List<WebJumperRoutePointPayload>();
             int step = 0;
 
-            while (step < finalStep)
+            do
             {
                 JumperRouteAction action = PickAction(finalStep - step, settings, random, out int distance);
                 route.Add(CreatePoint(step, action));
                 step += distance;
             }
+            while (step < finalStep);
 
-            route.Add(CreatePoint(finalStep, JumperRouteAction.Step));
             return route.ToArray();
         }
 
-        // An accelerator only where its throw still lands on the route: the game ends on finalStep.
+        // An accelerator only where its throw does not overshoot: the last jump lands on finalStep.
         private static JumperRouteAction PickAction(
             int stepsLeft,
             JumperMockSettings settings,
