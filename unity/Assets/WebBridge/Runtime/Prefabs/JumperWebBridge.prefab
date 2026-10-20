@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3701585932669658122
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5147141250848982258}
+  - component: {fileID: 6838936805634581773}
+  - component: {fileID: 7354892948662014100}
+  - component: {fileID: 2985518238783197825}
+  - component: {fileID: 1990561297203815989}
+  - component: {fileID: 1186157583868301381}
+  - component: {fileID: 5141013306767248324}
+  m_Layer: 0
+  m_Name: WebBridge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5147141250848982258
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6838936805634581773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d345b59c6b541f4a9fe9aea4b3fad4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.AudioWebBridge
+--- !u!114 &7354892948662014100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fad066717c54306b31e2bb28ca841b6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Jumper.JumperWebBridge
+--- !u!114 &2985518238783197825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1aeb4a83f5be45728baff67e7b75ca4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.LayoutWebBridge
+  _hideDesktopBetBar: 0
+  _hideMobileBetBar: 0
+  _hideMobileLastWin: 0
+  _hideSettingsMenuButton: 0
+  _hideLogo: 0
+  _hideBottomBalancePanel: 1
+  _desktopBetBarInteractable: 1
+  _mobileBetBarInteractable: 1
+--- !u!114 &1990561297203815989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4434d4ddd38024f9a8347be1123ec1e0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.ScreenOrientationWebBridge
+  _mockMobileAspectRatio: 1.1
+--- !u!114 &1186157583868301381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b0c6bcc7fa54f77b344def4fcc9e92c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.TranslationsWebBridge
+--- !u!114 &5141013306767248324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3701585932669658122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f2d598b42af4381960bc1f00671a455, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: WebBridge.Runtime::Modules.Road.WebBridgeUI

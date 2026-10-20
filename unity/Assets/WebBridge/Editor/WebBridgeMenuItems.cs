@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Modules.Jumper;
 using Modules.Plinko;
 using Modules.PlinkoAztec;
 using UnityEditor;
@@ -25,6 +26,8 @@ namespace Modules.Road.Editor
         private const string PlinkoAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/PlinkoWebBridge.prefab";
         private const string PlinkoAztecPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/PlinkoAztecWebBridge.prefab";
         private const string PlinkoAztecAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/PlinkoAztecWebBridge.prefab";
+        private const string JumperPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/JumperWebBridge.prefab";
+        private const string JumperAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/JumperWebBridge.prefab";
         private const string WebBridgeObjectName = "WebBridge";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
         private const string MockConfigMenu = "Tools/WebBridge/MockConfig";
@@ -179,6 +182,12 @@ namespace Modules.Road.Editor
             CreateWebBridge(menuCommand, PlinkoAztecPackagePrefabPath, PlinkoAztecAssetsPrefabPath, "PlinkoAztec");
         }
 
+        [MenuItem("GameObject/WebBridge/Create JumperWebBridge", false, 13)]
+        private static void CreateJumperWebBridge(MenuCommand menuCommand)
+        {
+            CreateWebBridge(menuCommand, JumperPackagePrefabPath, JumperAssetsPrefabPath, "Jumper");
+        }
+
         private static void CreateWebBridge(MenuCommand menuCommand, string packagePath, string assetsPath, string label)
         {
             if (TryGetExistingWebBridge(out GameObject existing))
@@ -208,35 +217,21 @@ namespace Modules.Road.Editor
             Selection.activeObject = instance;
         }
 
-        // A scene may host only one WebBridge (Road, Plinko or PlinkoAztec). All bridges derive
-        // from WebBridgeBase, so the presence of any concrete component blocks a second creation.
+        // A scene may host only one WebBridge (Road, Plinko, PlinkoAztec or Jumper). All bridges
+        // derive from WebBridgeBase, so the presence of any concrete component blocks a second creation.
         private static bool TryGetExistingWebBridge(out GameObject existing)
         {
-            existing = null;
+            return TryFindBridge<RoadWebBridge>(out existing)
+                   || TryFindBridge<PlinkoWebBridge>(out existing)
+                   || TryFindBridge<PlinkoAztecWebBridge>(out existing)
+                   || TryFindBridge<JumperWebBridge>(out existing);
+        }
 
-            RoadWebBridge road = Object.FindFirstObjectByType<RoadWebBridge>(FindObjectsInactive.Include);
-            if (road != null)
-            {
-                existing = road.gameObject;
-                return true;
-            }
-
-            PlinkoWebBridge plinko = Object.FindFirstObjectByType<PlinkoWebBridge>(FindObjectsInactive.Include);
-            if (plinko != null)
-            {
-                existing = plinko.gameObject;
-                return true;
-            }
-
-            PlinkoAztecWebBridge plinkoAztec =
-                Object.FindFirstObjectByType<PlinkoAztecWebBridge>(FindObjectsInactive.Include);
-            if (plinkoAztec != null)
-            {
-                existing = plinkoAztec.gameObject;
-                return true;
-            }
-
-            return false;
+        private static bool TryFindBridge<TBridge>(out GameObject existing) where TBridge : MonoBehaviour
+        {
+            TBridge bridge = Object.FindFirstObjectByType<TBridge>(FindObjectsInactive.Include);
+            existing = bridge != null ? bridge.gameObject : null;
+            return bridge != null;
         }
 
         #endregion
