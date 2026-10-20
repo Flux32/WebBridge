@@ -15,9 +15,9 @@ namespace Modules.Jumper
         [SerializeField]
         private JumperMockLadder[] _ladders =
         {
-            new JumperMockLadder(JumperDifficulty.Easy, 40, 1.02f, 1.08f, 100f),
-            new JumperMockLadder(JumperDifficulty.Medium, 38, 1.1f, 1.13f, 100f),
-            new JumperMockLadder(JumperDifficulty.Hard, 35, 1.2f, 1.2f, 100f),
+            new JumperMockLadder(JumperDifficulty.Easy, JumperDevLadders.Easy, JumperDevLadders.BonusBuyMultiplier),
+            new JumperMockLadder(JumperDifficulty.Medium, JumperDevLadders.Medium, JumperDevLadders.BonusBuyMultiplier),
+            new JumperMockLadder(JumperDifficulty.Hard, JumperDevLadders.Hard, JumperDevLadders.BonusBuyMultiplier),
         };
 
         [SerializeField] private JumperDifficulty _defaultDifficulty = JumperDifficulty.Easy;

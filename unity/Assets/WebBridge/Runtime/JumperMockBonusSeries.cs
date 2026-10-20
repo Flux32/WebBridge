@@ -23,7 +23,7 @@ namespace Modules.Jumper
             JumperMockSettings settings,
             Random random)
         {
-            string[] coefficients = settings.GetLadder(difficulty).BuildCoefficients();
+            string[] coefficients = settings.GetLadder(difficulty).CopyCoefficients();
             WebJumperBonusGamePayload[] games = new WebJumperBonusGamePayload[settings.BonusGames];
             decimal totalCoefficient = 0m;
 

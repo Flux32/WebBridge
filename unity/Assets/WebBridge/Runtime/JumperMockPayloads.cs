@@ -56,7 +56,7 @@ namespace Modules.Jumper
             return new WebJumperLadderPayload
             {
                 DifficultyName = JumperWireNames.Difficulty.ToWireName(ladder.Difficulty),
-                Coefficients = ladder.BuildCoefficients(),
+                Coefficients = ladder.CopyCoefficients(),
                 Accelerators = distances,
                 BonusBuyMultiplier = ladder.BonusBuyMultiplier,
             };

@@ -32,7 +32,7 @@ namespace Modules.Jumper
             _difficulty = difficulty;
             _settings = settings;
             _random = random;
-            _coefficients = settings.GetLadder(difficulty).BuildCoefficients();
+            _coefficients = settings.GetLadder(difficulty).CopyCoefficients();
             _betAmount = settings.BetAmount;
             PlaceSlots();
         }
