@@ -27,6 +27,8 @@ export type {
 } from './plinko-aztec/PlinkoAztecMockHost';
 
 export { JumperBridge } from './jumper/JumperBridge';
+export { JumperMockHost } from './jumper/JumperMockHost';
+export type { JumperMockHostOptions, JumperMockRange, JumperSlotContent } from './jumper/JumperMockHost';
 
 export { SlotBridge } from './slot/SlotBridge';
 export { SlotMockHost } from './slot/SlotMockHost';
