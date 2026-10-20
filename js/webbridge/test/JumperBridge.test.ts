@@ -51,7 +51,7 @@ const BONUS: JumperStartBonusPayload = {
   difficulty: 'EASY',
   betAmount: '1.00',
   currency: 'USD',
-  games: [{ finalStep: 1, coefficient: '1.04', route: [{ step: 0, action: 'STEP' }, { step: 1, action: 'STEP' }] }],
+  games: [{ finalStep: 1, coefficient: '1.04', route: [{ step: 0, action: 'STEP' }] }],
   totalCoefficient: '1.04',
   totalWin: '1.04',
 };

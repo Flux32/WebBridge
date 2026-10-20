@@ -1,6 +1,6 @@
 /**
  * A bought jumper bonus as the dev backend settles it: the whole series at once,
- * each free game a route from step 0 to its final step.
+ * each free game a route of jumps from step 0 to its final step.
  */
 import type {
   JumperBonusGame,
@@ -33,16 +33,19 @@ const drawAction = (ladder: JumperLadder, step: number, options: BonusOptions): 
 const advance = (ladder: JumperLadder, point: JumperRoutePoint): number =>
   point.step + (point.action === 'STEP' ? 1 : acceleratorDistance(ladder, point.action));
 
-/** One free game: jumps from step 0 until the player falls or reaches the top; the last point is the final step. */
+/**
+ * One free game: jumps from step 0 until the player falls or reaches the top.
+ * The route lists the platforms jumped from, as the server's `bonusRoutes` do:
+ * the last jump lands on the final step, which has no point of its own.
+ */
 const playFreeGame = (ladder: JumperLadder, options: BonusOptions): JumperBonusGame => {
   const route: JumperRoutePoint[] = [];
   let step = 0;
-  while (step < lastStepOf(ladder) && options.random() >= options.loseChance) {
+  do {
     const point: JumperRoutePoint = { step, action: drawAction(ladder, step, options) };
     route.push(point);
     step = advance(ladder, point);
-  }
-  route.push({ step, action: 'STEP' });
+  } while (step < lastStepOf(ladder) && options.random() >= options.loseChance);
 
   return { finalStep: step, coefficient: coefficientAt(ladder, step), route };
 };

@@ -42,7 +42,8 @@ describe('JumperMockHost bonus', () => {
         const previous = route[index]!;
         expect(point.step).toBe(previous.step + DISTANCES[previous.action]!);
       });
-      expect(route.at(-1)?.step).toBe(finalStep);
+      const lastJump = route.at(-1)!;
+      expect(lastJump.step + DISTANCES[lastJump.action]!).toBe(finalStep);
       expect(coefficient).toBe(coefficients[finalStep]);
     }
     const coefficientCents = bonus.games.reduce((sum, game) => sum + toCents(game.coefficient), 0);
@@ -51,8 +52,8 @@ describe('JumperMockHost bonus', () => {
   });
 
   it('pays exact decimal sums', () => {
-    // Three games (count draw 0), each: go on, a plain jump from step 0, then stop on step 1 (EASY 1.04).
-    const freeGame = [0.99, 0.1, 0];
+    // Three games (count draw 0), each: a plain jump from step 0, then stop on step 1 (EASY 1.04).
+    const freeGame = [0.1, 0];
     const draws = [0, ...freeGame, ...freeGame, ...freeGame];
     const { host, game } = createJumperHost({ betAmount: '0.10', loseChance: 0.5, random: scriptedRandom(draws) });
 
