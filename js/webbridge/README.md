@@ -10,6 +10,7 @@
 | `RoadWebBridge` | `CrushBridge` |
 | `PlinkoWebBridge` | `PlinkoBridge` |
 | `PlinkoAztecWebBridge` | `PlinkoAztecBridge` |
+| `JumperWebBridge` | `JumperBridge` |
 | `event Action<T>` | `Signal<T>` |
 | `WebBridgeUtils.Send` | `BridgeTransport.send` |
 | `WebBridgeUtils.*LocalStorage` | `BridgeStorage` |
@@ -64,6 +65,7 @@ registerWebBoot(
 | `slot` | `SlotBridge` |
 | `plinko` | `PlinkoBridge` |
 | `plinko-aztec` | `PlinkoAztecBridge` |
+| `jumper` | `JumperBridge` |
 
 ## Общее для любого моста
 
@@ -158,6 +160,47 @@ bridge.ballsAmountChanged.add(({ amount, previousAmount, direction }) => {
 > Шаг бонуса в домене называется `ApplyBonusStepResult`; в Unity тот же шаг приходит
 > методом `ApplyStepResult` — имя метода на проводе, а не другая команда.
 
+## JumperBridge
+
+Мост Jumper — зеркало `JumperWebBridge`. Лесенка ступеней, ускорители на слотах
+(батут, джетпак, ракета) бросают игрока на несколько ступеней вверх. Ставкой и сервером
+владеет хост: лесенки приходят конфигом, каждый ход — `ApplyJumperMove`, купленный
+бонус — `StartBonus`. Игра проигрывает прыжок и сообщает, что игрок приземлился (или
+упал). Ход из самой сцены — `requestPlay()` базы: хост ответит ходом или
+`DisabledPlayPressed`. Формы данных — типы `Jumper*` протокола (`protocol/src/jumper.ts`).
+
+```ts
+bridge.moveReceived.add((move) => ladder.play(move));
+ladder.onLanded(() => bridge.notifySpinReady());
+bridge.start();
+```
+
+| Сигнал | Аргумент | Когда |
+|---|---|---|
+| `gameConfigReceived` | `JumperGameConfigPayload` — лесенка каждой сложности: коэффициенты, дальность ускорителей, цена бонуса | Пришёл конфиг, кэш `lastGameConfig` |
+| `gameStateReceived` | `JumperRoundState` | Пришло состояние сессии (восстановление), кэш `lastGameState` |
+| `moveReceived` | `JumperMovePayload` — `move`: `play` / `step` / `payout` | Ход раунда (`ApplyJumperMove`); он же становится `lastGameState` |
+| `difficultyChanged` | `JumperDifficulty` | Сменилась сложность (`SetJumperDifficulty`), кэш `lastDifficulty` |
+| `autoplayChanged` | `boolean` | Автоплей включён / выключен |
+| `restartRequested` | `RestartRequest` — `{ reason, amount }` из `"<причина>\|<сумма>"` | Хост пересобирает раунд (`RestartRound`) |
+| `bonusStartRequested` | `JumperStartBonusPayload` | Куплен бонус: вся серия фри-геймов одним сообщением |
+
+| Метод | Событие | Ответ React |
+|---|---|---|
+| `start()` | `RequestGameConfig` + `RequestGameState` с ретраями | `ApplyGameConfig` / `ApplyGameState` |
+| `notifySpinReady()` | `SpinReady` — прыжок доигран | Бет-бар разблокируется |
+| `notifyBonusActive()` / `notifyBonusEnded()` | `BonusActive` / `BonusEnded` | Серия фри-геймов началась / закончилась |
+| `saveBonusProgress(progress)` | `BonusProgressSave` | Хост хранит прогресс серии до перезагрузки |
+
+- Раунд: `play` открывает его — все слоты `HIDDEN`, игрок на `JUMPER_START_STEP` (`-1`);
+  `step` прыгает на `landingStep + 1`, ускоритель бросает дальше по цепочке
+  (`visitedSteps`), слот раскрывается, когда на него прыгнули или над ним пролетели;
+  `coeff` — коэффициент `landingStep`. `SpinReady` — по каждому доигранному прыжку.
+- После `payout` и проигрыша раунд закрыт (`collisionPosition` — где игрок упал или
+  упал бы); дальше хост шлёт `RestartRound`.
+- `StartBonus`, который не серия jumper (нет маршрутов фри-геймов), — предупреждение
+  в лог, сигнал не поднимается.
+
 ## Без хоста: mock-хосты
 
 Mock-хост встаёт на место React-шелла: отвечает на запросы игры и сам ведёт раунд.
@@ -171,6 +214,7 @@ Mock-хост встаёт на место React-шелла: отвечает н
 | `slot` | `SlotMockHost` | Клавишами |
 | `plinko` | `PlinkoMockHost` | Клавишами |
 | `plinko-aztec` | `PlinkoAztecMockHost` | Клавишами |
+| `jumper` | `JumperMockHost` | Клавишами и методами |
 
 ```ts
 import { isMockEnabled, PlinkoAztecMockHost } from '@omega/webbridge-js';
@@ -186,9 +230,9 @@ if (isMockEnabled()) {          // страница открыта с ?mock=1
 }
 ```
 
-Стартовую синхронизацию `start()` мост в мок-режиме не гоняет, поэтому `MockHost` и
-Plinko-моки сами пушат конфиг и состояние по `host.ready()` (`PlinkoAztecMockHost` —
-сначала выбор бет-бара). `ready()` игра зовёт, когда готова принимать команды; к этому
+Стартовую синхронизацию `start()` мост в мок-режиме не гоняет, поэтому моки сами
+пушат конфиг и состояние по `host.ready()` (`PlinkoAztecMockHost` — сначала выбор
+бет-бара, `JumperMockHost` — сначала сложность). `ready()` игра зовёт, когда готова принимать команды; к этому
 моменту мок уже должен быть привязан через `attach` — игра, которая зовёт `ready()`
 синхронно прямо в `createGame`, свои стартовые данные не получит.
 
@@ -233,6 +277,32 @@ Plinko-моки сами пушат конфиг и состояние по `hos
 (ноль — ячейка колеса), `ballsAmountOptions`, `betPerBallOptions` (первые — выбор по
 умолчанию), `currency`, `decimalPlaces`, `bumperChance`, `bonusLevelThreshold`,
 `bonusSteps`, `bonusBallsPerStep`, `fortuneWheelCoefficient`, плюс `random`.
+
+### JumperMockHost
+
+Шелл и dev-бэкенд jumper в одном: отдаёт настоящие лесенки бэкенда (EASY 40, MEDIUM 38,
+HARD 35 ступеней; батут +2, джетпак +4, ракета +8; бонус — 100 ставок) и ведёт раунд,
+как сервер (`RoadFrontent/src/modes/jumper/PROTOCOL.md`).
+
+| Клавиша | Метод | Что делает |
+|---|---|---|
+| Пробел | `play()` | Первый — `play` (раунд открыт, слоты разложены и скрыты) и прыжок на ступень 0; дальше — прыжок на `landingStep + 1` |
+| C | `cashout()` | `CashoutPressed` → ход `payout` (`collisionPosition` — следующая ступень) → `RestartRound "cashout\|<сумма>"` |
+| B | `buyBonus()` | `StartBonus`: 3–10 фри-геймов, маршрут каждого от ступени 0, сумма коэффициентов и выигрыш |
+| D | `setDifficulty(...)` | Следующая сложность — `SetJumperDifficulty` |
+
+- `requestPlay()` из сцены — то же, что `play()`. Пока прыжок летит (до `SpinReady`) или
+  идёт бонус (до `BonusEnded`), мок отвечает `DisabledPlayPressed`.
+- Падение и выход на верх лесенки закрывают раунд; `RestartRound` (`"lose|"` /
+  `"win|<сумма>"`) мок шлёт, когда игра доиграла прыжок и прислала `SpinReady`.
+- Кэшаут — только после первого приземления и не в полёте; бонус и смена сложности —
+  только между раундами. В остальное время мок их игнорирует.
+- Суммы — точная десятичная арифметика по строкам, без ошибок `number`.
+
+Опции конструктора: `ladders`, `difficulty`, `loseChance` (шанс упасть на прыжке; в
+фри-гейме — что прыжок последний), `slotCount` (`{ min, max }` слотов в раунде),
+`slotWeights` (веса `NONE` / `TRAMPOLINE` / `JETPACK` / `ROCKET`), `bonusGameCount`,
+`betAmount` (строкой), `currency`, `decimalPlaces`, `random`.
 
 ## Как связать игру с конфигуратором
 
@@ -374,7 +444,7 @@ npm run dev
   когда набежит логика;
 - нет mock-режима с данными (`MockConfig` в C#) — есть только флаг `isMockEnabled`
   и заглушки хоста по режимам (см. «Без хоста: mock-хосты»); отладочная панель
-  (`MockPanel`) есть только у Crush, у остальных мок водится клавишами;
+  (`MockPanel`) есть только у Crush, у остальных мок водится клавишами и методами;
 - конфиг и GameState Plinko-режимов мост отдаёт разобранным JSON без типа (`unknown`):
   форма описана в C#-payload'ах (`WebPlinkoStatePayload`, `WebPlinkoAztecStatePayload`
   и др.) и в корневом `README.md`, в протоколе её пока нет;
