@@ -34,8 +34,8 @@ namespace Modules.Jumper
         // A live round whose last jump has landed (SpinReady), like the enabled Play of the bet bar.
         public bool CanJump => _round != null && !_round.IsClosed && !_isJumpPlaying;
 
-        // The server refuses a payout before the first jump.
-        public bool CanCashout => CanJump && _round.HasJumped;
+        // A bet makes the first jump right away, so a landed round always has a step to pay out.
+        public bool CanCashout => CanJump;
 
         public JumperDifficulty Difficulty => _bridge.CurrentDifficulty.Value;
 
@@ -44,14 +44,12 @@ namespace Modules.Jumper
             get
             {
                 if (_round == null)
-                    return "No round. BET opens one, BONUS buys a series.";
+                    return "No round. BET opens one with the first jump, BONUS buys a series.";
 
                 if (_isJumpPlaying)
                     return "Jump in flight: waiting for NotifySpinReady.";
 
-                return _round.HasJumped
-                    ? $"On step {_round.LandingStep}, win {_round.WinAmount}. JUMP or CASHOUT."
-                    : "Round open below step 0. JUMP makes the first jump.";
+                return $"On step {_round.LandingStep}, win {_round.WinAmount}. JUMP or CASHOUT.";
             }
         }
 
@@ -82,10 +80,12 @@ namespace Modules.Jumper
                 _bridge.OnDisabledPlayPressed();
         }
 
+        // Play gets no SpinReady: the host follows it with the first jump at once.
         public void Bet()
         {
             _round = new JumperMockRound(Difficulty, _settings, _random);
             SendMove(JumperMove.Play);
+            Jump();
         }
 
         public void Jump()

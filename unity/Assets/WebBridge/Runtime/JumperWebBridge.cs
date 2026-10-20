@@ -174,8 +174,10 @@ namespace Modules.Jumper
             DifficultyChanged?.Invoke(new JumperDifficultyChange(previous, difficulty));
         }
 
-        // React entry point (SendMessage): a live move's result. The game plays it and calls
-        // NotifySpinReady once the jump is over.
+        // React entry point (SendMessage): a live move's result. SpinReady answers jumps only:
+        // play opens the round and React follows it with the first jump (step to step 0) without
+        // waiting; a step is played, accelerator chain included, and NotifySpinReady goes once the
+        // player has landed or fallen; payout closes the round, which then waits for RestartRound.
         public void ApplyJumperMove(string payload)
         {
             WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyJumperMove raw: {payload}");

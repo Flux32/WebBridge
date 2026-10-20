@@ -452,7 +452,7 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 | `ApplyGameConfig(json)` | JSON `WebJumperGameConfigPayload` | Лесенки всех сложностей; свою выбирает `SetJumperDifficulty` |
 | `ApplyGameState(json)` | JSON `WebJumperRoundStatePayload` | Раунд, каким его последним описал сервер |
 | `SetJumperDifficulty(string)` | `"EASY"` / `"MEDIUM"` / `"HARD"` | Сложность в игре — имя бэкенда, у jumper нет `DAREDEVIL`. Принимается только точное имя: иное — предупреждение в лог и игнор |
-| `ApplyJumperMove(json)` | JSON `WebJumperMovePayload` | Результат живого хода. Игра проигрывает его и зовёт `NotifySpinReady`, когда прыжок доигран; после `payout` показывает закрытый раунд и ждёт `RestartRound` |
+| `ApplyJumperMove(json)` | JSON `WebJumperMovePayload` | Результат живого хода. `SpinReady` отвечает только на прыжки: `play` открывает раунд, и React сразу шлёт следом первый прыжок (`step` на ступень 0); `step` игра проигрывает с цепочкой ускорителей и зовёт `NotifySpinReady`, когда игрок приземлился или упал; после `payout` показывает закрытый раунд и ждёт `RestartRound` |
 | `SetAutoplay(int)` | `1` / `0` | Автоплей включён / выключен |
 | `RestartRound(payload)` | `"<reason>\|<amount>"`, напр. `"cashout\|$5.00"` | Перезапустить раунд — тот же формат, что у `GameWebBridge` |
 | `StartBonus(json)` | JSON `WebJumperStartBonusPayload` | Войти в купленную серию |
@@ -541,10 +541,11 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 **JMP**): сложность, BET, JUMP, CASHOUT, BONUS, автоплей и RESET. Хост отвечает так же,
 как dev-сервер с React: слоты расставлены с начала раунда и скрыты, ускорители
 складываются в цепочки, проигрыш приходит с `collisionPosition`, кешаут до первого
-прыжка недоступен, бонус — серия с маршрутами. Пока прыжок не доигран
+прыжка не бывает, бонус — серия с маршрутами. Пока прыжок не доигран
 (`NotifySpinReady`), JUMP недоступен; закрытый прыжком раунд хост перезапускает
 через `RestartRound` (`lose|` или `win|<сумма>`), кешаут — `cashout|<сумма>`.
-`RequestPlay` из сцены без раунда делает ставку, в живом раунде — прыжок.
+BET, как и хост, сразу за `play` шлёт первый прыжок. `RequestPlay` из сцены без раунда
+делает ставку, в живом раунде — прыжок.
 
 Параметры — секция `Mock` в инспекторе моста (`JumperMockSettings`): лесенки по
 сложностям (по умолчанию — таблицы dev-сервера из `get-game-config`, 40 / 38 / 35
