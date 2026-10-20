@@ -1,5 +1,6 @@
 using System;
 using Modules.Road;
+using UnityEngine;
 using UnityEngine.Scripting;
 using WebBridge;
 
@@ -18,6 +19,9 @@ namespace Modules.Jumper
     public class JumperWebBridge : WebBridgeBase<JumperWebBridge>
     {
         private const string BonusProgressSaveMessagePrefix = "BonusProgressSave_";
+
+        [Header("Mock")]
+        [SerializeField] private JumperMockSettings _mockSettings = new JumperMockSettings();
 
         public event Action<WebJumperGameConfigPayload> GameConfigReceived;
 
@@ -60,22 +64,68 @@ namespace Modules.Jumper
 
         public bool IsAutoplayEnabled { get; private set; }
 
+        // The stand-in for React and the game server in mock mode; null outside it.
+        public JumperMockHost MockHost { get; private set; }
+
         private void Start()
         {
             HasReceivedInitialConfig = IsMockEnabled;
 
-            if (!IsMockEnabled)
-                BeginInitialWebSyncAfterSceneLoad();
+            if (IsMockEnabled)
+            {
+                InitializeMock();
+                return;
+            }
+
+            BeginInitialWebSyncAfterSceneLoad();
         }
 
         public override void RequestGameConfig()
         {
+            if (IsMockEnabled)
+            {
+                MockHost.AnswerGameConfig();
+                return;
+            }
+
             WebBridgeUtils.Send("RequestGameConfig");
         }
 
         public override void RequestGameState()
         {
+            if (IsMockEnabled)
+            {
+                MockHost.AnswerGameState();
+                return;
+            }
+
             WebBridgeUtils.Send("RequestGameState");
+        }
+
+        // In mock mode the serialized value is delivered at once, so editor play still drives the
+        // white-label swap. Otherwise defers to the base handshake.
+        public override void RequestWhiteLabel()
+        {
+            if (IsMockEnabled)
+            {
+                MockHost.AnswerWhiteLabel();
+                return;
+            }
+
+            base.RequestWhiteLabel();
+        }
+
+        // In mock mode the stand-in answers the way React does: a bet when no round is open, a jump
+        // in a live round, DisabledPlayPressed while the bar is locked.
+        public override void RequestPlay()
+        {
+            if (IsMockEnabled)
+            {
+                MockHost.AnswerPlay();
+                return;
+            }
+
+            base.RequestPlay();
         }
 
         // React entry point (SendMessage): every difficulty's ladder.
@@ -177,6 +227,9 @@ namespace Modules.Jumper
         public void NotifySpinReady()
         {
             WebBridgeUtils.Send("SpinReady");
+
+            if (IsMockEnabled)
+                MockHost.OnSpinReady();
         }
 
         // Unity -> React: the bonus series started playing.
@@ -200,6 +253,15 @@ namespace Modules.Jumper
         public void NotifyBonusEnded()
         {
             WebBridgeUtils.Send("BonusEnded");
+        }
+
+        // Mock mode replaces React entirely: the host answers what the web side would, and the
+        // debug panel replaces the bet bar the player would press.
+        private void InitializeMock()
+        {
+            MockHost = new JumperMockHost(this, _mockSettings);
+            gameObject.AddComponent<JumperMockDebugIMGUI>();
+            MockHost.Start();
         }
     }
 }
