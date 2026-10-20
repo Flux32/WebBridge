@@ -25,6 +25,7 @@ Unity-пакет для связи между React-фронтендом и Unit
   - [GameWebBridge](#gamewebbridge)
   - [PlinkoAztecWebBridge](#plinkoaztecwebbridge)
   - [WheelWebBridge](#wheelwebbridge)
+  - [JumperWebBridge](#jumperwebbridge)
   - [LayoutWebBridge](#layoutwebbridge)
   - [ScreenOrientationWebBridge](#screenorientationwebbridge)
   - [AudioWebBridge](#audiowebbridge)
@@ -136,8 +137,9 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ### WebBridgeBase
 
 База каждого игрового моста (`RoadWebBridge`, `PlinkoWebBridge`,
-`PlinkoAztecWebBridge` наследуют её). Здесь живёт только то, что одинаково во
-всех играх, поэтому методы ниже доступны на любом мосте.
+`PlinkoAztecWebBridge`, `WheelWebBridge`, `JumperWebBridge` наследуют её). Здесь
+живёт только то, что одинаково во всех играх, поэтому методы ниже доступны на
+любом мосте.
 
 #### События
 
@@ -413,6 +415,142 @@ viewport): `BetBarTopViewport` — верх бара (надпись «PLACE YOU
 >     if (round.Status == WheelRoundStatus.Spinning) PlayOutcome(round.Winner);
 > };
 > ```
+
+---
+
+### JumperWebBridge
+
+Мост jumper — лесенки платформ, где ускорители (батут, джетпак, ракета) бросают
+игрока на несколько ступеней вверх. Namespace — `Modules.Jumper`. Раундом владеет
+React: он ходит в игровой сервис (`play` / `step` / `payout`), перекладывает ответы
+в payload'ы контракта (`protocol/src/jumper.ts`: массивы вместо карт сервера по
+ступеням) и присылает их сюда. Unity играет присланный ход и сообщает, когда прыжок
+доигран: до этого React не показывает исход и держит бет-бар залоченным.
+
+Деньги и коэффициенты приходят десятичными строками сервера, перечисления — именами
+бэкенда (`"EASY"`, `"TRAMPOLINE"`, `"in-game"`). Строковое поле payload'а — проводная
+форма, одноимённое свойство (`Status`, `Difficulty`, `State`, `Accelerator`, `Move`,
+`Action`) разбирает её точным совпадением через `JumperWireNames` и бросает
+`FormatException` на имени, которого нет в контракте.
+
+#### События
+
+| Событие | Аргументы | Когда срабатывает |
+|---|---|---|
+| `GameConfigReceived` | `WebJumperGameConfigPayload` | Пришли лесенки всех сложностей |
+| `GameStateReceived` | `WebJumperRoundStatePayload` | «Приведи сцену к этому раунду»: загрузка, ресинк. `Status == None` — живого раунда нет |
+| `MoveReceived` | `WebJumperMovePayload` | Живой ход: `Play` (раунд открыт, игрок стоит под ступенью 0), `Step` (прыжок с цепочкой ускорителей), `Payout` (раунд закрыт выигрышем) |
+| `DifficultyChanged` | `JumperDifficultyChange` | Сменилась сложность в игре. Та же сложность повторно событие не поднимает |
+| `AutoplayChanged` | `bool` | Включился или выключился автоплей. Пока он идёт, React держит бет-бар залоченным целиком, кроме кнопки остановки, и ходит сам |
+| `RestartRequested` | `RestartReason, string` | React перезапускает раунд: после проигрыша, выигрыша на вершине, кешаута (когда окно результата закрылось — само нажатие раньше приходит `CashoutPressed`). Строка — сумма выигрыша для показа, если есть |
+| `BonusStartRequested` | `WebJumperStartBonusPayload` | Куплена серия фри-геймов. Сервер рассчитал и выплатил её целиком, игра проигрывает её сама |
+
+#### Методы React → Unity (через `SendMessage`)
+
+| Метод | Параметр | Описание |
+|---|---|---|
+| `ApplyGameConfig(json)` | JSON `WebJumperGameConfigPayload` | Лесенки всех сложностей; свою выбирает `SetJumperDifficulty` |
+| `ApplyGameState(json)` | JSON `WebJumperRoundStatePayload` | Раунд, каким его последним описал сервер |
+| `SetJumperDifficulty(string)` | `"EASY"` / `"MEDIUM"` / `"HARD"` | Сложность в игре — имя бэкенда, у jumper нет `DAREDEVIL`. Принимается только точное имя: иное — предупреждение в лог и игнор |
+| `ApplyJumperMove(json)` | JSON `WebJumperMovePayload` | Результат живого хода. Игра проигрывает его и зовёт `NotifySpinReady`, когда прыжок доигран; после `payout` показывает закрытый раунд и ждёт `RestartRound` |
+| `SetAutoplay(int)` | `1` / `0` | Автоплей включён / выключен |
+| `RestartRound(payload)` | `"<reason>\|<amount>"`, напр. `"cashout\|$5.00"` | Перезапустить раунд — тот же формат, что у `GameWebBridge` |
+| `StartBonus(json)` | JSON `WebJumperStartBonusPayload` | Войти в купленную серию |
+
+#### Методы Unity → React
+
+| Метод | Что шлёт в React | Ответ React |
+|---|---|---|
+| `RequestGameConfig()` | `RequestGameConfig` | → `ApplyGameConfig(json)` |
+| `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
+| `RequestPlay()` (база) | `RequestPlay` — ход из самой сцены | → `ApplyJumperMove(json)` либо `OnDisabledPlayPressed()` |
+| `NotifySpinReady()` | `SpinReady` — прыжок доигран | React раскрывает результат хода и снимает лок бет-бара |
+| `NotifyBonusActive()` | `BonusActive` — серия началась | — |
+| `SaveBonusProgress(completed, total)` | `BonusProgressSave_{"completedIterations":…,"totalIterations":…}` — доигран очередной фри-гейм | React показывает «осталось фри-геймов» |
+| `NotifyBonusEnded()` | `BonusEnded` — последний фри-гейм доигран | — |
+
+#### Свойства
+
+| Свойство | Тип | Описание |
+|---|---|---|
+| `LastGameConfig` | `WebJumperGameConfigPayload` | Последний конфиг |
+| `LastGameState` | `WebJumperRoundStatePayload` | Последний раунд — из состояния или из хода |
+| `LastMove` | `WebJumperMovePayload` | Последний ход |
+| `LastBonusStart` | `WebJumperStartBonusPayload` | Последняя серия бонуса |
+| `CurrentDifficulty` | `JumperDifficulty?` | Сложность в игре. `null`, пока React её не прислал |
+| `IsAutoplayEnabled` | `bool` | Идёт ли автоплей |
+| `MockHost` | `JumperMockHost` | Заглушка React и сервера в mock-режиме; `null` вне его |
+
+#### Payload
+
+`WebJumperGameConfigPayload` — `ladders`: по лесенке на сложность (`GetLadder(difficulty)`
+находит нужную, а если её нет — бросает исключение):
+
+| Поле | Тип | Смысл |
+|---|---|---|
+| `difficulty` | `EASY` / `MEDIUM` / `HARD` | Сложность лесенки |
+| `coefficients` | string[] | Коэффициент ступени по её индексу |
+| `accelerators` | `[{ accelerator, steps }]` | На сколько ступеней бросает ускоритель (`GetDistance(accelerator)`) |
+| `bonusBuyMultiplier` | float | Цена бонуса в ставках |
+
+`WebJumperRoundStatePayload` (у `WebJumperMovePayload` те же поля и `move`):
+
+| Поле | Тип | Смысл |
+|---|---|---|
+| `status` | `none` / `in-game` / `win` / `lose` | Статус раунда; в коде — `Status` (`JumperRoundStatus`), `IsClosed` — `win` или `lose` |
+| `difficulty` | `EASY` / `MEDIUM` / `HARD` | Сложность раунда |
+| `coeff` | string | Коэффициент `landingStep`; `"0"` до первого прыжка и после проигрыша |
+| `winAmount` | string | Выигрыш |
+| `slots` | `[{ step, state }]` | Все слоты ускорителей раунда, известны с его начала. `state`: `HIDDEN`, пока игрок на слот не прыгнул и не пролетел над ним, потом ускоритель или `NONE` (пустой слот) |
+| `lineNumber` | int | Ступень, на которую прыгали этим ходом; `-1` (`StartStep`) до первого прыжка |
+| `landingStep` | int | Где игрок стоит после цепочки ускорителей; следующий прыжок — на `landingStep + 1`. `HasJumped` — уже не `-1` |
+| `visitedSteps` | `[{ step, accelerator }]` | Сработавшие ускорители по порядку: прыжок на 6 (батут, +2) → 8 (джетпак, +4) → `landingStep` 12 |
+| `collisionPosition` | int? | Только у закрытого раунда: ступень падения, а после кешаута — где игрок упал бы |
+| `move` | `play` / `step` / `payout` | Только у хода: на какой запрос ответ; в коде — `Move` (`JumperMove`) |
+
+`WebJumperStartBonusPayload`:
+
+| Поле | Тип | Смысл |
+|---|---|---|
+| `difficulty` | `EASY` / `MEDIUM` / `HARD` | Сложность серии |
+| `betAmount` | string | Ставка одного фри-гейма: уплаченная цена, делённая на множитель бонуса |
+| `currency` | string | Валюта |
+| `displayBet` | string | Ставка в валюте показа (`"$0.05"`), как её показывает кешаут; пусто — показывать `betAmount` |
+| `games` | `[{ finalStep, coefficient, route }]` | Фри-геймы по порядку: финальная ступень, её коэффициент в ставках и маршрут. Маршрут — `[{ step, action }]` от ступени 0, `action` — `STEP` или ускоритель: после `STEP` следующая точка — следующая ступень, после ускорителя — ступень, куда он бросил |
+| `totalCoefficient` | string | Сумма коэффициентов фри-геймов |
+| `totalWin` | string | Выигрыш всей серии |
+
+> Ход раскрывается только после `NotifySpinReady`: ответ сервера приходит, пока
+> прыжок ещё летит, и React паркует его, чтобы не показать исход раньше движка.
+>
+> ```csharp
+> JumperWebBridge.Instance.MoveReceived += move =>
+> {
+>     if (move.Move != JumperMove.Step) return;
+>     PlayJump(move.LineNumber, move.VisitedSteps, move.LandingStep, onLanded: () =>
+>     {
+>         if (move.Status == JumperRoundStatus.Lose) PlayFall(move.CollisionPosition.Value);
+>         JumperWebBridge.Instance.NotifySpinReady();
+>     });
+> };
+> ```
+
+#### Mock-режим
+
+В mock-режиме мост создаёт `JumperMockHost` и панель `JumperMockDebugIMGUI` (кнопка
+**JMP**): сложность, BET, JUMP, CASHOUT, BONUS, автоплей и RESET. Хост отвечает так же,
+как dev-сервер с React: слоты расставлены с начала раунда и скрыты, ускорители
+складываются в цепочки, проигрыш приходит с `collisionPosition`, кешаут до первого
+прыжка недоступен, бонус — серия с маршрутами. Пока прыжок не доигран
+(`NotifySpinReady`), JUMP недоступен; закрытый прыжком раунд хост перезапускает
+через `RestartRound` (`lose|` или `win|<сумма>`), кешаут — `cashout|<сумма>`.
+`RequestPlay` из сцены без раунда делает ставку, в живом раунде — прыжок.
+
+Параметры — секция `Mock` в инспекторе моста (`JumperMockSettings`): лесенки по
+сложностям (число ступеней как на dev-сервере — 40 / 38 / 35, коэффициенты
+иллюстративные: первый и рост), дальность батута / джетпака / ракеты (2 / 4 / 8),
+доля ступеней со слотом, доля пустых слотов, шанс падения, ставка и валюта, число
+фри-геймов в серии, ответ на `RequestWhiteLabel`.
 
 ---
 
@@ -1016,6 +1154,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestBetBarViewportMetrics` | `LayoutWebBridge.RequestBetBarViewportMetrics` |
 | `RoundShown` | `WheelWebBridge.NotifyRoundShown` |
+| `SpinReady` | `JumperWebBridge.NotifySpinReady` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |
 | `RequestGameState` | `GameWebBridge.RequestGameState` |
 | `RequestActiveGameState` | `GameWebBridge.RequestActiveGameState` |
@@ -1026,10 +1165,10 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `RequestBallsAmount` | `PlinkoAztecWebBridge.RequestBallsAmount` |
 | `RequestBetPerBall` | `PlinkoAztecWebBridge.RequestBetPerBall` |
 | `DropFinished` | `PlinkoWebBridge` / `PlinkoAztecWebBridge.NotifyDropFinished` |
-| `BonusProgressSave_{json}` | `GameWebBridge.SaveBonusAutoPlayProgress` |
+| `BonusProgressSave_{json}` | `GameWebBridge.SaveBonusAutoPlayProgress` / `JumperWebBridge.SaveBonusProgress` |
 | `BonusProgressClear` | `GameWebBridge.ClearBonusAutoPlayProgress` |
-| `BonusActive` | `GameWebBridge.NotifyBonusActive` |
-| `BonusEnded` | `GameWebBridge.NotifyBonusEnded` |
+| `BonusActive` | `GameWebBridge` / `JumperWebBridge.NotifyBonusActive` |
+| `BonusEnded` | `GameWebBridge` / `JumperWebBridge.NotifyBonusEnded` |
 | `BonusCleared` | `GameWebBridge.NotifyBonusCleared` |
 | `RequestTranslations` | `TranslationsWebBridge.RequestTranslations` |
 
@@ -1049,6 +1188,8 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 - **PlinkoAztecWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplyDropResult`,
   `ApplyStepResult`, `SetBallsAmount`, `SetBetPerBall`.
 - **WheelWebBridge:** `ApplyRound`, `SetWheelBetBarMetrics`.
+- **JumperWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `SetJumperDifficulty`, `ApplyJumperMove`,
+  `SetAutoplay`, `RestartRound`, `StartBonus`.
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetCanvasSize`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.
 - **ScreenOrientationWebBridge:** `ChangeOrientation`.
