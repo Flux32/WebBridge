@@ -1,19 +1,16 @@
 /**
  * The platforms the player passes through, in order — what the motion plays.
  */
-import type {
+import {
   JUMPER_START_STEP,
-  JumperBonusGame,
-  JumperMovePayload,
-  JumperRoundState,
-  JumperSlot,
+  type JumperBonusGame,
+  type JumperMovePayload,
+  type JumperRoundState,
+  type JumperSlot,
 } from '@omega/webbridge-protocol';
 
-/**
- * Bound to the protocol by type only: the bridge runs on its pinned protocol release, and a runtime
- * import of a constant newer than the pin would be `undefined`.
- */
-export const START_STEP: typeof JUMPER_START_STEP = -1;
+/** Where the player stands before the round's first jump. */
+export const START_STEP = JUMPER_START_STEP;
 
 const withoutRepeats = (steps: readonly number[]): number[] =>
   steps.filter((step, index) => index === 0 || step !== steps[index - 1]);

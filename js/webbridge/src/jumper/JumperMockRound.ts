@@ -3,24 +3,18 @@
  * `play`, which slots the player has seen, and where they stand. Builds the
  * round states the server replies with (RoadFrontent `src/modes/jumper/PROTOCOL.md`).
  */
-import type {
+import {
   JUMPER_START_STEP,
-  JumperLadder,
-  JumperRoundState,
-  JumperSlot,
-  JumperVisitedStep,
+  type JumperLadder,
+  type JumperRoundState,
+  type JumperSlot,
+  type JumperVisitedStep,
 } from '@omega/webbridge-protocol';
 import { acceleratorDistance, coefficientAt, lastStepOf } from './jumperMockLadders';
 import { multiplyAmount } from './jumperMockMoney';
 import type { JumperSlotContent } from './jumperMockOptions';
 
 const ZERO = '0';
-
-/**
- * The protocol's start step, bound to it by type: the package runs on its pinned protocol
- * release, and a runtime import of a constant newer than the pin would be `undefined`.
- */
-const START_STEP: typeof JUMPER_START_STEP = -1;
 
 /** The bet a round is played for, as the server formats money. */
 export interface JumperMockBet {
@@ -40,8 +34,8 @@ export const idleJumperState = (ladder: JumperLadder): JumperRoundState => ({
   coeff: ZERO,
   winAmount: ZERO,
   slots: [],
-  lineNumber: START_STEP,
-  landingStep: START_STEP,
+  lineNumber: JUMPER_START_STEP,
+  landingStep: JUMPER_START_STEP,
   visitedSteps: [],
 });
 
@@ -63,7 +57,7 @@ export class JumperMockRound {
 
   /** Cash out needs a jump behind: the server refuses `payout` right after `play`. */
   public get hasJumped(): boolean {
-    return this.current.landingStep !== START_STEP;
+    return this.current.landingStep !== JUMPER_START_STEP;
   }
 
   /** The next jump: to `landingStep + 1`, then through the accelerator chain from there. */
