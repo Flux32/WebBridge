@@ -7,7 +7,8 @@ namespace Modules.Jumper
     /// Local stand-in for the React + game server pair in mock mode. It talks to the bridge only
     /// through the bridge's React entry points, with the very JSON React would send, so the game
     /// runs its real parse-and-play path without a web build. It keeps what the host owns: the
-    /// live round, the bet-bar lock between a jump and SpinReady, and the restart after a closed round.
+    /// live round, the restart after a closed round and the bet-bar lock until SpinReady — after a
+    /// jump and after a restart alike.
     /// </summary>
     public class JumperMockHost
     {
@@ -20,7 +21,8 @@ namespace Modules.Jumper
         private readonly Random _random = new Random();
 
         private JumperMockRound _round;
-        private bool _isJumpPlaying;
+        // The engine owes a SpinReady: it plays a jump out or resets the scene after RestartRound.
+        private bool _isAwaitingSpinReady;
 
         public JumperMockHost(JumperWebBridge bridge, JumperMockSettings settings)
         {
@@ -28,11 +30,11 @@ namespace Modules.Jumper
             _settings = settings;
         }
 
-        // No round: the next Play places a bet and opens one.
-        public bool CanBet => _round == null;
+        // No round and the scene reset after the last one: the next Play places a bet and opens one.
+        public bool CanBet => _round == null && !_isAwaitingSpinReady;
 
         // A live round whose last jump has landed (SpinReady), like the enabled Play of the bet bar.
-        public bool CanJump => _round != null && !_round.IsClosed && !_isJumpPlaying;
+        public bool CanJump => _round != null && !_round.IsClosed && !_isAwaitingSpinReady;
 
         // A bet makes the first jump right away, so a landed round always has a step to pay out.
         public bool CanCashout => CanJump;
@@ -43,10 +45,13 @@ namespace Modules.Jumper
         {
             get
             {
+                if (_round == null && _isAwaitingSpinReady)
+                    return "Round restarting: waiting for NotifySpinReady.";
+
                 if (_round == null)
                     return "No round. BET opens one with the first jump, BONUS buys a series.";
 
-                if (_isJumpPlaying)
+                if (_isAwaitingSpinReady)
                     return "Jump in flight: waiting for NotifySpinReady.";
 
                 return $"On step {_round.LandingStep}, win {_round.WinAmount}. JUMP or CASHOUT.";
@@ -90,7 +95,7 @@ namespace Modules.Jumper
 
         public void Jump()
         {
-            _isJumpPlaying = true;
+            _isAwaitingSpinReady = true;
             _round.Jump();
             SendMove(JumperMove.Step);
         }
@@ -119,12 +124,17 @@ namespace Modules.Jumper
             _bridge.SetJumperDifficulty(JumperWireNames.Difficulty.ToWireName(difficulties[nextIndex]));
         }
 
-        /// <summary>The engine reported the jump over: unlock the bar and restart a round the jump closed.</summary>
+        /// <summary>
+        /// The engine reported a jump played out or the scene reset: restart a round the jump closed,
+        /// otherwise unlock the bar.
+        /// </summary>
         public void OnSpinReady()
         {
-            _isJumpPlaying = false;
             if (_round == null || !_round.IsClosed)
+            {
+                _isAwaitingSpinReady = false;
                 return;
+            }
 
             Restart(_round.Status == JumperRoundStatus.Lose ? LoseRestartReason : WinRestartReason);
         }
@@ -133,7 +143,7 @@ namespace Modules.Jumper
         public void Reset()
         {
             _round = null;
-            _isJumpPlaying = false;
+            _isAwaitingSpinReady = false;
             AnswerGameState();
         }
 
@@ -146,6 +156,9 @@ namespace Modules.Jumper
                 ? string.Empty
                 : $"{_round.WinAmount} {_settings.Currency}";
             _round = null;
+            // As crush and road: the engine resets the scene and answers SpinReady, the bar stays
+            // locked until then. Set before the send: the game may answer within RestartRound.
+            _isAwaitingSpinReady = true;
             _bridge.RestartRound($"{reason}|{amount}");
         }
     }

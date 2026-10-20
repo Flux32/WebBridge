@@ -13,7 +13,8 @@ namespace Modules.Jumper
     /// React owns the round: it talks to the game service (play, step, payout), shapes the replies
     /// into the payloads of protocol/src/jumper.ts and forwards them here. Unity holds no round
     /// logic — it plays the move it is told about and reports back when the jump is over, because
-    /// React keeps the result and the bet bar locked until then.
+    /// React keeps the result and the bet bar locked until then. A RestartRound is answered the
+    /// same way, as in crush and road: the scene is reset, then NotifySpinReady.
     /// </summary>
     [Preserve]
     public class JumperWebBridge : WebBridgeBase<JumperWebBridge>
@@ -42,7 +43,8 @@ namespace Modules.Jumper
 
         // Fires when React restarts the round: after a loss, a win at the top, a cash out (once its
         // result window has closed — the press itself arrives earlier as CashoutPressed). Carries
-        // React's display string of the win, if any.
+        // React's display string of the win, if any. The game resets the scene and answers with
+        // NotifySpinReady; React keeps the bet bar locked until then.
         public event Action<RestartReason, string> RestartRequested;
 
         // Fires when React hands over a bought bonus series. The game plays the free games itself
@@ -174,10 +176,11 @@ namespace Modules.Jumper
             DifficultyChanged?.Invoke(new JumperDifficultyChange(previous, difficulty));
         }
 
-        // React entry point (SendMessage): a live move's result. SpinReady answers jumps only:
-        // play opens the round and React follows it with the first jump (step to step 0) without
-        // waiting; a step is played, accelerator chain included, and NotifySpinReady goes once the
-        // player has landed or fallen; payout closes the round, which then waits for RestartRound.
+        // React entry point (SendMessage): a live move's result. Of the moves, SpinReady answers
+        // jumps only: play opens the round and React follows it with the first jump (step to step 0)
+        // without waiting; a step is played, accelerator chain included, and NotifySpinReady goes
+        // once the player has landed or fallen; payout closes the round, which then waits for
+        // RestartRound.
         public void ApplyJumperMove(string payload)
         {
             WebBridgeLogger.Log($"[BridgeDebug][React->Unity] ApplyJumperMove raw: {payload}");
@@ -223,9 +226,9 @@ namespace Modules.Jumper
             BonusStartRequested?.Invoke(bonus);
         }
 
-        // Unity -> React: the jump animation is over. React reveals the move's result and unlocks
-        // the bet bar on this signal, never on the server reply, so the player never sees the
-        // outcome before the jump lands.
+        // Unity -> React: the jump animation is over, or the scene is reset after RestartRound.
+        // React reveals the move's result and unlocks the bet bar on this signal, never on the
+        // server reply, so the player never sees the outcome before the jump lands.
         public void NotifySpinReady()
         {
             WebBridgeUtils.Send("SpinReady");
