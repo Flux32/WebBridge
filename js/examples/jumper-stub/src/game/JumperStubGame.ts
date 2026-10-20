@@ -1,6 +1,7 @@
 /**
  * The stub jumper game: subscribes the stage to the bridge and answers the host the way the real
- * engine must — `SpinReady` after every jump, bonus events around the free games.
+ * engine must — `SpinReady` after every jump and after the scene is reset on `RestartRound`, bonus
+ * events around the free games.
  */
 import type { JumperBridge, RestartRequest } from '@omega/webbridge-js';
 import type { JumperMovePayload, JumperRoundState, WebBootOptions, WebHostBridge } from '@omega/webbridge-protocol';
@@ -112,9 +113,11 @@ export class JumperStubGame {
     return chain === '' ? `Landed on ${move.landingStep}` : `${chain} → ${move.landingStep}`;
   }
 
+  /** As crush and road: the scene is reset, then `SpinReady` lets the host unlock the bet bar. */
   private restart(request: RestartRequest): void {
     const result = [request.reason, request.amount].filter((part) => part !== '').join(' ');
     this.stage.scene.reset(result === '' ? IDLE_CAPTION : `${IDLE_CAPTION} · last: ${result}`);
     this.stage.place(START_STEP);
+    this.bridge.notifySpinReady();
   }
 }

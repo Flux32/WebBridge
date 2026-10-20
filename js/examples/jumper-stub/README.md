@@ -57,7 +57,7 @@ npm. Правка моста подхватывается перезапуско
 | `ApplyJumperMove` `play` | Раскладывает слоты (`HIDDEN`), игрок на старте; `SpinReady` нет |
 | `ApplyJumperMove` `step` | Прыжок и цепочка ускорителей по `visitedSteps` за ~600 мс, на проигрыше — падение на `collisionPosition`; затем `SpinReady` |
 | `ApplyJumperMove` `payout` | Закрытый раунд (крестик на `collisionPosition`), ждёт `RestartRound` |
-| `RestartRound` | Сцена сброшена |
+| `RestartRound` | Сцена сброшена, затем `SpinReady` — до него хост держит бет-бар залоченным |
 | `StartBonus` | `BonusActive`; каждый фри-гейм по маршруту ~300 мс, после него `BonusProgressSave` `{ completedIterations, totalIterations }`; затем `BonusEnded` |
 | `DisabledPlayPressed` | Короткая тряска сцены |
 
