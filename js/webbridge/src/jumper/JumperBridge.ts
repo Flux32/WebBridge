@@ -2,7 +2,8 @@
  * Jumper bridge — mirror of the C# `JumperWebBridge`. The host owns the bet and
  * the server: it sends the ladders as the game config, every live move as
  * `ApplyJumperMove` and a bought bonus as `StartBonus`. The game plays a jump
- * and reports `notifySpinReady()` once the player has landed; a move from the
+ * and reports `notifySpinReady()` once the player has landed; on `RestartRound`
+ * it resets the scene and reports `notifySpinReady()` as well. A move from the
  * scene itself goes through `requestPlay()` of the base.
  */
 import type {
@@ -102,7 +103,10 @@ export class JumperBridge extends BridgeBase {
 
   // ───────────────────────────── Game → React ─────────────────────────────
 
-  /** The jump is over: the player has landed (or fallen). The host unlocks the bet bar. */
+  /**
+   * The jump is over (the player has landed or fallen), or the scene is reset
+   * after `RestartRound`. The host unlocks the bet bar.
+   */
   public notifySpinReady(): void {
     this.transport.send({ type: 'SpinReady' });
   }

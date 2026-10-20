@@ -167,9 +167,21 @@ describe('JumperMockHost round', () => {
     expect(game.received.at(-1)).toEqual<EngineCommand>({ type: 'RestartRound', payload: 'lose|' });
   });
 
+  it('holds the next round until the engine has reset the scene after a restart', () => {
+    const { host, game } = createJumperHost({ random: scriptedRandom([...layoutDraws({}), FALL, ...layoutDraws({}), LAND]) });
+    host.emit({ type: 'RequestPlay' });
+    host.emit({ type: 'SpinReady' });
+
+    host.emit({ type: 'RequestPlay' });
+
+    expect(game.received.at(-1)).toEqual<EngineCommand>({ type: 'DisabledPlayPressed' });
+    expect(movesOf(game)).toHaveLength(2);
+  });
+
   it('opens a new round after a loss', () => {
     const { host, game } = createJumperHost({ random: scriptedRandom([...layoutDraws({}), FALL, ...layoutDraws({}), LAND]) });
     host.emit({ type: 'RequestPlay' });
+    host.emit({ type: 'SpinReady' });
     host.emit({ type: 'SpinReady' });
 
     host.emit({ type: 'RequestPlay' });
@@ -215,6 +227,22 @@ describe('JumperMockHost cash out', () => {
     expect(commandTypes(game.received.slice(mark))).toEqual(['CashoutPressed', 'ApplyJumperMove', 'RestartRound']);
     expect(lastMove(game)).toMatchObject({ move: 'payout', status: 'win', winAmount: '1.01', collisionPosition: 1 });
     expect(game.received.at(-1)).toEqual<EngineCommand>({ type: 'RestartRound', payload: 'cashout|1.01 USD' });
+  });
+
+  it('holds the bar after a cash out until the engine has reset the scene', () => {
+    const { host, game } = createJumperHost({ random: scriptedRandom([...layoutDraws({}), LAND, ...layoutDraws({}), LAND]) });
+    host.emit({ type: 'RequestPlay' });
+    host.emit({ type: 'SpinReady' });
+    host.cashout();
+
+    host.emit({ type: 'RequestPlay' });
+
+    expect(game.received.at(-1)).toEqual<EngineCommand>({ type: 'DisabledPlayPressed' });
+
+    host.emit({ type: 'SpinReady' });
+    host.emit({ type: 'RequestPlay' });
+
+    expect(movesOf(game).map((move) => move.move)).toEqual(['play', 'step', 'payout', 'play', 'step']);
   });
 
   it('does not cash out before the first jump has landed', () => {

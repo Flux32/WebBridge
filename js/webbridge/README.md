@@ -166,12 +166,16 @@ bridge.ballsAmountChanged.add(({ amount, previousAmount, direction }) => {
 (батут, джетпак, ракета) бросают игрока на несколько ступеней вверх. Ставкой и сервером
 владеет хост: лесенки приходят конфигом, каждый ход — `ApplyJumperMove`, купленный
 бонус — `StartBonus`. Игра проигрывает прыжок и сообщает, что игрок приземлился (или
-упал). Ход из самой сцены — `requestPlay()` базы: хост ответит ходом или
+упал); на `RestartRound` — сбрасывает сцену и сообщает о том же. Ход из самой сцены — `requestPlay()` базы: хост ответит ходом или
 `DisabledPlayPressed`. Формы данных — типы `Jumper*` протокола (`protocol/src/jumper.ts`).
 
 ```ts
 bridge.moveReceived.add((move) => ladder.play(move));
 ladder.onLanded(() => bridge.notifySpinReady());
+bridge.restartRequested.add(() => {
+  ladder.reset();
+  bridge.notifySpinReady();
+});
 bridge.start();
 ```
 
@@ -182,13 +186,13 @@ bridge.start();
 | `moveReceived` | `JumperMovePayload` — `move`: `play` / `step` / `payout` | Ход раунда (`ApplyJumperMove`); он же становится `lastGameState` |
 | `difficultyChanged` | `JumperDifficulty` | Сменилась сложность (`SetJumperDifficulty`), кэш `lastDifficulty` |
 | `autoplayChanged` | `boolean` | Автоплей включён / выключен |
-| `restartRequested` | `RestartRequest` — `{ reason, amount }` из `"<причина>\|<сумма>"` | Хост пересобирает раунд (`RestartRound`) |
+| `restartRequested` | `RestartRequest` — `{ reason, amount }` из `"<причина>\|<сумма>"` | Хост пересобирает раунд (`RestartRound`); игра сбрасывает сцену и зовёт `notifySpinReady()` |
 | `bonusStartRequested` | `JumperStartBonusPayload` | Куплен бонус: вся серия фри-геймов одним сообщением |
 
 | Метод | Событие | Ответ React |
 |---|---|---|
 | `start()` | `RequestGameConfig` + `RequestGameState` с ретраями | `ApplyGameConfig` / `ApplyGameState` |
-| `notifySpinReady()` | `SpinReady` — прыжок доигран | Бет-бар разблокируется |
+| `notifySpinReady()` | `SpinReady` — прыжок доигран или сцена сброшена после `RestartRound` | Бет-бар разблокируется |
 | `notifyBonusActive()` / `notifyBonusEnded()` | `BonusActive` / `BonusEnded` | Серия фри-геймов началась / закончилась |
 | `saveBonusProgress(progress)` | `BonusProgressSave` | Хост хранит прогресс серии до перезагрузки |
 
@@ -197,7 +201,8 @@ bridge.start();
   (`visitedSteps`), слот раскрывается, когда на него прыгнули или над ним пролетели;
   `coeff` — коэффициент `landingStep`. `SpinReady` — по каждому доигранному прыжку.
 - После `payout` и проигрыша раунд закрыт (`collisionPosition` — где игрок упал или
-  упал бы); дальше хост шлёт `RestartRound`.
+  упал бы); дальше хост шлёт `RestartRound` (`lose|`, `win|<сумма>`, `cashout|<сумма>`).
+  Как в crush и road, игра сбрасывает сцену и отвечает `SpinReady`; до него бет-бар залочен.
 - `StartBonus`, который не серия jumper (нет маршрутов фри-геймов), — предупреждение
   в лог, сигнал не поднимается.
 
@@ -294,10 +299,13 @@ HARD 35 ступеней; батут +2, джетпак +4, ракета +8; б�
 | B | `buyBonus()` | `StartBonus`: 3–10 фри-геймов, маршрут каждого от ступени 0, сумма коэффициентов и выигрыш |
 | D | `setDifficulty(...)` | Следующая сложность — `SetJumperDifficulty` |
 
-- `requestPlay()` из сцены — то же, что `play()`. Пока прыжок летит (до `SpinReady`) или
-  идёт бонус (до `BonusEnded`), мок отвечает `DisabledPlayPressed`.
+- `requestPlay()` из сцены — то же, что `play()`. Пока прыжок летит или сцена
+  сбрасывается после `RestartRound` (до `SpinReady`), или идёт бонус (до `BonusEnded`),
+  мок отвечает `DisabledPlayPressed`.
 - Падение и выход на верх лесенки закрывают раунд; `RestartRound` (`"lose|"` /
   `"win|<сумма>"`) мок шлёт, когда игра доиграла прыжок и прислала `SpinReady`.
+- После любого `RestartRound` (и после кешаута) мок ждёт ещё один `SpinReady` — сцена
+  сброшена — и только тогда принимает следующую ставку.
 - Кэшаут — только после первого приземления и не в полёте; бонус и смена сложности —
   только между раундами. В остальное время мок их игнорирует.
 - Суммы — точная десятичная арифметика по строкам, без ошибок `number`.

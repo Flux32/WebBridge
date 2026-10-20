@@ -1,8 +1,8 @@
 /**
  * Stand-in for the shell and the dev backend of a jumper game. It answers the
  * game's requests, plays a jump per Play (the first one opens the round), keeps
- * the bar locked until the engine reports `SpinReady`, cashes out and sells the
- * bonus. `JumperMockRound` and `settleJumperBonus` build the server's replies.
+ * the bar locked until the engine reports `SpinReady` — for a jump and for a
+ * `RestartRound` alike — cashes out and sells the bonus. `JumperMockRound` and `settleJumperBonus` build the server's replies.
  *
  * The game runs on its REAL path — the same `__WEB_GAME_BOOT__`, bridge and
  * commands — only its counterpart is swapped, so the mock tests the integration
@@ -31,8 +31,11 @@ export class JumperMockHost implements WebHostBridge {
   private game: WebGameBridge | null = null;
   private currentDifficulty: JumperDifficulty;
   private round: JumperMockRound | null = null;
-  /** A jump is in flight until the engine reports `SpinReady` — the shell's bar holds Play as long. */
-  private isJumpInFlight = false;
+  /**
+   * The engine owes a `SpinReady`: it plays a jump out or resets the scene after
+   * `RestartRound`. The shell's bar holds Play as long.
+   */
+  private isAwaitingSpinReady = false;
   /** The restart a closing jump owes the engine once it has played the jump out. */
   private pendingRestart: string | null = null;
   private isBonusRunning = false;
@@ -74,7 +77,7 @@ export class JumperMockHost implements WebHostBridge {
         this.play();
         return;
       case 'SpinReady':
-        this.finishJump();
+        this.finishEngineMove();
         return;
       case 'BonusEnded':
         this.isBonusRunning = false;
@@ -106,7 +109,7 @@ export class JumperMockHost implements WebHostBridge {
 
     const round = this.round ?? this.openRound();
     const state = round.jump(this.options.random() < this.options.loseChance);
-    this.isJumpInFlight = true;
+    this.isAwaitingSpinReady = true;
     this.sendMove('step', state);
     if (state.status === 'in-game') return;
 
@@ -117,13 +120,13 @@ export class JumperMockHost implements WebHostBridge {
   /** Cash out as the shell does: `CashoutPressed` on the press, then the `payout` reply and the restart. */
   public cashout(): void {
     const round = this.round;
-    if (round === null || !round.hasJumped || this.isJumpInFlight) return;
+    if (round === null || !round.hasJumped || this.isAwaitingSpinReady) return;
 
     this.send({ type: 'CashoutPressed' });
     const state = round.payout();
     this.round = null;
     this.sendMove('payout', state);
-    this.send({ type: 'RestartRound', payload: `cashout|${this.displayAmount(state)}` });
+    this.restartRound(`cashout|${this.displayAmount(state)}`);
   }
 
   /** Buy the bonus between rounds: the server settles the series and the engine plays it out. */
@@ -164,7 +167,7 @@ export class JumperMockHost implements WebHostBridge {
   }
 
   private isBarLocked(): boolean {
-    return this.isJumpInFlight || this.isBonusRunning;
+    return this.isAwaitingSpinReady || this.isBonusRunning;
   }
 
   private openRound(): JumperMockRound {
@@ -176,14 +179,22 @@ export class JumperMockHost implements WebHostBridge {
     return this.round;
   }
 
-  /** The engine has played the jump out; a closing one now gets its restart. */
-  private finishJump(): void {
-    this.isJumpInFlight = false;
+  /** The engine has played a jump out or reset the scene; a closing jump now gets its restart. */
+  private finishEngineMove(): void {
     const restart = this.pendingRestart;
-    if (restart === null) return;
+    if (restart === null) {
+      this.isAwaitingSpinReady = false;
+      return;
+    }
 
     this.pendingRestart = null;
-    this.send({ type: 'RestartRound', payload: restart });
+    this.restartRound(restart);
+  }
+
+  /** As crush and road: the engine resets the scene and answers `SpinReady`, the bar stays locked until then. */
+  private restartRound(payload: string): void {
+    this.isAwaitingSpinReady = true;
+    this.send({ type: 'RestartRound', payload });
   }
 
   private ladderOf(difficulty: JumperDifficulty): JumperLadder {
