@@ -15,7 +15,7 @@
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
-import { adminUrl, projectLinkMiddleware, readProjectGameId } from './projectLink';
+import { adminUrl, projectLinkMiddleware, readProjectGameId } from './projectLink.js';
 
 export interface LocalBuildOptions {
   /** Точка входа бандла игры — та, что регистрирует `__WEB_GAME_BOOT__`. */
