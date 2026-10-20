@@ -3,8 +3,8 @@
  * alias for the same `{ type: 'SpinReady' }` shape `CrushEvent` carried
  * inline before, so it must stay structurally invisible here. 1.9.0 only
  * adds the plinko-aztec bet-per-ball pair, 1.10.0 only crush's difficulty
- * command and 1.15.0 only the game's own play request: every older member
- * keeps its shape.
+ * command, 1.15.0 only the game's own play request and 1.16.0 only jumper's
+ * two commands and its `StartBonus` payload: every older member keeps its shape.
  */
 import type {
   BonusPurchaseRequestPayload,
@@ -16,7 +16,7 @@ import type {
   UnityFrameSamplePayload,
   WinWindowSignalPayload,
 } from '../src';
-import type { CrushEvent, EngineCommand, EngineEvent } from '../src';
+import type { CrushEvent, EngineCommand, EngineEvent, JumperDifficulty, JumperMovePayload } from '../src';
 import type { Equal, Expect } from './typeEqual';
 
 type CrushEvent170 =
@@ -72,8 +72,20 @@ type WheelBetBarMetricsCommand1130 = { type: 'SetWheelBetBarMetrics'; payload: s
 
 type CanvasSizeCommand1140 = { type: 'SetCanvasSize'; payload: string };
 
+type JumperCommand1160 =
+  | { type: 'SetJumperDifficulty'; payload: JumperDifficulty }
+  | { type: 'ApplyJumperMove'; payload: JumperMovePayload };
+
 type _engineCommandUnchanged = Expect<
-  Equal<EngineCommand, EngineCommand170 | BetPerBallCommand190 | DifficultyCommand1100 | WheelBetBarMetricsCommand1130 | CanvasSizeCommand1140>
+  Equal<
+    EngineCommand,
+    | EngineCommand170
+    | BetPerBallCommand190
+    | DifficultyCommand1100
+    | WheelBetBarMetricsCommand1130
+    | CanvasSizeCommand1140
+    | JumperCommand1160
+  >
 >;
 
 type EngineEvent170 =

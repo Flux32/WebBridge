@@ -30,6 +30,7 @@ export type {
   CrushDifficulty,
   EngineCommand,
   EngineCommandType,
+  JumperCommand,
   PlinkoCommand,
   SlotCommand,
   SpinCommand,
@@ -50,6 +51,25 @@ export type {
   WheelEvent,
 } from './events.js';
 export { isBonusEngineEvent } from './events.js';
+
+export type {
+  JumperAccelerator,
+  JumperAcceleratorDistance,
+  JumperBonusGame,
+  JumperDifficulty,
+  JumperGameConfigPayload,
+  JumperLadder,
+  JumperMove,
+  JumperMovePayload,
+  JumperRoundState,
+  JumperRoundStatus,
+  JumperRoutePoint,
+  JumperSlot,
+  JumperSlotState,
+  JumperStartBonusPayload,
+  JumperVisitedStep,
+} from './jumper.js';
+export { JUMPER_ACCELERATORS, JUMPER_DIFFICULTIES, JUMPER_START_STEP } from './jumper.js';
 
 export type { ModeChannel, ModeProtocolId, ModeProtocols } from './modes.js';
 

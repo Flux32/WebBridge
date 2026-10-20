@@ -4,6 +4,8 @@
  * на стороне транспорта, не здесь.
  */
 
+import type { JumperStartBonusPayload } from './jumper.js';
+
 export type Orientation = 'portrait' | 'landscape';
 
 /** Результат шага, который движок проигрывает (падение блока / проигрыш / выигрыш). */
@@ -63,7 +65,7 @@ export interface TwistStartBonusPayload {
   spins: string[];
 }
 
-export type StartBonusPayload = RoadStartBonusPayload | TwistStartBonusPayload;
+export type StartBonusPayload = RoadStartBonusPayload | TwistStartBonusPayload | JumperStartBonusPayload;
 
 /** Ответ на запрос покупки бонуса от движка. */
 export interface BonusPurchaseResultPayload {

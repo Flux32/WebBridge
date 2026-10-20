@@ -14,7 +14,8 @@ import type {
   UnityOnlyEvent,
   UnityPlainMessage,
 } from '../src';
-import { CRUSH_DIFFICULTIES } from '../src';
+import type { JumperDifficulty, JumperMovePayload } from '../src';
+import { CRUSH_DIFFICULTIES, JUMPER_DIFFICULTIES, JUMPER_START_STEP } from '../src';
 import type { Equal, Expect } from './typeEqual';
 
 type AllChannelCommands = ModeProtocols[ModeProtocolId]['commands'];
@@ -88,7 +89,49 @@ const _twistHasNoBonusPurchaseRequest: ModeProtocols['twist']['events'] = { type
 // @ts-expect-error BonusCleared is not sent by the twist bridge.
 const _twistHasNoBonusCleared: ModeProtocols['twist']['events'] = { type: 'BonusCleared' };
 
+const jumperOpenedRound: JumperMovePayload = {
+  move: 'play',
+  status: 'in-game',
+  difficulty: 'EASY',
+  coeff: '0',
+  winAmount: '0',
+  slots: [{ step: 2, state: 'HIDDEN' }],
+  lineNumber: JUMPER_START_STEP,
+  landingStep: JUMPER_START_STEP,
+  visitedSteps: [],
+};
+
+const _jumperHasApplyJumperMove: ModeProtocols['jumper']['commands'] = {
+  type: 'ApplyJumperMove',
+  payload: jumperOpenedRound,
+};
+
+// Jumper borrows crush's round flow; the ladder's own commands stay out of it.
+const _jumperHasRestartRound: ModeProtocols['jumper']['commands'] = { type: 'RestartRound', payload: 'cashout|$1.00' };
+
+// @ts-expect-error ApplyStepResult is crush's ladder-step payload; jumper's jump is ApplyJumperMove.
+const _jumperHasNoApplyStepResult: ModeProtocols['jumper']['commands'] = { type: 'ApplyStepResult' };
+
+type _onlyJumperSetsJumperDifficulty = Expect<Equal<ChannelsWithCommand<'SetJumperDifficulty'>, 'jumper'>>;
+type _onlyCrushUpdatesCoeffs = Expect<Equal<ChannelsWithCommand<'UpdateCoeffs'>, 'crush'>>;
+
+// @ts-expect-error Jumper has no DAREDEVIL.
+const _jumperHasNoDaredevil: ModeProtocols['jumper']['commands'] = { type: 'SetJumperDifficulty', payload: 'DAREDEVIL' };
+
+type _jumperDifficultiesListTheType = Expect<Equal<(typeof JUMPER_DIFFICULTIES)[number], JumperDifficulty>>;
+
+const _jumperHasSpinReady: ModeProtocols['jumper']['events'] = { type: 'SpinReady' };
+
+// @ts-expect-error The host buys jumper's bonus on its own bar.
+const _jumperHasNoBonusPurchaseRequest: ModeProtocols['jumper']['events'] = { type: 'BonusPurchaseRequest', payload: {} };
+
 void _crushHasNoApplySpinResult;
+void _jumperHasApplyJumperMove;
+void _jumperHasRestartRound;
+void _jumperHasNoApplyStepResult;
+void _jumperHasNoDaredevil;
+void _jumperHasSpinReady;
+void _jumperHasNoBonusPurchaseRequest;
 void _plinkoHasNoApplyStepResult;
 void _wheelHasNoSpinReady;
 void _wheelHasSetWheelBetBarMetrics;

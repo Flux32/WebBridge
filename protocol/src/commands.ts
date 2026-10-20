@@ -13,6 +13,7 @@ import type {
   StepResultPayload,
   WinWindowSignalPayload,
 } from './payloads.js';
+import type { JumperDifficulty, JumperMovePayload } from './jumper.js';
 
 /** Команды, которые понимает любой мост независимо от игры (см. C# WebBridgeBase + Layout/Orientation/UI). */
 export type CoreCommand =
@@ -103,6 +104,14 @@ export type WheelCommand =
   | { type: 'SetWheelBetBarMetrics'; payload: string };
 
 /**
+ * Jumper commands beyond the round flow it shares with crush (autoplay, restart,
+ * bonus start). The difficulty has its own command: jumper's set has no DAREDEVIL.
+ */
+export type JumperCommand =
+  | { type: 'SetJumperDifficulty'; payload: JumperDifficulty }
+  | { type: 'ApplyJumperMove'; payload: JumperMovePayload };
+
+/**
  * Результат спина — общий для всех барабанных механик. Payload сериализован:
  * Twist шлёт сырой GameState-JSON, слот — `SlotSpinResult`. Имя команды на
  * проводе одно (фронтенд шлёт именно его обеим механикам), поэтому член союза
@@ -137,6 +146,7 @@ export type EngineCommand =
   | CrushCommand
   | PlinkoCommand
   | WheelCommand
+  | JumperCommand
   | TwistCommand
   | SlotCommand;
 export type EngineCommandType = EngineCommand['type'];

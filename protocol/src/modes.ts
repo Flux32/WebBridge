@@ -4,7 +4,14 @@
  * `CoreCommand`/`CoreEvent` are not repeated here — a mode's port adds them
  * on top (`CoreCommand | ModeProtocols[id]['commands']`).
  */
-import type { CrushCommand, PlinkoCommand, SpinCommand, TwistCommand, WheelCommand } from './commands.js';
+import type {
+  CrushCommand,
+  JumperCommand,
+  PlinkoCommand,
+  SpinCommand,
+  TwistCommand,
+  WheelCommand,
+} from './commands.js';
 import type { CrushEvent, PlinkoEvent, RoundEvent, WheelEvent } from './events.js';
 
 export interface ModeChannel<TCommand extends { type: string }, TEvent extends { type: string }> {
@@ -13,14 +20,14 @@ export interface ModeChannel<TCommand extends { type: string }, TEvent extends {
 }
 
 /**
- * Autoplay/restart/bonus-start commands twist shares with crush's round
- * flow: the host sends the same three regardless of which of the two runs.
+ * Autoplay/restart/bonus-start commands twist and jumper share with crush's
+ * round flow: the host sends the same three regardless of which mode runs.
  */
-type TwistRoundCommand = Extract<CrushCommand, { type: 'RestartRound' | 'SetAutoplay' | 'StartBonus' }>;
+type SharedRoundCommand = Extract<CrushCommand, { type: 'RestartRound' | 'SetAutoplay' | 'StartBonus' }>;
 
 type TwistCommandChannel =
   | SpinCommand
-  | TwistRoundCommand
+  | SharedRoundCommand
   | Extract<TwistCommand, { type: 'FreeGamesIntroFinished' }>;
 
 type PlinkoAztecCommand =
@@ -28,17 +35,20 @@ type PlinkoAztecCommand =
   | Extract<TwistCommand, { type: 'ApplyBonusStepResult' }>;
 
 /**
- * Twist shares crush's round-ready signal and its three bonus lifecycle
- * events (TwistReact's bridge emits them: SlotScene.ts / bridgeEntry.ts),
- * but never BonusProgressClear, BonusCleared or BonusPurchaseRequest — the
- * host drives twist's bonus purchase itself via StartBonus, not an engine
- * event, and clears twist's bonus progress without a dedicated signal.
+ * A bonus bought on the host's bar and settled by the server in one reply:
+ * the engine plays the series and reports crush's three lifecycle events, but
+ * never BonusProgressClear, BonusCleared or BonusPurchaseRequest — the host
+ * drives the purchase itself via StartBonus, not an engine event, and clears
+ * the progress without a dedicated signal. Twist's bridge (TwistReact:
+ * SlotScene.ts / bridgeEntry.ts) and jumper's emit exactly these.
  */
-type TwistEventChannel = RoundEvent | Extract<CrushEvent, { type: 'BonusActive' | 'BonusProgressSave' | 'BonusEnded' }>;
+type SeriesBonusEventChannel =
+  | RoundEvent
+  | Extract<CrushEvent, { type: 'BonusActive' | 'BonusProgressSave' | 'BonusEnded' }>;
 
 export interface ModeProtocols {
   readonly crush: ModeChannel<CrushCommand, CrushEvent>;
-  readonly twist: ModeChannel<TwistCommandChannel, TwistEventChannel>;
+  readonly twist: ModeChannel<TwistCommandChannel, SeriesBonusEventChannel>;
   readonly slot: ModeChannel<SpinCommand, RoundEvent>;
   readonly wheel: ModeChannel<WheelCommand, WheelEvent>;
   readonly plinko: ModeChannel<
@@ -46,6 +56,7 @@ export interface ModeProtocols {
     Extract<PlinkoEvent, { type: 'DropFinished' }>
   >;
   readonly plinkoAztec: ModeChannel<PlinkoAztecCommand, PlinkoEvent>;
+  readonly jumper: ModeChannel<JumperCommand | SharedRoundCommand, SeriesBonusEventChannel>;
 }
 
 export type ModeProtocolId = keyof ModeProtocols;
