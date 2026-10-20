@@ -3,11 +3,12 @@
   "private": true,
   "workspaces": [
     "protocol",
-    "js/webbridge"
+    "js/webbridge",
+    "js/examples/jumper-stub"
   ],
   "scripts": {
     "build": "tsc -b js/webbridge",
-    "typecheck": "tsc -b js/webbridge && npm run typecheck -w protocol",
+    "typecheck": "tsc -b js/webbridge && npm run typecheck -w protocol && npm run typecheck -w js/examples/jumper-stub",
     "clean": "tsc -b --clean js/webbridge",
     "test": "npm test -w js/webbridge"
   }
