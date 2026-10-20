@@ -5,7 +5,10 @@
  * server's step-keyed maps and named fields, so the Unity bridge reads them with
  * a plain JsonUtility class and the web bridge gets them as they are.
  *
- * Money and coefficients travel as decimal strings, as the server sends them.
+ * Money and coefficients travel as canonical decimal strings: digits and an
+ * optional point, no exponent, no sign, no trailing zeros ("2.7", not "2.70" —
+ * the server sends numbers on one backend and strings on another). The engine
+ * formats them for display.
  */
 
 /** Difficulty levels by the backend's names; jumper has no DAREDEVIL. */

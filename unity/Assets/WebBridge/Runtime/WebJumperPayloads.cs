@@ -6,7 +6,8 @@ namespace Modules.Jumper
 {
     // Jumper payloads as the host shapes them from the game server's replies
     // (protocol/src/jumper.ts): arrays instead of the server's step-keyed maps. Money and
-    // coefficients stay the server's decimal strings. Enums travel as the backend's names: the
+    // coefficients are canonical decimal strings ("2.7": no exponent, sign or trailing zeros);
+    // the game formats them for display. Enums travel as the backend's names: the
     // string field is the wire form, the property of the same meaning parses it and throws a
     // FormatException on a name the protocol does not define.
 
