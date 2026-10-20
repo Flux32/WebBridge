@@ -1,6 +1,6 @@
 {
   "name": "@omega/webbridge-js",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "JS-сторона WebBridge: прослойка между React-хостом и веб-игрой (Phaser, Pixi, three.js — любой движок). Зеркало C#-пакета com.pixi.webbridge.",
   "type": "module",
   "main": "./dist/index.js",
@@ -25,7 +25,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@omega/webbridge-protocol": "https://github.com/Flux32/WebBridge/releases/download/protocol-v1.15.0/omega-webbridge-protocol-1.15.0.tgz"
+    "@omega/webbridge-protocol": "https://github.com/Flux32/WebBridge/releases/download/protocol-v1.16.0/omega-webbridge-protocol-1.16.0.tgz"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
