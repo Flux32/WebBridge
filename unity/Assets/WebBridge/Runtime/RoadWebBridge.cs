@@ -169,33 +169,8 @@ namespace Modules.Road
         // Empty/null payload -> RestartReason.None.
         public void RestartRound(string payload)
         {
-            ParseRestartPayload(payload, out RestartReason reason, out string amount);
+            RestartRoundPayload.Parse(payload, out RestartReason reason, out string amount);
             RestartRequested?.Invoke(reason, amount);
-        }
-
-        private static void ParseRestartPayload(string payload, out RestartReason reason, out string amount)
-        {
-            reason = RestartReason.None;
-            amount = null;
-
-            if (string.IsNullOrWhiteSpace(payload))
-                return;
-
-            string reasonToken = payload;
-            int sep = payload.IndexOf('|');
-            if (sep >= 0)
-            {
-                reasonToken = payload.Substring(0, sep);
-                amount = payload.Substring(sep + 1);
-            }
-
-            switch (reasonToken.Trim().ToLowerInvariant())
-            {
-                case "win": reason = RestartReason.Win; break;
-                case "cashout": reason = RestartReason.Cashout; break;
-                case "lose": reason = RestartReason.Lose; break;
-                default: reason = RestartReason.None; break;
-            }
         }
 
         // React entry point (SendMessage): the difficulty in play by the backend's name ("HARD").
