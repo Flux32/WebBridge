@@ -102,7 +102,13 @@ export interface JumperMovePayload extends JumperRoundState {
   move: JumperMove;
 }
 
-/** One step of a free game's route: a plain jump or an accelerator. */
+/**
+ * One platform of a free game's route and what it does: `STEP` — the next jump
+ * goes to `step + 1`, an accelerator throws the player its distance up. The
+ * route starts at step 0 and lists only the platforms jumped from: its last
+ * jump lands on `finalStep`, which has no point of its own (route
+ * `[…, { step: 22, action: 'TRAMPOLINE' }]` → `finalStep` 24).
+ */
 export interface JumperRoutePoint {
   step: number;
   action: 'STEP' | JumperAccelerator;
