@@ -91,9 +91,12 @@ export interface JumperRoundState {
 export type JumperMove = 'play' | 'step' | 'payout';
 
 /**
- * A live move's result (`ApplyJumperMove`). The engine plays it and sends
- * `SpinReady` when the jump is over; after `payout` it shows the closed round
- * and waits for `RestartRound`.
+ * A live move's result (`ApplyJumperMove`). `SpinReady` answers jumps only:
+ * - `play` opens the round (slots placed, player at the start) and gets no
+ *   `SpinReady` — the host follows it with the first jump, `step` to step 0;
+ * - `step` is a jump: the engine plays it, accelerator chain included, and sends
+ *   `SpinReady` when the player has landed or fallen;
+ * - `payout` closes the round: the engine shows it and waits for `RestartRound`.
  */
 export interface JumperMovePayload extends JumperRoundState {
   move: JumperMove;
