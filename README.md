@@ -442,7 +442,7 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 | `MoveReceived` | `WebJumperMovePayload` | Живой ход: `Play` (раунд открыт, игрок стоит под ступенью 0), `Step` (прыжок с цепочкой ускорителей), `Payout` (раунд закрыт выигрышем) |
 | `DifficultyChanged` | `JumperDifficultyChange` | Сменилась сложность в игре. Та же сложность повторно событие не поднимает |
 | `AutoplayChanged` | `bool` | Включился или выключился автоплей. Пока он идёт, React держит бет-бар залоченным целиком, кроме кнопки остановки, и ходит сам |
-| `RestartRequested` | `RestartReason, string` | React перезапускает раунд: после проигрыша, выигрыша на вершине, кешаута (когда окно результата закрылось — само нажатие раньше приходит `CashoutPressed`). Строка — сумма выигрыша для показа, если есть |
+| `RestartRequested` | `RestartReason, string` | React перезапускает раунд: после проигрыша, выигрыша на вершине, кешаута (когда окно результата закрылось — само нажатие раньше приходит `CashoutPressed`). Строка — сумма выигрыша для показа, если есть. Игра сбрасывает сцену и зовёт `NotifySpinReady`: до него React держит бет-бар залоченным |
 | `BonusStartRequested` | `WebJumperStartBonusPayload` | Куплена серия фри-геймов. Сервер рассчитал и выплатил её целиком, игра проигрывает её сама |
 
 #### Методы React → Unity (через `SendMessage`)
@@ -454,7 +454,7 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 | `SetJumperDifficulty(string)` | `"EASY"` / `"MEDIUM"` / `"HARD"` | Сложность в игре — имя бэкенда, у jumper нет `DAREDEVIL`. Принимается только точное имя: иное — предупреждение в лог и игнор |
 | `ApplyJumperMove(json)` | JSON `WebJumperMovePayload` | Результат живого хода. `SpinReady` отвечает только на прыжки: `play` открывает раунд, и React сразу шлёт следом первый прыжок (`step` на ступень 0); `step` игра проигрывает с цепочкой ускорителей и зовёт `NotifySpinReady`, когда игрок приземлился или упал; после `payout` показывает закрытый раунд и ждёт `RestartRound` |
 | `SetAutoplay(int)` | `1` / `0` | Автоплей включён / выключен |
-| `RestartRound(payload)` | `"<reason>\|<amount>"`, напр. `"cashout\|$5.00"` | Перезапустить раунд — тот же формат, что у `GameWebBridge` |
+| `RestartRound(payload)` | `"<reason>\|<amount>"`, напр. `"cashout\|$5.00"` | Перезапустить раунд — тот же формат, что у `GameWebBridge`. Как в crush и road, игра сбрасывает сцену и отвечает `NotifySpinReady` |
 | `StartBonus(json)` | JSON `WebJumperStartBonusPayload` | Войти в купленную серию |
 
 #### Методы Unity → React
@@ -464,7 +464,7 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 | `RequestGameConfig()` | `RequestGameConfig` | → `ApplyGameConfig(json)` |
 | `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
 | `RequestPlay()` (база) | `RequestPlay` — ход из самой сцены | → `ApplyJumperMove(json)` либо `OnDisabledPlayPressed()` |
-| `NotifySpinReady()` | `SpinReady` — прыжок доигран | React раскрывает результат хода и снимает лок бет-бара |
+| `NotifySpinReady()` | `SpinReady` — прыжок доигран или сцена сброшена после `RestartRound` | React раскрывает результат хода и снимает лок бет-бара |
 | `NotifyBonusActive()` | `BonusActive` — серия началась | — |
 | `SaveBonusProgress(completed, total)` | `BonusProgressSave_{"completedIterations":…,"totalIterations":…}` — доигран очередной фри-гейм | React показывает «осталось фри-геймов» |
 | `NotifyBonusEnded()` | `BonusEnded` — последний фри-гейм доигран | — |
@@ -533,6 +533,11 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 >         JumperWebBridge.Instance.NotifySpinReady();
 >     });
 > };
+> JumperWebBridge.Instance.RestartRequested += (reason, amount) =>
+> {
+>     ResetScene();
+>     JumperWebBridge.Instance.NotifySpinReady();
+> };
 > ```
 
 #### Mock-режим
@@ -543,7 +548,9 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 складываются в цепочки, проигрыш приходит с `collisionPosition`, кешаут до первого
 прыжка не бывает, бонус — серия с маршрутами. Пока прыжок не доигран
 (`NotifySpinReady`), JUMP недоступен; закрытый прыжком раунд хост перезапускает
-через `RestartRound` (`lose|` или `win|<сумма>`), кешаут — `cashout|<сумма>`.
+через `RestartRound` (`lose|` или `win|<сумма>`), кешаут — `cashout|<сумма>`. После
+`RestartRound` хост снова ждёт `NotifySpinReady` (сцена сброшена): до него BET, BONUS и
+сложность недоступны, а `RequestPlay` из сцены получает `OnDisabledPlayPressed()`.
 BET, как и хост, сразу за `play` шлёт первый прыжок. `RequestPlay` из сцены без раунда
 делает ставку, в живом раунде — прыжок.
 
