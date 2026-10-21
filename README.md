@@ -467,7 +467,7 @@ React: он ходит в игровой сервис (`play` / `step` / `payout
 | `NotifySpinReady()` | `SpinReady` — прыжок доигран или сцена сброшена после `RestartRound` | React раскрывает результат хода и снимает лок бет-бара |
 | `NotifyBonusActive()` | `BonusActive` — серия началась | — |
 | `SaveBonusProgress(completed, total)` | `BonusProgressSave_{"completedIterations":…,"totalIterations":…}` — доигран очередной фри-гейм | React показывает «осталось фри-геймов» |
-| `NotifyBonusEnded()` | `BonusEnded` — последний фри-гейм доигран | — |
+| `NotifyBonusEnded()` | `BonusEnded` — последний фри-гейм доигран. `BonusProgressClear`/`BonusCleared` jumper не шлёт: серия рассчитана и выплачена при покупке, хост сам закрывает её за закрытыми воротами перехода после окна выигрыша | — |
 
 #### Свойства
 
