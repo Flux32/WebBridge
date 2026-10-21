@@ -117,7 +117,7 @@ export class JumperMockHost implements WebHostBridge {
     this.pendingRestart = state.status === 'lose' ? 'lose|' : `win|${this.displayAmount(state)}`;
   }
 
-  /** Cash out as the shell does: `CashoutPressed` on the press, then the `payout` reply and the restart. */
+  /** Cash out as the shell does: `CashoutPressed` once the payout is paid, then the `payout` move and the restart. */
   public cashout(): void {
     const round = this.round;
     if (round === null || !round.hasJumped || this.isAwaitingSpinReady) return;
