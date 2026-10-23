@@ -418,6 +418,14 @@ namespace Modules.Road
             WebBridgeLogger.Log("[RoadWebBridge] Bonus progress clear sent to React");
         }
 
+        // Unity -> React: the move has played out (the block landed, the round is reset after
+        // RestartRound, or the game is first ready for a bet). React reveals the parked server
+        // result and unlocks the bet bar on this signal, never on the server reply.
+        public void NotifySpinReady()
+        {
+            WebBridgeUtils.Send("SpinReady");
+        }
+
         public void NotifyBonusActive()
         {
             WebBridgeUtils.Send("BonusActive");

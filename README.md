@@ -257,6 +257,7 @@ React. `Request*`-методы — запрос-ответ: Unity шлёт за�
 | `RequestWhiteLabel()` | `RequestWhiteLabel` | → `ApplyWhiteLabel(int)` |
 | `SaveBonusAutoPlayProgress(progress)` | `BonusProgressSave_{json}` — сохранить прогресс автоигры бонуса | — |
 | `ClearBonusAutoPlayProgress()` | `BonusProgressClear` | — |
+| `NotifySpinReady()` | `SpinReady` — блок сел, сцена сброшена после `RestartRound` или игра впервые готова к ставке | React раскрывает припаркованный результат хода и разблокирует бет-бар |
 | `NotifyBonusActive()` | `BonusActive` | — |
 | `NotifyBonusEnded()` | `BonusEnded` (React по нему открывает TransitionScreen на завершение бонуса) | — |
 | `NotifyBonusCleared()` | `BonusCleared` | — |
