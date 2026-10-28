@@ -17,6 +17,10 @@ const entry = `src/modes/${modeName}/boot.ts`;
 export default defineConfig({
   define: { 'import.meta.env.VITE_DEMO_MODE': JSON.stringify(modeName) },
   plugins: [localBuildServer({ entry: `/${entry}`, mode: modeName })],
+  // The bridge pins a protocol release under its own node_modules; the dev server's dependency optimizer would
+  // serve that copy to the games too, without the constants of a channel newer than the pin. One copy — this
+  // repository's protocol, as tsconfig `paths` reads it for types.
+  resolve: { dedupe: ['@omega/webbridge-protocol'] },
   server: { port: DEV_PORT, strictPort: true, open: false },
   build: {
     outDir: `dist/${modeName}`,
