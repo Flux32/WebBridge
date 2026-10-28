@@ -203,7 +203,7 @@ export const SLOT_COIN_ACTIONS = {
  * column-major порядке, что и строка доски (`reel * rows + row`); `symbol` —
  * символ доски. Денежные поля приходят строками, как их отдаёт платформа.
  */
-export interface SlotCoinCoin {
+export interface SlotCoinBoardCoin {
   index: number;
   symbol?: string;
   payout?: string;
@@ -214,10 +214,10 @@ export interface SlotCoinCoin {
  * Сбор монет: они летят из своих ячеек в ячейку `triggerIndex` — ту, где стоит
  * монета-триггер.
  */
-export interface SlotCoinCoinsCollectionAction extends SlotCoinAction {
+export interface SlotCoinCollectionAction extends SlotCoinAction {
   action: typeof SLOT_COIN_ACTIONS.strikeCoinsCollection;
   triggerIndex: number;
-  coins: SlotCoinCoin[];
+  coins: SlotCoinBoardCoin[];
 }
 
 /**

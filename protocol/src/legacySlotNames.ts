@@ -6,8 +6,8 @@
 import type { SlotCoinCommand } from './commands.js';
 import type {
   SlotCoinAction,
-  SlotCoinCoin,
-  SlotCoinCoinsCollectionAction,
+  SlotCoinBoardCoin,
+  SlotCoinCollectionAction,
   SlotCoinSpinResult,
 } from './payloads.js';
 import { SLOT_COIN_ACTIONS } from './payloads.js';
@@ -18,10 +18,10 @@ export type SlotCommand = SlotCoinCommand;
 export type SlotSpinResult = SlotCoinSpinResult;
 /** @deprecated Используйте `SlotCoinAction`. */
 export type SlotAction = SlotCoinAction;
-/** @deprecated Используйте `SlotCoinCoin`. */
-export type SlotCoin = SlotCoinCoin;
-/** @deprecated Используйте `SlotCoinCoinsCollectionAction`. */
-export type SlotCoinsCollectionAction = SlotCoinCoinsCollectionAction;
+/** @deprecated Используйте `SlotCoinBoardCoin`. */
+export type SlotCoin = SlotCoinBoardCoin;
+/** @deprecated Используйте `SlotCoinCollectionAction`. */
+export type SlotCoinsCollectionAction = SlotCoinCollectionAction;
 
 /** @deprecated Используйте `SLOT_COIN_ACTIONS`. */
 export const SLOT_ACTIONS = SLOT_COIN_ACTIONS;

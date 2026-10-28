@@ -15,14 +15,14 @@ export class SlotCoinRoundError extends Error {
   public override readonly name = 'SlotCoinRoundError';
 }
 
-export interface SlotCoinCoin {
+export interface SlotCoinBoardCoin {
   readonly index: number;
   readonly coeff: number;
 }
 
 export interface SlotCoinCollection {
   readonly triggerIndex: number;
-  readonly coins: readonly SlotCoinCoin[];
+  readonly coins: readonly SlotCoinBoardCoin[];
 }
 
 export interface SlotCoinBoardPlan {
@@ -65,11 +65,11 @@ const readCells = (board: string, boardNumber: number): readonly SlotCoinSymbol[
   });
 };
 
-const readCoin = (raw: unknown, cells: readonly SlotCoinSymbol[]): SlotCoinCoin => {
+const readCoin = (raw: unknown, cells: readonly SlotCoinSymbol[]): SlotCoinBoardCoin => {
   const coin = (raw ?? {}) as { index?: unknown; coeff?: unknown };
   const index = readIndex(coin.index, 'coin index');
   if (coin.coeff !== undefined) return { index, coeff: readNumber(coin.coeff, 'coin coeff') };
-  // The coefficient is optional in the protocol (`SlotCoinCoin.coeff?`); the board symbol then tells it.
+  // The coefficient is optional in the protocol (`SlotCoinBoardCoin.coeff?`); the board symbol then tells it.
   const coeff = symbolCoeff(cells[index] ?? { kind: 'empty' });
   if (coeff === null) throw new SlotCoinRoundError(`coin ${index} has no coeff and no coin on the board`);
   return { index, coeff };

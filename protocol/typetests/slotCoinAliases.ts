@@ -7,8 +7,8 @@ import type {
   SlotAction,
   SlotCoin,
   SlotCoinAction,
-  SlotCoinCoin,
-  SlotCoinCoinsCollectionAction,
+  SlotCoinBoardCoin,
+  SlotCoinCollectionAction,
   SlotCoinCommand,
   SlotCoinsCollectionAction,
   SlotCoinSpinResult,
@@ -21,7 +21,7 @@ import type { Equal, Expect } from './typeEqual';
 type _commandAlias = Expect<Equal<SlotCommand, SlotCoinCommand>>;
 type _spinResultAlias = Expect<Equal<SlotSpinResult, SlotCoinSpinResult>>;
 type _actionAlias = Expect<Equal<SlotAction, SlotCoinAction>>;
-type _coinAlias = Expect<Equal<SlotCoin, SlotCoinCoin>>;
-type _collectionAlias = Expect<Equal<SlotCoinsCollectionAction, SlotCoinCoinsCollectionAction>>;
+type _coinAlias = Expect<Equal<SlotCoin, SlotCoinBoardCoin>>;
+type _collectionAlias = Expect<Equal<SlotCoinsCollectionAction, SlotCoinCollectionAction>>;
 type _actionsAlias = Expect<Equal<typeof SLOT_ACTIONS, typeof SLOT_COIN_ACTIONS>>;
 type _channelAlias = Expect<Equal<ModeProtocols['slot'], ModeProtocols['slotCoin']>>;
