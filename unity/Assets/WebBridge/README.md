@@ -6,7 +6,7 @@ UPM-пакет моста WebBridge для **Unity WebGL**: принимает �
 
 ```json
 // Packages/manifest.json → dependencies
-"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#unity-v1.0.0"
+"com.pixi.webbridge": "https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#unity-v1.1.0"
 ```
 
 Дальше: **GameObject → WebBridge → Create &lt;Mode&gt;WebBridge** кладёт на сцену префаб моста своего режима

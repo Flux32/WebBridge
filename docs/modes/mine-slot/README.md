@@ -10,7 +10,7 @@
 | **JS-мост** | [`MineSlotBridge`](js.md) · mock: `MineSlotMockHost` |
 | **Unity-мост** | [`MineSlotWebBridge`](unity.md) · префаб `MineSlotWebBridge.prefab` · namespace `Modules.MineSlot` |
 | **Демо** | `js/examples/demo-games/src/modes/mine-slot` (порт 5197, `?mock=1`) |
-| **С версии** | protocol `1.18.0` · js `1.16.0` · Unity-пакет `1.1.0` — в `main`, релизы ещё не выпущены |
+| **С версии** | protocol `1.18.0` · js `1.16.0` · Unity-пакет `1.1.0` |
 | **Исходник контракта** | [`protocol/src/mineSlot.ts`](../../../protocol/src/mineSlot.ts) |
 
 ## Механика
