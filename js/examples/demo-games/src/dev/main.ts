@@ -5,16 +5,15 @@
 import { isMockEnabled } from '@omega/webbridge-js';
 import type { DevMode } from './devMode';
 
-const DEV_MODES: Readonly<Record<string, () => Promise<{ devMode: DevMode }>>> = {
-  crush: () => import('../modes/crush/dev'),
-};
+/** Every mode that has a `dev.ts`, by its folder name. */
+const DEV_MODES = import.meta.glob<{ devMode: DevMode }>('../modes/*/dev.ts');
 
 const container = document.getElementById('game');
 const hint = document.getElementById('hint');
 if (container === null || hint === null) throw new Error('[demo-games] index.html lacks #game or #hint');
 
 const modeName: string = import.meta.env.VITE_DEMO_MODE;
-const load = DEV_MODES[modeName];
+const load = DEV_MODES[`../modes/${modeName}/dev.ts`];
 if (load === undefined) throw new Error(`[demo-games] no dev page for mode ${modeName}`);
 
 if (isMockEnabled()) {
