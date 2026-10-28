@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Modules.Jumper;
+using Modules.MineSlot;
 using Modules.Plinko;
 using Modules.PlinkoAztec;
 using UnityEditor;
@@ -28,6 +29,8 @@ namespace Modules.Road.Editor
         private const string PlinkoAztecAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/PlinkoAztecWebBridge.prefab";
         private const string JumperPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/JumperWebBridge.prefab";
         private const string JumperAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/JumperWebBridge.prefab";
+        private const string MineSlotPackagePrefabPath = "Packages/com.pixi.webbridge/Runtime/Prefabs/MineSlotWebBridge.prefab";
+        private const string MineSlotAssetsPrefabPath = "Assets/WebBridge/Runtime/Prefabs/MineSlotWebBridge.prefab";
         private const string WebBridgeObjectName = "WebBridge";
         private const string SoundKeysMenu = "Tools/WebBridge/Sounds";
         private const string MockConfigMenu = "Tools/WebBridge/MockConfig";
@@ -188,6 +191,12 @@ namespace Modules.Road.Editor
             CreateWebBridge(menuCommand, JumperPackagePrefabPath, JumperAssetsPrefabPath, "Jumper");
         }
 
+        [MenuItem("GameObject/WebBridge/Create MineSlotWebBridge", false, 14)]
+        private static void CreateMineSlotWebBridge(MenuCommand menuCommand)
+        {
+            CreateWebBridge(menuCommand, MineSlotPackagePrefabPath, MineSlotAssetsPrefabPath, "MineSlot");
+        }
+
         private static void CreateWebBridge(MenuCommand menuCommand, string packagePath, string assetsPath, string label)
         {
             if (TryGetExistingWebBridge(out GameObject existing))
@@ -217,14 +226,15 @@ namespace Modules.Road.Editor
             Selection.activeObject = instance;
         }
 
-        // A scene may host only one WebBridge (Road, Plinko, PlinkoAztec or Jumper). All bridges
+        // A scene may host only one WebBridge (Road, Plinko, PlinkoAztec, Jumper or MineSlot). All bridges
         // derive from WebBridgeBase, so the presence of any concrete component blocks a second creation.
         private static bool TryGetExistingWebBridge(out GameObject existing)
         {
             return TryFindBridge<RoadWebBridge>(out existing)
                    || TryFindBridge<PlinkoWebBridge>(out existing)
                    || TryFindBridge<PlinkoAztecWebBridge>(out existing)
-                   || TryFindBridge<JumperWebBridge>(out existing);
+                   || TryFindBridge<JumperWebBridge>(out existing)
+                   || TryFindBridge<MineSlotWebBridge>(out existing);
         }
 
         private static bool TryFindBridge<TBridge>(out GameObject existing) where TBridge : MonoBehaviour
