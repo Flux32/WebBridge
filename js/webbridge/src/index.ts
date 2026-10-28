@@ -35,6 +35,10 @@ export type { TwistBonusSeries } from './twist/TwistBridge';
 
 export { WheelBridge } from './wheel/WheelBridge';
 
+export { MineSlotBridge } from './mine-slot/MineSlotBridge';
+export { MineSlotMockHost } from './mine-slot/MineSlotMockHost';
+export type { MineSlotMockHostOptions } from './mine-slot/MineSlotMockHost';
+
 export { SlotCoinBridge } from './slot-coin/SlotCoinBridge';
 export { SlotCoinMockHost } from './slot-coin/SlotCoinMockHost';
 export type { SlotCoinMockHostOptions } from './slot-coin/SlotCoinMockHost';

@@ -64,6 +64,7 @@ registerWebBoot(
 | `crush` | `CrushBridge` |
 | `twist` | `TwistBridge` |
 | `wheel` | `WheelBridge` |
+| `mine-slot` | `MineSlotBridge` |
 | `slot-coin` | `SlotCoinBridge` |
 | `plinko` | `PlinkoBridge` |
 | `plinko-aztec` | `PlinkoAztecBridge` |
@@ -245,6 +246,17 @@ bridge.start();
 статус раунда. Где бар встречается с игрой — `betBarMetricsReceived`
 (`WheelBetBarMetricsPayload`).
 
+## MineSlotBridge
+
+Мост Mine Slot: слот 5×3, кирки падают по столбцу своего барабана в поле блоков 5×6 под
+барабанами и ломают их; пробитый насквозь столбец открывает сундук с множителем, множители
+сундуков перемножаются. Хост присылает ответ сервера на play целиком (`ApplySpinResult`) —
+`spinResultReceived` отдаёт `MineSlotSpinResult`: доски (`boards`, по строке на раунд), поле
+(`field`, на начало раунда), падения кирок и динамита (`pickaxes`, `tnt`) и сундуки (`chests`).
+Выпавший (три скаттера) или купленный бонус приходит в том же ответе: базовый спин и четыре
+фри-спина на одном поле. Игра проигрывает все раунды и зовёт `notifySpinReady()` ровно один раз.
+Коды символов и блоков — константы протокола (`MINE_SLOT_SYMBOLS`, `MINE_SLOT_BLOCKS`).
+
 ## Без хоста: mock-хосты
 
 Mock-хост встаёт на место React-шелла: отвечает на запросы игры и сам ведёт раунд.
@@ -256,6 +268,7 @@ Mock-хост встаёт на место React-шелла: отвечает н
 |---|---|---|
 | `crush` | `MockHost` | Клавишами и панелью `MockPanel` |
 | `slot-coin` | `SlotCoinMockHost` | Клавишами |
+| `mine-slot` | `MineSlotMockHost` | Пробел — спин, B — купить бонус |
 | `plinko` | `PlinkoMockHost` | Клавишами |
 | `plinko-aztec` | `PlinkoAztecMockHost` | Клавишами |
 | `jumper` | `JumperMockHost` | Клавишами и методами |

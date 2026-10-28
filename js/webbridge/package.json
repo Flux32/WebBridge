@@ -1,6 +1,6 @@
 {
   "name": "@omega/webbridge-js",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "JS-сторона WebBridge: прослойка между React-хостом и веб-игрой (Phaser, Pixi, three.js — любой движок). Зеркало C#-пакета com.pixi.webbridge.",
   "type": "module",
   "main": "./dist/index.js",
