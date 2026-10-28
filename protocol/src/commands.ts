@@ -141,6 +141,12 @@ export type TwistCommand =
  */
 export type SlotCoinCommand = SpinCommand;
 
+/**
+ * Команды Mine Slot. Как и у slot-coin, раунд приходит целиком одним `ApplySpinResult` — ответ сервера на
+ * play с фри-спинами купленного или выпавшего бонуса, — поэтому своих команд у механики нет.
+ */
+export type MineSlotCommand = SpinCommand;
+
 export type EngineCommand =
   | CoreCommand
   | CrushCommand
@@ -148,5 +154,6 @@ export type EngineCommand =
   | WheelCommand
   | JumperCommand
   | TwistCommand
-  | SlotCoinCommand;
+  | SlotCoinCommand
+  | MineSlotCommand;
 export type EngineCommandType = EngineCommand['type'];

@@ -31,6 +31,7 @@ export type {
   EngineCommand,
   EngineCommandType,
   JumperCommand,
+  MineSlotCommand,
   PlinkoCommand,
   SlotCoinCommand,
   SpinCommand,
@@ -100,3 +101,20 @@ export {
   UNITY_REACT_EVENT,
 } from './unityWire.js';
 export type { UnityPlainMessage, UnityPrefix } from './unityWire.js';
+
+export type {
+  MineSlotBlock,
+  MineSlotBonusType,
+  MineSlotBrokenBlock,
+  MineSlotChest,
+  MineSlotHit,
+  MineSlotSpinResult,
+  MineSlotSymbol,
+} from './mineSlot.js';
+export {
+  MINE_SLOT_BLOCKS,
+  MINE_SLOT_CHEST_COEFFS,
+  MINE_SLOT_FIELD,
+  MINE_SLOT_REELS,
+  MINE_SLOT_SYMBOLS,
+} from './mineSlot.js';

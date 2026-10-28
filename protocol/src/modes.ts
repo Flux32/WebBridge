@@ -59,6 +59,8 @@ export interface ModeProtocols {
   >;
   readonly plinkoAztec: ModeChannel<PlinkoAztecCommand, PlinkoEvent>;
   readonly jumper: ModeChannel<JumperCommand | SharedRoundCommand, SeriesBonusEventChannel>;
+  /** One spin reply plays the whole round, free spins included, and is answered with one SpinReady. */
+  readonly mineSlot: ModeChannel<SpinCommand, RoundEvent>;
 }
 
 export type ModeProtocolId = keyof ModeProtocols;
