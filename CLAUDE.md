@@ -37,7 +37,7 @@ js/webbridge/      @omega/webbridge-js — игровая сторона мос�
 unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ```
 1. Контракт правится ТОЛЬКО в `protocol/` — остальные стороны его потребляют.
-2. TS-мост зеркалит имена C#: `WebBridgeBase<T>` → `BridgeBase`, `RoadWebBridge` → `RoadBridge`, `event Action<T>` → `Signal<T>`.
+2. TS-мост зеркалит имена C#: `WebBridgeBase<T>` → `BridgeBase`, `RoadWebBridge` → `CrushBridge`, `event Action<T>` → `Signal<T>`.
 3. Ядро TS-моста не знает ни про движок, ни про строки: хост веб-игры появляется только в `web/createWebBoot.ts`, парсинг строк — только в Unity.
 4. Сборка: `npm run build` в корне (TS project references, `tsc -b js/webbridge`).
 5. Тесты: `npm test` в корне (Vitest в `js/webbridge/test`; плагины dev-сервера проверяются на настоящем Vite).
@@ -45,3 +45,8 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ### Связь с Unity-мостом
 - React адресует Unity-объект по имени GameObject (`"WebBridge"`) + имени публичного метода моста — имя C#-класса роли не играет.
 - Каждой игре — свой мост (`RoadWebBridge`, `PlinkoWebBridge`), наследник game-agnostic базы `WebBridgeBase<T>` (namespace `WebBridge`). Общие типы (`Json`, `JsonValue`, `JsonName`, `WebBridgeUtils`, `WebGameStateBase`) лежат в namespace `WebBridge`, игро-специфика — в `Modules.<Game>`.
+
+## Документация
+- Вся документация — в `docs/`, корневой `README.md` — её карта; пакетные README — короткие карточки со ссылками.
+- Изменение контракта или моста режима обновляет `docs/modes/<mode-id>/` (`README.md` — контракт, `js.md`, `unity.md`) в том же MR.
+- Новый режим — три файла по шаблонам `docs/_templates/` и строка в таблице режимов корневого `README.md`. Правила — `docs/_templates/README.md`.

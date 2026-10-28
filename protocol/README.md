@@ -1,64 +1,27 @@
 # @omega/webbridge-protocol
 
-Словарь, на котором говорят **все** участники: React-фронтенд, Unity-мост
-(`unity/Assets/WebBridge`, C#) и JS-мост (`js/webbridge`, веб-игры на любом JS-движке).
+Контракт WebBridge — **единственный источник истины** для React-шелла, Unity-моста (C#) и JS-моста (веб-игры):
+команды хоста, события игры, payload'ы. Здесь нет ничего движко-специфичного: имена доменные
+(`ApplyStepResult`, `SpinReady`), а как они ложатся на провод, решает каждая сторона.
 
-Правило одно: **ничего движко-специфичного здесь нет**. Имена доменные
-(`ApplyStepResult`, `StartBonus`), а как они лягут на провод — забота стороны:
+## Что внутри
 
-| | транспорт | где живёт маппинг |
-|---|---|---|
-| Unity | `SendMessage('WebBridge', method, string)` + строка в `SendToReact` | `src/unityWire.ts` (константы) + C#-мост |
-| веб-игра | тот же `window`, структурированный объект | `js/webbridge` |
+| Файл | Что описывает |
+|---|---|
+| `src/commands.ts` | `EngineCommand`: общие `CoreCommand` и команды режимов |
+| `src/events.ts` | `EngineEvent`: общие `CoreEvent`, `RoundEvent` (`SpinReady`) и события режимов |
+| `src/modes.ts` | `ModeProtocols`: канал команд и событий каждого режима |
+| `src/payloads.ts`, `src/jumper.ts`, `src/mineSlot.ts` | payload'ы и словари режимов |
+| `src/web.ts` | контракт веб-игры: `WebHostBridge`, `WebGameBridge`, `__WEB_GAME_BOOT__` |
+| `src/unityWire.ts` | проводной формат Unity: имя объекта `WebBridge`, событие `SendToReact`, префиксы |
+| `src/legacy*.ts` | `@deprecated`-псевдонимы переименований (`slot` → `slot-coin`, `__PHASER_BOOT__`) |
 
-## Состав
+## Документация
 
-- `payloads.ts` — формы данных;
-- `jumper.ts` — формы данных jumper (лесенка с ускорителями): конфиг, состояние
-  раунда, результат хода и купленный бонус. Хост приводит к ним ответы сервера
-  (`RoadFrontent/src/modes/jumper/PROTOCOL.md`) — массивы вместо карт по ступеням,
-  чтобы Unity читал их обычным классом JsonUtility;
-- `mineSlot.ts` — Mine Slot: слот 5×3, кирки ломают поле блоков 5×6 под барабанами, сундуки с множителями; ответ сервера на play целиком (с фри-спинами) приходит одним `ApplySpinResult`, движок отвечает одним `SpinReady`.
-- `commands.ts` — React → игра;
-- `events.ts` — игра → React;
-- `modes.ts` — канал каждого режима (`ModeProtocols`): что хост шлёт ему сверх
-  ядра и что шлёт в ответ его игровой мост; типы, в рантайме ничего не несёт;
-- `web.ts` — контракт загрузки веб-игры (`__WEB_GAME_BOOT__`);
-- `legacyPhaserNames.ts` — прежние имена того же контракта (`__PHASER_BOOT__`,
-  `PhaserHostBridge`, …) для выпущенных игр и шеллов;
-- `legacySlotNames.ts` — прежние имена режима slot-coin (до 1.17.0 — `slot`):
-  `SlotSpinResult`, `SlotCommand`, `SLOT_ACTIONS`, … — `@deprecated`-синонимы новых
-  `SlotCoin…`; канал `ModeProtocols.slot` — такой же синоним `ModeProtocols.slotCoin`;
-- `unityWire.ts` — имена и префиксы проводного формата Unity.
-
-`typetests/` проверяет `modes.ts` компиляцией (`tsc -p typetests`, входит в
-`npm run typecheck`): состав канала не меняется незаметно, а команда/событие
-чужого режима не проходит `@ts-expect-error`.
-
-## Публикация
-
-Пока — тарболом в GitHub Releases: реестр `packages.inoutgames.dev` принадлежит
-партнёрам, публиковать туда мы не можем, а свой GitLab Package Registry на
-`git.x-web.cloud` ещё не заведён. Имя пакета уже под scope `@omega`, чтобы при
-переезде туда его не менять (GitLab требует, чтобы scope совпадал с корневой
-группой).
-
-```bash
-npm version patch -w @omega/webbridge-protocol
-npm pack -w @omega/webbridge-protocol
-gh release create protocol-v<версия> omega-webbridge-protocol-<версия>.tgz \
-  --repo Flux32/WebBridge --title "protocol v<версия>"
-```
-
-`prepack` соберёт `dist/` (в git его нет). Дальше во фронтенде правится URL
-тарбола в `dependencies` — версии иммутабельны, semver-диапазонов тут нет,
-ссылка всегда точная.
-
-## Куда девать дубли
-
-Сейчас контракт продублирован трижды: здесь, в `RoadFrontent/src/engine/protocol.ts`
-и в C#-payload'ах. Порядок устранения:
-
-1. ✅ фронтенд импортирует пакет вместо своей копии, `src/engine/protocol.ts` удалён;
-2. на C#-стороне добавляется тест, сверяющий имена методов моста и поля payload'ов
-   с `unityWire.ts` (генерацию C# из TS не делаем — дорого и ломко).
+- [Общий протокол](../docs/concepts/core-protocol.md): все общие команды и события, оба провода
+- Контракты режимов: [crush](../docs/modes/crush/README.md) · [twist](../docs/modes/twist/README.md) ·
+  [slot-coin](../docs/modes/slot-coin/README.md) · [wheel](../docs/modes/wheel/README.md) ·
+  [plinko](../docs/modes/plinko/README.md) · [plinko-aztec](../docs/modes/plinko-aztec/README.md) ·
+  [jumper](../docs/modes/jumper/README.md) · [mine-slot](../docs/modes/mine-slot/README.md)
+- [Релизы](../docs/guides/releasing.md): версии и выпуск tarball'а в GitHub Releases
+- [Вся документация WebBridge](../README.md)

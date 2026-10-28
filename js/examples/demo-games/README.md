@@ -20,9 +20,9 @@ DEMO_MODE=crush npm run dev -w js/examples/demo-games         # http://localhost
 | `plinko` | 5190 | `PlinkoBridge` | `PlinkoMockHost` |
 | `plinko-aztec` | 5191 | `PlinkoAztecBridge` | `PlinkoAztecMockHost` |
 | `crush` | 5192 | `CrushBridge` | `MockHost` |
-| `twist` | 5193 | `TwistBridge` | — (свой в `modes/twist/dev.ts`) |
+| `twist` | 5193 | `TwistBridge` | — (свой: `modes/twist/TwistMockHost.ts`) |
 | `slot-coin` | 5194 | `SlotCoinBridge` | `SlotCoinMockHost` |
-| `wheel` | 5195 | `WheelBridge` | — (свой в `modes/wheel/dev.ts`) |
+| `wheel` | 5195 | `WheelBridge` | — (свой: `modes/wheel/WheelMockHost.ts`) |
 | `jumper` | 5196 | `JumperBridge` | `JumperMockHost` |
 | `mine-slot` | 5197 | `MineSlotBridge` | `MineSlotMockHost` |
 
