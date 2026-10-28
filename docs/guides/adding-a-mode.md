@@ -26,7 +26,9 @@
    `commands.ts`, события — в `events.ts`, и тогда они входят в `EngineCommand` / `EngineEvent`.
 3. Экспорт — из `protocol/src/index.ts`.
 4. Версия — **minor** (`1.17.0` → `1.18.0`): изменение только добавляет.
-5. Новые Unity-сообщения без payload'а — в `UNITY_PLAIN_MESSAGES` (`unityWire.ts`).
+5. Новые Unity-сообщения без payload'а — в `UNITY_PLAIN_MESSAGES` (`unityWire.ts`), с префиксом — в
+   `UNITY_PREFIXED_MESSAGES`; забытую строку поймает `js/webbridge/test/unityWire.test.ts`. Шелл держит
+   свою копию в `unityProtocol.ts` — её правят там же.
 
 ## 2. JS-мост — `js/webbridge/`
 

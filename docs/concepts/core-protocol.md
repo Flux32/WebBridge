@@ -342,11 +342,11 @@ interface UnityFrameSamplePayload {
 Нераспознанную строку хост молча отбрасывает: так сейчас уходят в никуда `RequestTranslations` и
 `CloseTransitionScreen` от Unity (оба хост и так не обрабатывает).
 
-> **`unityWire.ts` описывает провод не полностью.** В `UNITY_PLAIN_MESSAGES` нет `SpinReady`,
-> `OpenTransitionScreen` и `CloseTransitionScreen`, но есть `RequestActiveGameState`, которого нет ни в
-> `EngineEvent`, ни в Unity-пакете. В `UNITY_PREFIXED_MESSAGES` нет `SetVolume_`. Шелл констант этого
-> модуля не импортирует — держит свои в `unityProtocol.ts`. Источник истины по проводу Unity сейчас —
-> `unityProtocol.ts` шелла и C#-мост; таблицы выше сверены с ними.
+> **Шелл констант `unityWire.ts` не импортирует** — держит свою копию в `unityProtocol.ts`, поэтому новая
+> строка провода правится в обоих местах. Что каждая строка, которую шлёт Unity-пакет, есть в
+> `UNITY_PLAIN_MESSAGES` / `UNITY_PREFIXED_MESSAGES`, проверяет `js/webbridge/test/unityWire.test.ts` по
+> исходникам C#. `OpenTransitionScreen` и `CloseTransitionScreen` шлёт игровой код, а не пакет, — тест их
+> не видит.
 
 ### Веб-игра
 

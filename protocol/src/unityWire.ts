@@ -1,8 +1,9 @@
 /**
- * Проводной формат Unity: имена GameObject/событий, имена методов и строковые
- * префиксы. Единственное место, где эти строки записаны на TS-стороне —
- * `src/engine/unity/unityProtocol.ts` во фронтенде мапит доменные команды через
- * них, а C#-тест сверяет с ними публичные методы мостов.
+ * Проводной формат Unity: имена GameObject/событий и строки, которые Unity шлёт
+ * в React. Шелл эти константы не импортирует — держит свою копию в
+ * `src/engine/unity/unityProtocol.ts` фронтенда, поэтому правка провода идёт в
+ * обе стороны. Что каждая строка, которую шлёт Unity-пакет, здесь перечислена,
+ * проверяет `js/webbridge/test/unityWire.test.ts` по исходникам C#.
  *
  * Веб-игра этот модуль не импортирует: там нет ни строк, ни префиксов.
  */
@@ -19,7 +20,6 @@ export const UNITY_REACT_EVENT = 'SendToReact';
 export const UNITY_PLAIN_MESSAGES = [
   'RequestGameConfig',
   'RequestGameState',
-  'RequestActiveGameState',
   'RequestWhiteLabel',
   'RequestFastGame',
   'RequestTranslations',
@@ -29,7 +29,10 @@ export const UNITY_PLAIN_MESSAGES = [
   'RequestBallsAmount',
   'RequestBetPerBall',
   'DropFinished',
+  'SpinReady',
   'RoundShown',
+  'OpenTransitionScreen',
+  'CloseTransitionScreen',
   'BonusProgressClear',
   'BonusActive',
   'BonusEnded',
@@ -47,6 +50,7 @@ export const UNITY_PREFIXED_MESSAGES = {
   playMusic: 'PlayMusic_',
   playLoop: 'PlayLoop_',
   stopLoop: 'StopLoop_',
+  setVolume: 'SetVolume_',
   uiVisibility: 'UiVisibility_',
   bonusProgressSave: 'BonusProgressSave_',
 } as const;
