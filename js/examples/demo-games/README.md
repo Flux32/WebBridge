@@ -24,7 +24,7 @@ DEMO_MODE=crush npm run dev -w js/examples/demo-games         # http://localhost
 | `slot-coin` | 5194 | `SlotCoinBridge` | `SlotCoinMockHost` |
 | `wheel` | 5195 | `WheelBridge` | — (свой в `modes/wheel/dev.ts`) |
 | `jumper` | 5196 | `JumperBridge` | `JumperMockHost` |
-| `mine-slot` | 5197 | `MineSlotBridge` | `MineSlotMockHost` (в конфигуратор пока не экспортируется) |
+| `mine-slot` | 5197 | `MineSlotBridge` | `MineSlotMockHost` |
 
 - `?mock=1` — вместо шелла mock-хост режима.
 - Без `mock` dev-сервер отдаёт `/game.js` для шелла: `?localBuild=http://localhost:<порт>`.
