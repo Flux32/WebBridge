@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client", "node"],
+    "paths": {
+      // The bridge pins a protocol release; its declarations must read the protocol of this repository,
+      // as js/webbridge itself does.
+      "@omega/webbridge-protocol": ["../../../protocol/src/index.ts"]
+    }
+  },
+  "include": ["src", "test", "scripts", "vite.config.ts"]
+}

@@ -4,12 +4,13 @@
   "workspaces": [
     "protocol",
     "js/webbridge",
-    "js/examples/jumper-stub"
+    "js/examples/jumper-stub",
+    "js/examples/demo-games"
   ],
   "scripts": {
     "build": "tsc -b js/webbridge",
-    "typecheck": "tsc -b js/webbridge && npm run typecheck -w protocol && npm run typecheck -w js/examples/jumper-stub",
+    "typecheck": "tsc -b js/webbridge && npm run typecheck -w protocol && npm run typecheck -w js/examples/jumper-stub && npm run typecheck -w js/examples/demo-games",
     "clean": "tsc -b --clean js/webbridge",
-    "test": "npm test -w js/webbridge"
+    "test": "npm test -w js/webbridge && npm test -w js/examples/demo-games"
   }
 }
