@@ -552,6 +552,29 @@ Play Mode редактора.
 | `Fortune Wheel Coefficient` | Множитель колеса вне бонус-сектора |
 | `Is White Label` | Ответ на `RequestWhiteLabel` в редакторе |
 
+### Mock Mine Slot
+
+`MineSlotWebBridge` (`Modules.MineSlot`, контракт `protocol/src/mineSlot.ts`) в mock-режиме
+полностью заменяет React: `MineSlotMockHost` отвечает на `RequestGameConfig` /
+`RequestGameState` / `RequestPlay` / `RequestWhiteLabel` и присылает в `ApplySpinResult`
+ответ сервера в алфавите бэкенда — по упрощённым правилам JS-двойника
+(`js/webbridge/src/mine-slot/mineSlotMockRound.ts`). Панель `MineSlotMockDebugIMGUI`
+(кнопка **MIN**) заменяет бет-бар. Раунд занят, пока игра не позовёт `NotifySpinReady`.
+
+| Элемент панели | Что делает |
+|---|---|
+| `SPIN` | Спин; три скаттера превращают его в бонус — базовый спин и четыре фри-спина на одном поле |
+| `BONUS` | Купленный бонус: базовый спин со скаттерами и четыре фри-спина |
+| `RESET` | Снять лок и прислать пустое состояние (`status: "none"`), как после перезагрузки |
+
+Параметры эмуляции — секция `Mock` в инспекторе `MineSlotWebBridge`:
+
+| Поле | Описание |
+|---|---|
+| `Bet Amount` | Ставка строкой бэкенда (`"1"`, `"0.5"`) |
+| `Currency` / `Decimal Places` | Валюта и формат сумм |
+| `Is White Label` | Ответ на `RequestWhiteLabel` в редакторе |
+
 `ScreenOrientationWebBridge` имеет своё мок-поле: `Mock Mobile Aspect Ratio`.
 
 ---

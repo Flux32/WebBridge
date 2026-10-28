@@ -26,6 +26,7 @@ Unity-пакет для связи между React-фронтендом и Unit
   - [PlinkoAztecWebBridge](#plinkoaztecwebbridge)
   - [WheelWebBridge](#wheelwebbridge)
   - [JumperWebBridge](#jumperwebbridge)
+  - [MineSlotWebBridge](#mineslotwebbridge)
   - [LayoutWebBridge](#layoutwebbridge)
   - [ScreenOrientationWebBridge](#screenorientationwebbridge)
   - [AudioWebBridge](#audiowebbridge)
@@ -137,7 +138,7 @@ unity/             Unity-проект; UPM-пакет — unity/Assets/WebBridge
 ### WebBridgeBase
 
 База каждого игрового моста (`RoadWebBridge`, `PlinkoWebBridge`,
-`PlinkoAztecWebBridge`, `WheelWebBridge`, `JumperWebBridge` наследуют её). Здесь
+`PlinkoAztecWebBridge`, `WheelWebBridge`, `JumperWebBridge`, `MineSlotWebBridge` наследуют её). Здесь
 живёт только то, что одинаково во всех играх, поэтому методы ниже доступны на
 любом мосте.
 
@@ -560,6 +561,102 @@ BET, как и хост, сразу за `play` шлёт первый прыжо
 ступеней, бонус за 100 ставок), дальность батута / джетпака / ракеты (2 / 4 / 8),
 доля ступеней со слотом, доля пустых слотов, шанс падения, ставка и валюта, число
 фри-геймов в серии, ответ на `RequestWhiteLabel`.
+
+---
+
+### MineSlotWebBridge
+
+Мост Mine Slot — слот 5 × 3, где кирки падают по столбцу своего барабана в поле
+блоков 5 × 6 под барабанами и ломают их; пробитый насквозь столбец открывает сундук,
+множители сундуков перемножаются. Namespace — `Modules.MineSlot`, контракт —
+`protocol/src/mineSlot.ts` (канал `mineSlot`: команда `ApplySpinResult`, событие
+`SpinReady`). React делает `play` на платформе и пересылает ответ сервера как есть,
+JSON-строкой. Один ответ несёт весь раунд: базовый спин и, если выпало три скаттера
+или бонус куплен (`bonusType: "bonus-buy"`), все четыре фри-спина. Игра проигрывает
+раунды по порядку — поле между фри-спинами не перегенерируется — и **один раз**, после
+последнего, зовёт `NotifySpinReady`: до него React не показывает выигрыш и держит
+бет-бар залоченным. Других команд режима нет.
+
+Деньги приходят десятичными строками платформы (`"10.000000000000000000"`),
+коэффициенты — числами.
+
+#### События
+
+| Событие | Аргументы | Когда срабатывает |
+|---|---|---|
+| `GameConfigReceived` | `JsonValue` | Пришёл конфиг платформы — как есть, его форма не часть контракта |
+| `GameStateReceived` | `WebMineSlotSpinResultPayload` | «Приведи сцену к этому состоянию»: загрузка, ресинк. `status: "none"` — раунда нет |
+| `SpinResultReceived` | `WebMineSlotSpinResultPayload` | Ответ на `play`: игра проигрывает все его раунды и зовёт `NotifySpinReady` |
+
+#### Методы React → Unity (через `SendMessage`)
+
+| Метод | Параметр | Описание |
+|---|---|---|
+| `ApplyGameConfig(json)` | JSON конфига платформы | Конфиг игры |
+| `ApplyGameState(json)` | JSON `WebMineSlotSpinResultPayload` | Состояние, каким его описал `get-game-state` |
+| `ApplySpinResult(json)` | JSON `WebMineSlotSpinResultPayload` | Ответ сервера на `play` целиком, фри-спины включительно |
+
+#### Методы Unity → React
+
+| Метод | Что шлёт в React | Ответ React |
+|---|---|---|
+| `RequestGameConfig()` | `RequestGameConfig` | → `ApplyGameConfig(json)` |
+| `RequestGameState()` | `RequestGameState` | → `ApplyGameState(json)` |
+| `RequestPlay()` (база) | `RequestPlay` — спин из самой сцены | → `ApplySpinResult(json)` либо `OnDisabledPlayPressed()` |
+| `NotifySpinReady()` | `SpinReady` — доигран последний раунд ответа | React раскрывает выигрыш и снимает лок бет-бара |
+
+#### Свойства
+
+| Свойство | Тип | Описание |
+|---|---|---|
+| `LastGameConfig` | `JsonValue` | Последний конфиг |
+| `LastGameState` | `WebMineSlotSpinResultPayload` | Последнее состояние — из `ApplyGameState` или из ответа на спин |
+| `LastSpinResult` | `WebMineSlotSpinResultPayload` | Последний ответ на спин |
+| `MockHost` | `MineSlotMockHost` | Заглушка React и сервера в mock-режиме; `null` вне его |
+
+#### Payload
+
+`WebMineSlotSpinResultPayload` (база — `WebGameStateBase`: `status`, `bet`, `isFinished`,
+`isWin`, `winAmount`):
+
+| Поле | Тип | Смысл |
+|---|---|---|
+| `betAmount` / `currency` | string | Ставка и валюта на верхнем уровне |
+| `coeff` | float? | Коэффициент всего ответа: коэффициенты блоков, умноженные на множители сундуков |
+| `rounds` | int | `1` — обычный спин, `5` — базовый спин и четыре фри-спина |
+| `boards` | string[] | По 15 символов на раунд, по столбцам: символы 0–2 — барабан 0 сверху вниз. `GetBoardSymbol(round, reel, row)` |
+| `field` | string | 30 блоков на начало ответа, по столбцам: символы 0–5 — столбец 0 сверху вниз. `GetFieldBlock(column, level)` |
+| `pickaxes` | `MineSlotHitPayload[]` | Падения кирок в порядке игры: по столбцу от деревянной к зачарованной |
+| `tnt` | `MineSlotHitPayload[]` | Падения динамита — после кирок раунда, слева направо |
+| `chests` | `MineSlotChestPayload[]` | Открытые сундуки: `col`, `coeff`, `payout` |
+
+`MineSlotHitPayload` — `round` (индекс в `boards`), `index` (клетка барабана, `Reel` / `Row`),
+`brokenBlocks`: `MineSlotBrokenBlockPayload` — `index` (клетка поля, `Column` / `Level`),
+`damage`, а `coeff` и `payout` — только у удара, который блок доломал.
+
+Алфавит — константами, геометрия — с проверкой границ (`ArgumentOutOfRangeException`):
+
+| Тип | Что в нём |
+|---|---|
+| `MineSlotReels` / `MineSlotField` | Размеры (5 × 3, 5 × 6), `CellIndex`, обратные `ReelOf` / `RowOf`, `ColumnOf` / `LevelOf` |
+| `MineSlotSymbols` | `x` пусто, кирки `1` / `2` / `3` / `5` (`GetPickaxeStrength`), `d` динамит (урон 2), `e` книга зачарования (кирки барабана — сила 5), `b` скаттер (3 → 4 фри-спина) |
+| `MineSlotBlocks` | `d` земля 1 / 0×, `s` камень 2 / 0.1×, `r` редстоун 4 / 1×, `g` золото 5 / 3×, `c` кристалл 6 / 5×, `o` обсидиан 7 / 25× — прочность / коэффициент, `Get(code)` |
+| `MineSlotChests` | `Coeffs`: 2, 3, 4, 5, 10, 25, 50, 100 |
+
+> ```csharp
+> MineSlotWebBridge.Instance.SpinResultReceived += reply =>
+>     PlayRounds(reply, onPlayed: () => MineSlotWebBridge.Instance.NotifySpinReady());
+> ```
+
+#### Mock-режим
+
+В mock-режиме мост создаёт `MineSlotMockHost` и панель `MineSlotMockDebugIMGUI` (кнопка
+**MIN**): SPIN, BONUS и RESET. Хост раздаёт ответы в алфавите бэкенда по упрощённым
+правилам JS-двойника (`js/webbridge/src/mine-slot/mineSlotMockRound.ts`): три скаттера
+или BONUS — базовый спин и четыре фри-спина на одном поле. Пока раунд не доигран
+(`NotifySpinReady`), SPIN и BONUS недоступны, а `RequestPlay` из сцены получает
+`OnDisabledPlayPressed()`. Параметры — секция `Mock` в инспекторе моста
+(`MineSlotMockSettings`): ставка, валюта, знаки после запятой, ответ на `RequestWhiteLabel`.
 
 ---
 
@@ -1163,7 +1260,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 | `UiVisibility_{json}` | `LayoutWebBridge.SyncUiVisibility` |
 | `RequestBetBarViewportMetrics` | `LayoutWebBridge.RequestBetBarViewportMetrics` |
 | `RoundShown` | `WheelWebBridge.NotifyRoundShown` |
-| `SpinReady` | `JumperWebBridge.NotifySpinReady` |
+| `SpinReady` | `JumperWebBridge` / `MineSlotWebBridge.NotifySpinReady` |
 | `RequestGameConfig` | `GameWebBridge.RequestGameConfig` |
 | `RequestGameState` | `GameWebBridge.RequestGameState` |
 | `RequestActiveGameState` | `GameWebBridge.RequestActiveGameState` |
@@ -1199,6 +1296,7 @@ GameObject в Unity называется **`WebBridge`**. React шлёт ком�
 - **WheelWebBridge:** `ApplyRound`, `SetWheelBetBarMetrics`.
 - **JumperWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `SetJumperDifficulty`, `ApplyJumperMove`,
   `SetAutoplay`, `RestartRound`, `StartBonus`.
+- **MineSlotWebBridge:** `ApplyGameConfig`, `ApplyGameState`, `ApplySpinResult`.
 - **LayoutWebBridge:** `SetMobileBetBarViewportMetrics`, `SetCanvasSize`, `SetHide*`, `SetBetBarInteractable`,
   `SetMobileBetBarInteractable`, `SyncUiVisibility`.
 - **ScreenOrientationWebBridge:** `ChangeOrientation`.

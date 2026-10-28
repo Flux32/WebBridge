@@ -1,6 +1,6 @@
 {
   "name": "com.pixi.webbridge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "displayName": "WebBridge",
   "description": "WebBridge components for React-Unity communication. Provides ScreenOrientationWebBridge, GameWebBridge, LayoutWebBridge and AudioWebBridge.",
   "unity": "6000.0",
