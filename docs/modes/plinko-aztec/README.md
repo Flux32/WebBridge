@@ -341,7 +341,7 @@ dev-бэка: суммы мок считает иллюстративно, но 
 - [JS: как встроить](js.md) · [Unity: как встроить](unity.md)
 - [Жизненный цикл раунда](../../concepts/round-lifecycle.md) · [Общий протокол](../../concepts/core-protocol.md) ·
   [Mock-режим](../../concepts/mock-mode.md)
-- Исходники контракта: `protocol/src/modes.ts` (`plinkoAztec`), `protocol/src/commands.ts` (`PlinkoCommand`,
-  `TwistCommand`), `protocol/src/events.ts` (`PlinkoEvent`), `protocol/src/unityWire.ts`
+- Исходники контракта: `protocol/src/modes.ts` (`plinkoAztec`), `protocol/src/commands.ts` (`PlinkoCommand`),
+  `protocol/src/events.ts` (`PlinkoEvent`), `protocol/src/unityWire.ts`
 - Хост: `RoadFrontent/src/modes/plinko-aztec/` (`usePlinkoAztec.ts`, `plinkoAztecStep.ts`,
   `plinkoAztecEngineEvents.ts`, `types.ts`)

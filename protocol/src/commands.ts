@@ -88,12 +88,14 @@ export type CrushCommand =
   | { type: 'StartBonus'; payload: StartBonusPayload }
   | { type: 'ApplyBonusPurchaseResult'; payload: BonusPurchaseResultPayload };
 
-/** Команды Plinko: шарики, ставка за шар и падение. */
+/** Команды Plinko: шарики, ставка за шар, падение и шаг бонуса plinko-aztec. */
 export type PlinkoCommand =
   | { type: 'SetBallsAmount'; payload: number }
   // Ставка за шар — десятичная строка как `betPerBall` бэкенда ("0.2", "2"): деньги не идут через number.
   | { type: 'SetBetPerBall'; payload: string }
-  | { type: 'ApplyDropResult'; payload: string };
+  | { type: 'ApplyDropResult'; payload: string }
+  // Ответ сервера на шаг бонусной игры plinko-aztec (после `RequestStep`): сырой GameState-JSON.
+  | { type: 'ApplyBonusStepResult'; payload: string };
 
 /** Команды колеса. */
 export type WheelCommand =
@@ -121,12 +123,11 @@ export type JumperCommand =
 export type SpinCommand = { type: 'ApplySpinResult'; payload: string };
 
 /**
- * Команды Twist: спин живой сессии и шаг купленной серии фри-спинов. Оба
- * payload'а — сырой GameState-JSON, игра проигрывает их одним и тем же путём.
+ * Команды Twist: спин живой сессии (сырой GameState-JSON) и отмашка серии
+ * фри-спинов. Шаги серии хост не шлёт: её игра крутит сама из `StartBonus`.
  */
 export type TwistCommand =
   | SpinCommand
-  | { type: 'ApplyBonusStepResult'; payload: string }
   // Интро иконки фри-спинов на стороне хоста доиграло — серию можно крутить.
   // Серию ведёт игра, поэтому и отмашка нужна ей: `StartBonus` приходит ещё под
   // закрытой шторкой перехода, там игра меняет локацию и готовит доску, а

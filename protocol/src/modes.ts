@@ -30,9 +30,10 @@ type TwistCommandChannel =
   | SharedRoundCommand
   | Extract<TwistCommand, { type: 'FreeGamesIntroFinished' }>;
 
-type PlinkoAztecCommand =
-  | Extract<PlinkoCommand, { type: 'SetBallsAmount' | 'SetBetPerBall' | 'ApplyDropResult' }>
-  | Extract<TwistCommand, { type: 'ApplyBonusStepResult' }>;
+type PlinkoAztecCommand = Extract<
+  PlinkoCommand,
+  { type: 'SetBallsAmount' | 'SetBetPerBall' | 'ApplyDropResult' | 'ApplyBonusStepResult' }
+>;
 
 /**
  * A bonus bought on the host's bar and settled by the server in one reply:

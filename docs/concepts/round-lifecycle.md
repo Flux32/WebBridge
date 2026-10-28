@@ -77,7 +77,7 @@ sequenceDiagram
 | Режим | Команда хода | Событие конца хода | Особенности |
 |---|---|---|---|
 | [crush](../modes/crush/README.md) | `ApplyStepResult` | `SpinReady` | после кэшаута/проигрыша — `RestartRound`, затем снова `SpinReady` |
-| [twist](../modes/twist/README.md) | `ApplySpinResult` | `SpinReady` | серия фри-спинов купленного бонуса — `ApplyBonusStepResult` |
+| [twist](../modes/twist/README.md) | `ApplySpinResult` | `SpinReady` | серию фри-спинов купленного бонуса игра крутит сама из `StartBonus` |
 | [slot-coin](../modes/slot-coin/README.md) | `ApplySpinResult` | `SpinReady` | весь раунд, бонусные доски тоже, — один ответ |
 | [wheel](../modes/wheel/README.md) | `ApplyRound` | `RoundShown` | общий раунд по фазам: бар следует фазе раунда, `RoundShown` раскрывает выплату и открывает окно |
 | [plinko](../modes/plinko/README.md) | `ApplyDropResult` | `DropFinished` | — |

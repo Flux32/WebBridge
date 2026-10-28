@@ -180,8 +180,8 @@ sequenceDiagram
 Из общих команд режиму важны `CashoutPressed`, `WinWindowOpened` / `WinWindowClosed`,
 `TransitionScreen*` и `DisabledPlayPressed`. Их смысл — в [общем протоколе](../../concepts/core-protocol.md).
 
-`ApplyBonusStepResult` в канал twist **не входит**, хотя записан в союзе `TwistCommand`. Шаг серии хост
-игре не шлёт: серию игра крутит сама из `StartBonus`. Команду использует только plinko-aztec.
+Шаг серии фри-спинов хост игре не шлёт: серию игра крутит сама из `StartBonus`. `ApplyBonusStepResult` —
+команда plinko-aztec, в `TwistCommand` её нет.
 
 ## События игры → хост
 
