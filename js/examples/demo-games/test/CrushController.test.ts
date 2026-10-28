@@ -73,6 +73,12 @@ describe('CrushController', () => {
     expect(eventTypes(transport)).toEqual(['SpinReady']);
   });
 
+  it('reads a ladder the server sent as decimal strings', () => {
+    const { bridge, controller } = setup();
+    bridge.receive({ type: 'ApplyGameConfig', payload: JSON.stringify({ coefficients: ['1.03', '1.08'] }) });
+    expect(controller.round.steps).toEqual([1.03, 1.08]);
+  });
+
   it('restores a live round on the step the server reports', () => {
     const { bridge, controller } = setup();
     bridge.receive({ type: 'ApplyGameState', payload: JSON.stringify({ lineNumber: 2, isFinished: false }) });

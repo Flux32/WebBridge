@@ -3,10 +3,10 @@
  * `RestartRound` from the host — the engine resets the scene itself, then reports. A won round and a
  * cash out do get one, and the scene answers it the same way: reset, then `SpinReady`.
  */
-import type { CrushBridge, RestartRequest } from '@omega/webbridge-js';
+import { BridgeLogger, type CrushBridge, type RestartRequest } from '@omega/webbridge-js';
 import type { StepResultPayload } from '@omega/webbridge-protocol';
 import { MoveQueue } from '../../kit/MoveQueue';
-import { CrushRound } from './crushRound';
+import { CrushRound, toLadder } from './crushRound';
 
 export interface CrushMotions {
   hop(toStep: number): Promise<boolean>;
@@ -33,10 +33,8 @@ export class CrushController {
     private readonly motions: CrushMotions,
   ) {
     this.unsubscribers = [
-      bridge.coefficientsReceived.add((ladder) => this.round.setLadder(ladder)),
-      bridge.gameConfigReceived.add((config) => {
-        if (config.coefficients.length > 0) this.round.setLadder(config.coefficients);
-      }),
+      bridge.coefficientsReceived.add((ladder) => this.applyLadder(ladder)),
+      bridge.gameConfigReceived.add((config) => this.applyLadder(config.coefficients)),
       bridge.gameStateReceived.add((state) => this.restore(state)),
       bridge.stepResultReceived.add((result) => this.queue.enqueue(() => this.playStep(result))),
       bridge.restartRequested.add((request) => this.queue.enqueue(() => this.restart(request))),
@@ -47,6 +45,15 @@ export class CrushController {
   public destroy(): void {
     this.queue.close();
     this.unsubscribers.forEach((unsubscribe) => unsubscribe());
+  }
+
+  private applyLadder(values: readonly unknown[]): void {
+    const ladder = toLadder(values);
+    if (ladder === null) {
+      BridgeLogger.error(`[demo crush] the ladder is not a list of numbers: ${JSON.stringify(values)}`);
+      return;
+    }
+    if (ladder.length > 0) this.round.setLadder(ladder);
   }
 
   private restore(state: unknown): void {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CrushRound } from '../src/modes/crush/crushRound';
+import { CrushRound, toLadder } from '../src/modes/crush/crushRound';
 
 const LADDER = [1.1, 1.5, 2.2];
 
@@ -42,5 +42,15 @@ describe('CrushRound', () => {
     round.restore(1);
     round.setLadder([1.2, 1.9, 3]);
     expect(round.coefficient).toBe(1.9);
+  });
+});
+
+describe('toLadder', () => {
+  it('reads the coefficients the server sends as decimal strings', () => {
+    expect(toLadder(['1.03', 1.5, '2'])).toEqual([1.03, 1.5, 2]);
+  });
+
+  it('refuses a ladder with a value that is not a number', () => {
+    expect(toLadder(['1.03', 'x'])).toBeNull();
   });
 });

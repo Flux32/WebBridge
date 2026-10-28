@@ -102,7 +102,7 @@ export class CrushView implements SceneRenderer, CrushMotions {
   public draw(context: CanvasRenderingContext2D, frame: Frame): void {
     const { round, phase, lastResult } = this.model();
     const track = trackOf(frame.playfield);
-    this.drawTiles(context, frame, track, round);
+    this.drawTiles(context, frame, track, { round, phase, lastResult });
     this.drawOrb(context, track);
     this.drawBlock(context, track);
     this.drawReadout(context, frame, { round, phase, lastResult });
@@ -120,7 +120,9 @@ export class CrushView implements SceneRenderer, CrushMotions {
     return track.focusX + (step - this.camera) * track.pitch;
   }
 
-  private drawTiles(context: CanvasRenderingContext2D, frame: Frame, track: Track, round: CrushRound): void {
+  private drawTiles(context: CanvasRenderingContext2D, frame: Frame, track: Track, view: CrushViewModel): void {
+    const { round } = view;
+    const isCrushed = view.phase === 'crushed';
     const first = Math.max(START_STEP, Math.floor(this.camera) - 3);
     const last = Math.min(round.steps.length - 1, Math.ceil(this.camera) + 6);
     const size = track.tile;
@@ -128,16 +130,18 @@ export class CrushView implements SceneRenderer, CrushMotions {
       const x = this.tileX(track, step);
       if (x < frame.playfield.x - size || x > frame.viewport.width + size) continue;
       const rect = { x: x - size / 2, y: track.centerY - size / 2, width: size, height: size };
-      const isPassed = step <= round.step;
-      const isNext = step === round.step + 1;
-      fillRoundRect(context, rect, isPassed ? withAlpha(PALETTE.mint, 0.18) : PALETTE.panel);
-      if (isPassed) strokeRoundRect(context, rect, withAlpha(PALETTE.mint, 0.7), 1.5);
+      const isFatal = isCrushed && step === round.step;
+      const isPassed = step <= round.step && !isFatal;
+      const isNext = step === round.step + 1 && !isCrushed;
+      const tone = isFatal ? PALETTE.coral : PALETTE.mint;
+      fillRoundRect(context, rect, isPassed || isFatal ? withAlpha(tone, 0.18) : PALETTE.panel);
+      if (isPassed || isFatal) strokeRoundRect(context, rect, withAlpha(tone, 0.7), 1.5);
       if (isNext) strokeRoundRect(context, rect, PALETTE.coral, 2.5);
       const label = step === START_STEP ? 'START' : `x${(round.steps[step] ?? 0).toFixed(2)}`;
       drawText(context, label, x, track.centerY - size * 0.04, {
         size: size * (step === START_STEP ? 0.17 : 0.22),
         weight: 800,
-        color: isPassed ? PALETTE.mint : PALETTE.ink,
+        color: isPassed || isFatal ? tone : PALETTE.ink,
       });
       if (step >= 0) drawText(context, `STEP ${step + 1}`, x, track.centerY + size * 0.26, { size: size * 0.11, color: PALETTE.inkFaint });
     }

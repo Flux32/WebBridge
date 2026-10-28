@@ -5,6 +5,15 @@
  */
 import type { StepResultPayload } from '@omega/webbridge-protocol';
 
+/**
+ * The ladder as it crosses the bridge. The protocol types it `number[]`, but the shell forwards the
+ * server's config as is, and the backend sends decimal strings (`"1.03"`).
+ */
+export const toLadder = (values: readonly unknown[]): number[] | null => {
+  const ladder = values.map((value) => (typeof value === 'string' ? Number(value) : value));
+  return ladder.every((value): value is number => typeof value === 'number' && Number.isFinite(value)) ? ladder : null;
+};
+
 export type CrushStepOutcome = 'advance' | 'top' | 'crush';
 
 /** In front of the first step: right after `play`, before the first `step` lands. */
