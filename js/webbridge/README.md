@@ -62,6 +62,8 @@ registerWebBoot(
 | Режим | Мост |
 |---|---|
 | `crush` | `CrushBridge` |
+| `twist` | `TwistBridge` |
+| `wheel` | `WheelBridge` |
 | `slot` | `SlotBridge` |
 | `plinko` | `PlinkoBridge` |
 | `plinko-aztec` | `PlinkoAztecBridge` |
@@ -208,6 +210,36 @@ bridge.start();
 
 Пример целиком — заглушка игры на Canvas 2D в `js/examples/jumper-stub`: ею шелл режима jumper
 проверяется вживую через `?localBuild=`, пока настоящего движка нет.
+
+## TwistBridge
+
+Мост Twist: спин тотемов живой сессии. Хост шлёт сырой GameState сервера строкой
+(`ApplySpinResult`), игра проигрывает спин и зовёт `notifySpinReady()` — до этого хост
+держит исход и бет-бар. Частичный кэшаут приходит `ApplyGameState` (бар хост
+разблокирует сам), полный — `RestartRound "cashout|<сумма>"`: игра чистит доску и
+зовёт `notifySpinReady()`.
+
+| Сигнал | Аргумент | Когда |
+|---|---|---|
+| `gameConfigReceived` | сырой конфиг сервера | `ApplyGameConfig` |
+| `gameStateReceived` | GameState | Восстановление и частичный кэшаут |
+| `spinResultReceived` | GameState спина | `ApplySpinResult`, он же `lastGameState` |
+| `restartRequested` | `RestartRequest` | `RestartRound`: полный кэшаут, конец бонуса |
+| `bonusStartRequested` | `TwistBonusSeries` — спины уже разобраны | Куплена серия (`StartBonus`) |
+| `freeGamesIntroFinished` | — | Интро серии на хосте доиграло: можно крутить первый фри-спин |
+
+Серия: `notifyBonusActive()` → по спину `saveBonusProgress({ completedIterations, totalIterations })`
+→ обязательный `notifyBonusEnded()`. Во фри-спинах `SpinReady` не шлётся.
+
+## WheelBridge
+
+Мост колеса. Раунд общий для всех игроков и идёт по расписанию сервера: `roundReceived`
+отдаёт снимок раунда (`status`, `cellIndex`, `inCellOffset`, `winnerColor`,
+`msToNextPhase`) на каждое изменение, в том числе повтором — разбор должен быть
+идемпотентным. Игра крутит колесо на `IN_GAME` и зовёт `notifyRoundShown()`, когда
+колесо встало и пришёл `FINISH_GAME`. `SpinReady` колесу не нужен: бет-баром правит
+статус раунда. Где бар встречается с игрой — `betBarMetricsReceived`
+(`WheelBetBarMetricsPayload`).
 
 ## Без хоста: mock-хосты
 

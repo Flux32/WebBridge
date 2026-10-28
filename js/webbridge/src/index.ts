@@ -30,6 +30,11 @@ export { JumperBridge } from './jumper/JumperBridge';
 export { JumperMockHost } from './jumper/JumperMockHost';
 export type { JumperMockHostOptions, JumperMockRange, JumperSlotContent } from './jumper/JumperMockHost';
 
+export { TwistBridge } from './twist/TwistBridge';
+export type { TwistBonusSeries } from './twist/TwistBridge';
+
+export { WheelBridge } from './wheel/WheelBridge';
+
 export { SlotBridge } from './slot/SlotBridge';
 export { SlotMockHost } from './slot/SlotMockHost';
 export type { SlotMockHostOptions } from './slot/SlotMockHost';
