@@ -44,9 +44,8 @@
 Текущая версия пакета — **1.1.0** (в ней появился `MineSlotWebBridge`); последний выпущенный тег —
 `unity-v1.0.0`. Для 1.1.0 — `#main` или хэш коммита. Как выпускается тег — [релиз](releasing.md).
 
-**Зависимости** UPM ставит сам: `com.unity.nuget.newtonsoft-json` 3.2.1 и
-`com.unity.modules.unitywebrequestaudio`. Ставить Newtonsoft вручную не нужно, а использовать его для
-payload'ов моста — тоже: пакет разбирает JSON собственным `Json` с атрибутом `[JsonName]`
+**Зависимость** одна — `com.unity.modules.unitywebrequestaudio`, UPM ставит её сам. Newtonsoft пакет не
+тянет и для payload'ов моста не нужен: пакет разбирает JSON собственным `Json` с атрибутом `[JsonName]`
 ([справочник](../reference/unity-core.md#json-jsonvalue-jsonnameattribute)).
 
 После импорта в проекте появляются сборки `WebBridge.Runtime` и `WebBridge.Editor` (обе `autoReferenced`):

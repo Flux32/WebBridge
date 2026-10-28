@@ -67,9 +67,10 @@ unity/Assets/WebBridge/                 package.json: com.pixi.webbridge
 | `Modules.<Mode>` | мост режима и его типы: `Modules.Plinko`, `Modules.PlinkoAztec`, `Modules.Wheel`, `Modules.Jumper`, `Modules.MineSlot` |
 | `Modules.Road.Editor` | меню и окна редактора |
 
-Зависимости из `package.json`: `com.unity.nuget.newtonsoft-json` 3.2.1 и `com.unity.modules.unitywebrequestaudio`
-1.0.0 — UPM ставит их сам. Код пакета Newtonsoft **не использует**: JSON разбирает собственный `Json`
-([ниже](#json-jsonvalue-jsonnameattribute)). Аудиомодуль нужен `EditorAudioPreview`.
+Зависимость из `package.json` одна — `com.unity.modules.unitywebrequestaudio` 1.0.0, UPM ставит её сам;
+она нужна `EditorAudioPreview`. Newtonsoft пакет не тянет: JSON разбирает собственный `Json`
+([ниже](#json-jsonvalue-jsonnameattribute)). Игре, которая сама пользуется Newtonsoft, его нужно объявить
+в своём `manifest.json`.
 
 ## Как это устроено
 

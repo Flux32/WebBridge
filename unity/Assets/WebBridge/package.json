@@ -2,10 +2,9 @@
   "name": "com.pixi.webbridge",
   "version": "1.1.0",
   "displayName": "WebBridge",
-  "description": "WebBridge components for React-Unity communication. Provides ScreenOrientationWebBridge, GameWebBridge, LayoutWebBridge and AudioWebBridge.",
+  "description": "WebBridge components for React-Unity communication. Provides the game-agnostic WebBridgeBase, a bridge per mode (RoadWebBridge, PlinkoWebBridge, PlinkoAztecWebBridge, WheelWebBridge, JumperWebBridge, MineSlotWebBridge) and the LayoutWebBridge, AudioWebBridge, TranslationsWebBridge and ScreenOrientationWebBridge service bridges.",
   "unity": "6000.0",
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.modules.unitywebrequestaudio": "1.0.0"
   },
   "keywords": [
