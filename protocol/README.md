@@ -25,6 +25,9 @@
 - `web.ts` — контракт загрузки веб-игры (`__WEB_GAME_BOOT__`);
 - `legacyPhaserNames.ts` — прежние имена того же контракта (`__PHASER_BOOT__`,
   `PhaserHostBridge`, …) для выпущенных игр и шеллов;
+- `legacySlotNames.ts` — прежние имена режима slot-coin (до 1.17.0 — `slot`):
+  `SlotSpinResult`, `SlotCommand`, `SLOT_ACTIONS`, … — `@deprecated`-синонимы новых
+  `SlotCoin…`; канал `ModeProtocols.slot` — такой же синоним `ModeProtocols.slotCoin`;
 - `unityWire.ts` — имена и префиксы проводного формата Unity.
 
 `typetests/` проверяет `modes.ts` компиляцией (`tsc -p typetests`, входит в

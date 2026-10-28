@@ -4,7 +4,8 @@
  * inline before, so it must stay structurally invisible here. 1.9.0 only
  * adds the plinko-aztec bet-per-ball pair, 1.10.0 only crush's difficulty
  * command, 1.15.0 only the game's own play request and 1.16.0 only jumper's
- * two commands and its `StartBonus` payload: every older member keeps its shape.
+ * two commands and its `StartBonus` payload, 1.17.0 only renames slot's types to
+ * slot-coin (same shapes, old names kept as aliases): every older member keeps its shape.
  */
 import type {
   BonusPurchaseRequestPayload,

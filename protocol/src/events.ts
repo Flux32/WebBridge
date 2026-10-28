@@ -38,7 +38,7 @@ export type CoreEvent =
 /**
  * Движок доиграл анимацию шага/спина и готов принять следующий ход: этим
  * React разблокирует бет-бар. Общее для всех server-driven раундовых
- * режимов (crush, twist, slot), не только Crush.
+ * режимов (crush, twist, slot-coin), не только Crush.
  */
 export type RoundEvent = { type: 'SpinReady' };
 

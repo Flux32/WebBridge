@@ -49,7 +49,9 @@ type SeriesBonusEventChannel =
 export interface ModeProtocols {
   readonly crush: ModeChannel<CrushCommand, CrushEvent>;
   readonly twist: ModeChannel<TwistCommandChannel, SeriesBonusEventChannel>;
-  readonly slot: ModeChannel<SpinCommand, RoundEvent>;
+  readonly slotCoin: ModeChannel<SpinCommand, RoundEvent>;
+  /** @deprecated Используйте `slotCoin`: режим переименован в 1.17.0, канал тот же. */
+  readonly slot: ModeProtocols['slotCoin'];
   readonly wheel: ModeChannel<WheelCommand, WheelEvent>;
   readonly plinko: ModeChannel<
     Extract<PlinkoCommand, { type: 'ApplyDropResult' }>,

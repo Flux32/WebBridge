@@ -6,10 +6,10 @@ export type {
   GameConfigPayload,
   Orientation,
   RoadStartBonusPayload,
-  SlotAction,
-  SlotCoin,
-  SlotCoinsCollectionAction,
-  SlotSpinResult,
+  SlotCoinAction,
+  SlotCoinCoin,
+  SlotCoinCoinsCollectionAction,
+  SlotCoinSpinResult,
   StartBonusPayload,
   TwistStartBonusPayload,
   StepResultPayload,
@@ -22,7 +22,7 @@ export type {
   WinWindowSignalValue,
 } from './payloads.js';
 
-export { SLOT_ACTIONS } from './payloads.js';
+export { SLOT_COIN_ACTIONS } from './payloads.js';
 
 export type {
   CoreCommand,
@@ -32,7 +32,7 @@ export type {
   EngineCommandType,
   JumperCommand,
   PlinkoCommand,
-  SlotCommand,
+  SlotCoinCommand,
   SpinCommand,
   TwistCommand,
   WheelCommand,
@@ -83,6 +83,15 @@ export type {
   PhaserHostBridge,
 } from './legacyPhaserNames.js';
 export { PHASER_CONTAINER_ID } from './legacyPhaserNames.js';
+
+export type {
+  SlotAction,
+  SlotCoin,
+  SlotCoinsCollectionAction,
+  SlotCommand,
+  SlotSpinResult,
+} from './legacySlotNames.js';
+export { SLOT_ACTIONS } from './legacySlotNames.js';
 
 export {
   UNITY_BRIDGE_OBJECT,

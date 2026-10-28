@@ -25,13 +25,13 @@ type _commandsCoverEngine = Expect<Equal<CoreCommand | AllChannelCommands, Engin
 type _eventsCoverEngine = Expect<Equal<CoreEvent | UnityOnlyEvent | AllChannelEvents, EngineEvent>>;
 
 // Negative cases: a command/event stays out of a channel it does not belong to.
-// @ts-expect-error ApplySpinResult is the twist/slot spin command, not crush's.
+// @ts-expect-error ApplySpinResult is the twist/slot-coin spin command, not crush's.
 const _crushHasNoApplySpinResult: ModeProtocols['crush']['commands'] = { type: 'ApplySpinResult', payload: '' };
 
 // @ts-expect-error ApplyStepResult is crush's ladder-step command, not plinko's.
 const _plinkoHasNoApplyStepResult: ModeProtocols['plinko']['commands'] = { type: 'ApplyStepResult' };
 
-// @ts-expect-error SpinReady is the crush/twist/slot round-ready event, not wheel's.
+// @ts-expect-error SpinReady is the crush/twist/slot-coin round-ready event, not wheel's.
 const _wheelHasNoSpinReady: ModeProtocols['wheel']['events'] = { type: 'SpinReady' };
 
 const _wheelHasSetWheelBetBarMetrics: ModeProtocols['wheel']['commands'] = { type: 'SetWheelBetBarMetrics', payload: '' };
@@ -79,7 +79,7 @@ const _crushHasSetDifficulty: ModeProtocols['crush']['commands'] = { type: 'SetD
 const _crushHasNoLowerCaseDifficulty: ModeProtocols['crush']['commands'] = { type: 'SetDifficulty', payload: 'easy' };
 
 const _twistHasSpinReady: ModeProtocols['twist']['events'] = { type: 'SpinReady' };
-const _slotHasSpinReady: ModeProtocols['slot']['events'] = { type: 'SpinReady' };
+const _slotCoinHasSpinReady: ModeProtocols['slotCoin']['events'] = { type: 'SpinReady' };
 
 // The twist bridge (TwistReact) never sends these; the host drives twist's
 // bonus purchase itself via StartBonus, and BonusCleared is crush-only.
@@ -145,6 +145,6 @@ void _plinkoHasNoRequestBetPerBall;
 void _crushHasSetDifficulty;
 void _crushHasNoLowerCaseDifficulty;
 void _twistHasSpinReady;
-void _slotHasSpinReady;
+void _slotCoinHasSpinReady;
 void _twistHasNoBonusPurchaseRequest;
 void _twistHasNoBonusCleared;

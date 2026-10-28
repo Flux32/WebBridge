@@ -170,21 +170,21 @@ export interface UnityFrameSamplePayload {
 }
 
 /**
- * Одно действие внутри раунда слота: сервер описывает ими всё, что происходит
+ * Одно действие внутри раунда slot-coin: сервер описывает ими всё, что происходит
  * поверх выпавшей доски — залипшие монеты, респины, выдачу джекпота. Форма
  * действия зависит от его `action`, поэтому остальные поля открыты.
  */
-export interface SlotAction {
+export interface SlotCoinAction {
   action: string;
   [key: string]: unknown;
 }
 
 /**
- * Известные значения `SlotAction.action`. Восстановлены из эталонного клиента
+ * Известные значения `SlotCoinAction.action`. Восстановлены из эталонного клиента
  * hold-and-win; список открыт — сервер может прислать и то, чего здесь нет,
- * поэтому `SlotAction.action` остаётся строкой.
+ * поэтому `SlotCoinAction.action` остаётся строкой.
  */
-export const SLOT_ACTIONS = {
+export const SLOT_COIN_ACTIONS = {
   winLines: 'WIN_LINES',
   strikeCoinsCollection: 'STRIKE_COINS_COLLECTION',
   superStrikeCoinsAdded: 'SUPER_STRIKE_COINS_ADDED',
@@ -203,7 +203,7 @@ export const SLOT_ACTIONS = {
  * column-major порядке, что и строка доски (`reel * rows + row`); `symbol` —
  * символ доски. Денежные поля приходят строками, как их отдаёт платформа.
  */
-export interface SlotCoin {
+export interface SlotCoinCoin {
   index: number;
   symbol?: string;
   payout?: string;
@@ -214,22 +214,22 @@ export interface SlotCoin {
  * Сбор монет: они летят из своих ячеек в ячейку `triggerIndex` — ту, где стоит
  * монета-триггер.
  */
-export interface SlotCoinsCollectionAction extends SlotAction {
-  action: typeof SLOT_ACTIONS.strikeCoinsCollection;
+export interface SlotCoinCoinsCollectionAction extends SlotCoinAction {
+  action: typeof SLOT_COIN_ACTIONS.strikeCoinsCollection;
   triggerIndex: number;
-  coins: SlotCoin[];
+  coins: SlotCoinCoin[];
 }
 
 /**
- * Результат спина слота целиком: сервер считает раунд одним ответом, игра его
- * только проигрывает. Зеркало `SlotSpinResult` во фронтенде (`src/slot/types.ts`),
+ * Результат спина slot-coin целиком: сервер считает раунд одним ответом, игра его
+ * только проигрывает. Зеркало `SlotCoinSpinResult` во фронтенде (`src/modes/slot-coin/types.ts`),
  * который нормализует сырой ответ бэка перед отправкой в игру.
  *
  * `boards` — доски раунда по порядку (базовый спин, затем бонусные, если есть);
  * `actions` — по массиву действий на каждую доску. Денежные значения приходят
  * строками, как их отдаёт платформа: приводить их к number — дело игры.
  */
-export interface SlotSpinResult {
+export interface SlotCoinSpinResult {
   betAmount: string;
   coeff: string;
   currency: string;
@@ -238,7 +238,7 @@ export interface SlotSpinResult {
   winAmount: string;
   rounds: number;
   boards: string[];
-  actions: SlotAction[][];
+  actions: SlotCoinAction[][];
 }
 
 /**

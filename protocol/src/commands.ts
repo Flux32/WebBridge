@@ -113,7 +113,7 @@ export type JumperCommand =
 
 /**
  * Результат спина — общий для всех барабанных механик. Payload сериализован:
- * Twist шлёт сырой GameState-JSON, слот — `SlotSpinResult`. Имя команды на
+ * Twist шлёт сырой GameState-JSON, slot-coin — `SlotCoinSpinResult`. Имя команды на
  * проводе одно (фронтенд шлёт именно его обеим механикам), поэтому член союза
  * тоже один, а разбирает payload мост своей механики.
  */
@@ -134,12 +134,12 @@ export type TwistCommand =
   | { type: 'FreeGamesIntroFinished' };
 
 /**
- * Команды слота. Раунд приходит целиком одним `ApplySpinResult` — включая
+ * Команды режима slot-coin. Раунд приходит целиком одним `ApplySpinResult` — включая
  * бонусные доски, — поэтому докручивать здесь нечего: своих команд у механики
  * нет, а восстанавливать между спинами барабану тоже нечего
- * (`slotSession.restoreCommands` во фронтенде пуст).
+ * (`slotCoinSession.restoreCommands` во фронтенде пуст).
  */
-export type SlotCommand = SpinCommand;
+export type SlotCoinCommand = SpinCommand;
 
 export type EngineCommand =
   | CoreCommand
@@ -148,5 +148,5 @@ export type EngineCommand =
   | WheelCommand
   | JumperCommand
   | TwistCommand
-  | SlotCommand;
+  | SlotCoinCommand;
 export type EngineCommandType = EngineCommand['type'];
