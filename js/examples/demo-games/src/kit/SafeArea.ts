@@ -8,8 +8,11 @@ import type { BridgeBase } from '@omega/webbridge-js';
 import type { Rect } from './paint';
 import type { Viewport } from './Surface';
 
-/** Until the host reports its bar, the bar is assumed to cover the usual share of a phone screen. */
-const BAR_SHARE_BEFORE_METRICS = 0.24;
+/**
+ * Until the host reports its bars (a screen without metrics never does), they are assumed to cover the usual
+ * share of a phone screen: the bet bar from the bottom, the Live wins strip from the top.
+ */
+const INSETS_BEFORE_METRICS = { top: 0.035, bottom: 0.24 } as const;
 const EDGE_PADDING = 16;
 
 interface Insets {
@@ -43,7 +46,7 @@ export class SafeArea {
   /** The playfield: the canvas minus the host's bars and an edge padding. */
   public content(viewport: Viewport): Rect {
     const isPortrait = viewport.width < viewport.height;
-    const insets = (isPortrait ? this.mobile : this.desktop) ?? { top: 0, bottom: BAR_SHARE_BEFORE_METRICS };
+    const insets = (isPortrait ? this.mobile : this.desktop) ?? INSETS_BEFORE_METRICS;
     const top = viewport.height * insets.top + EDGE_PADDING;
     const bottom = viewport.height * (1 - insets.bottom) - EDGE_PADDING;
     return {
