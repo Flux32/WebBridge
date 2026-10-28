@@ -1,6 +1,6 @@
 /**
- * Заглушка React-стороны для слота — аналог `MockHost` из режима Crush, но под
- * другую механику: у слота нет ни лесенки, ни шага, ни кэшаута, а раунд
+ * Заглушка React-стороны для режима slot-coin — аналог `MockHost` из режима Crush, но под
+ * другую механику: у slot-coin нет ни лесенки, ни шага, ни кэшаута, а раунд
  * приходит одним ответом.
  *
  * Смысл тот же: игра идёт по НАСТОЯЩЕМУ пути — тот же `__WEB_GAME_BOOT__`, тот же
@@ -11,6 +11,8 @@
  * шлёт выдуманные символы, не поймает ошибку разбора доски — а именно она
  * дольше всего жила незамеченной, потому что не падает, а молча рисует мусор.
  */
+// Имена протокола до 1.17.0: пакет зависит от релиза protocol-v1.16.0, где `SlotCoin…`
+// ещё нет. Типы те же; на новые имена — вместе с переходом зависимости на 1.17.0.
 import type {
   EngineEvent,
   SlotAction,
@@ -38,7 +40,7 @@ const JACKPOT_COEFFS: Record<string, number> = { h: 25, i: 50, j: 150, k: 1000 }
 /** Монета-триггер, в которую слетаются остальные. */
 const TRIGGER_SYMBOL = 'l';
 
-export interface SlotMockHostOptions {
+export interface SlotCoinMockHostOptions {
   reels: number;
   rows: number;
   /** Доля ячеек первого и третьего барабанов, занятых монетами. */
@@ -51,7 +53,7 @@ export interface SlotMockHostOptions {
   betAmount: number;
 }
 
-const DEFAULTS: SlotMockHostOptions = {
+const DEFAULTS: SlotCoinMockHostOptions = {
   reels: 3,
   rows: 4,
   coinChance: 0.35,
@@ -63,8 +65,8 @@ const DEFAULTS: SlotMockHostOptions = {
 
 const pick = <T>(items: readonly T[]): T => items[Math.floor(Math.random() * items.length)]!;
 
-export class SlotMockHost implements WebHostBridge {
-  private readonly options: SlotMockHostOptions;
+export class SlotCoinMockHost implements WebHostBridge {
+  private readonly options: SlotCoinMockHostOptions;
   private game: WebGameBridge | null = null;
 
   /**
@@ -74,7 +76,7 @@ export class SlotMockHost implements WebHostBridge {
    */
   private isBusy = false;
 
-  public constructor(options: Partial<SlotMockHostOptions> = {}) {
+  public constructor(options: Partial<SlotCoinMockHostOptions> = {}) {
     this.options = { ...DEFAULTS, ...options };
   }
 
@@ -93,7 +95,7 @@ export class SlotMockHost implements WebHostBridge {
         return;
       case 'RequestGameState':
         // Барабану между спинами хранить нечего — как и на бэке, где
-        // restoreCommands для слота пуст.
+        // restoreCommands для slot-coin пуст.
         this.send({ type: 'ApplyGameState', payload: JSON.stringify({ status: 'none' }) });
         return;
       case 'RequestWhiteLabel':

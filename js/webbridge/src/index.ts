@@ -35,9 +35,11 @@ export type { TwistBonusSeries } from './twist/TwistBridge';
 
 export { WheelBridge } from './wheel/WheelBridge';
 
-export { SlotBridge } from './slot/SlotBridge';
-export { SlotMockHost } from './slot/SlotMockHost';
-export type { SlotMockHostOptions } from './slot/SlotMockHost';
+export { SlotCoinBridge } from './slot-coin/SlotCoinBridge';
+export { SlotCoinMockHost } from './slot-coin/SlotCoinMockHost';
+export type { SlotCoinMockHostOptions } from './slot-coin/SlotCoinMockHost';
+export { SlotBridge, SlotMockHost } from './slot-coin/legacySlotNames';
+export type { SlotMockHostOptions } from './slot-coin/legacySlotNames';
 
 export { MockHost } from './mock/MockHost';
 export { MockPanel } from './mock/MockPanel';

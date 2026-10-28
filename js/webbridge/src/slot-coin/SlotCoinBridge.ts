@@ -1,13 +1,15 @@
 /**
- * Мост механики слота. Разбирает команды React в сигналы, на которые
+ * Мост режима slot-coin. Разбирает команды React в сигналы, на которые
  * подписываются сцены, и отдаёт наружу методы уведомлений. Ни одной игровой
  * сущности здесь не импортируется: зависимость идёт от игры к мосту.
  *
- * Раунд слота приходит целиком одним `ApplySpinResult` — включая бонусные
+ * Раунд slot-coin приходит целиком одним `ApplySpinResult` — включая бонусные
  * доски. Игра проигрывает их по порядку и в конце обязана позвать
  * `notifySpinReady()`: пока это событие не придёт, React держит бет-бар
  * заблокированным.
  */
+// Имена протокола до 1.17.0: пакет зависит от релиза protocol-v1.16.0, где `SlotCoin…`
+// ещё нет. Типы те же; на новые имена — вместе с переходом зависимости на 1.17.0.
 import type {
   CoreCommand,
   EngineCommand,
@@ -18,7 +20,7 @@ import { BridgeLogger } from '../core/BridgeLogger';
 import type { BridgeTransport } from '../core/BridgeTransport';
 import { Signal } from '../core/Signal';
 
-export class SlotBridge extends BridgeBase {
+export class SlotCoinBridge extends BridgeBase {
   public readonly spinResultReceived = new Signal<SlotSpinResult>();
   public readonly gameConfigReceived = new Signal<unknown>();
   public readonly gameStateReceived = new Signal<unknown>();
@@ -34,8 +36,8 @@ export class SlotBridge extends BridgeBase {
   /**
    * Зовётся игрой, когда сцена готова принимать данные.
    *
-   * Слоту восстанавливать между спинами нечего — барабан не хранит состояние, и
-   * `slotSession.restoreCommands` во фронтенде пуст, — поэтому стартовая
+   * Режиму slot-coin восстанавливать между спинами нечего — барабан не хранит состояние, и
+   * `slotCoinSession.restoreCommands` во фронтенде пуст, — поэтому стартовая
    * синхронизация нужна только тем сценам, которым реально нужен конфиг.
    * Игра решает это сама, вызывая `start()` или обходясь без него.
    */
@@ -73,7 +75,7 @@ export class SlotBridge extends BridgeBase {
         return;
       }
       default:
-        BridgeLogger.warn(`[SlotBridge] ${command.type} не относится к слоту`);
+        BridgeLogger.warn(`[SlotCoinBridge] ${command.type} не относится к slot-coin`);
     }
   }
 

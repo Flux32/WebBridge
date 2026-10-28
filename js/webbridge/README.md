@@ -64,10 +64,14 @@ registerWebBoot(
 | `crush` | `CrushBridge` |
 | `twist` | `TwistBridge` |
 | `wheel` | `WheelBridge` |
-| `slot` | `SlotBridge` |
+| `slot-coin` | `SlotCoinBridge` |
 | `plinko` | `PlinkoBridge` |
 | `plinko-aztec` | `PlinkoAztecBridge` |
 | `jumper` | `JumperBridge` |
+
+До 1.15.0 режим `slot-coin` назывался `slot`: `SlotBridge`, `SlotMockHost` и
+`SlotMockHostOptions` остаются устаревшими синонимами `SlotCoinBridge`, `SlotCoinMockHost`
+и `SlotCoinMockHostOptions`.
 
 ## Общее для любого моста
 
@@ -251,7 +255,7 @@ Mock-хост встаёт на место React-шелла: отвечает н
 | Режим | Mock-хост | Ведётся |
 |---|---|---|
 | `crush` | `MockHost` | Клавишами и панелью `MockPanel` |
-| `slot` | `SlotMockHost` | Клавишами |
+| `slot-coin` | `SlotCoinMockHost` | Клавишами |
 | `plinko` | `PlinkoMockHost` | Клавишами |
 | `plinko-aztec` | `PlinkoAztecMockHost` | Клавишами |
 | `jumper` | `JumperMockHost` | Клавишами и методами |
@@ -378,7 +382,7 @@ export default defineConfig({
 | Опция | Что это |
 |---|---|
 | `entry` | Точка входа бандла — файл, который вызывает `registerWebBoot`. Обязательна. |
-| `mode` | Режим игры (`crush`, `plinko`, `plinko-aztec`, `slot`, …). Админка подставит его, когда вы будете заводить новую игру. |
+| `mode` | Режим игры (`crush`, `plinko`, `plinko-aztec`, `slot-coin`, …). Админка подставит его, когда вы будете заводить новую игру. |
 | `configuratorUrl` | Адрес админки. По умолчанию боевая; для локальной — ровно тот адрес, по которому вы её открываете, например `http://127.0.0.1:3000`. |
 
 Порт задайте явно и не меняйте: плагин включает `strictPort`, и полные адреса

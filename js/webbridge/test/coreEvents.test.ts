@@ -2,12 +2,12 @@ import type { EngineEvent } from '@omega/webbridge-protocol';
 import { describe, expect, it } from 'vitest';
 import type { BridgeBase } from '../src/core/BridgeBase';
 import { CrushBridge } from '../src/crush/CrushBridge';
-import { SlotBridge } from '../src/slot/SlotBridge';
+import { SlotCoinBridge } from '../src/slot-coin/SlotCoinBridge';
 import { recordingTransport } from './recordingTransport';
 
 const bridges: ReadonlyArray<[string, (transport: ReturnType<typeof recordingTransport>) => BridgeBase]> = [
   ['CrushBridge', (transport) => new CrushBridge(transport)],
-  ['SlotBridge', (transport) => new SlotBridge(transport)],
+  ['SlotCoinBridge', (transport) => new SlotCoinBridge(transport)],
 ];
 
 describe.each(bridges)('%s core events', (_name, createBridge) => {

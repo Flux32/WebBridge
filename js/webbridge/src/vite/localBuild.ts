@@ -24,7 +24,7 @@ export interface LocalBuildOptions {
   shellOrigins: readonly string[];
   /** Админка, которую dev-сервер открывает при старте и от которой принимает связь с игрой. */
   configuratorUrl: string;
-  /** Режим игры (`crush`, `slot`, …): админка подставит его, когда проект заводит новую игру. */
+  /** Режим игры (`crush`, `slot-coin`, …): админка подставит его, когда проект заводит новую игру. */
   mode?: string;
 }
 
