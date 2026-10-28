@@ -11,17 +11,15 @@
  * шлёт выдуманные символы, не поймает ошибку разбора доски — а именно она
  * дольше всего жила незамеченной, потому что не падает, а молча рисует мусор.
  */
-// Имена протокола до 1.17.0: пакет зависит от релиза protocol-v1.16.0, где `SlotCoin…`
-// ещё нет. Типы те же; на новые имена — вместе с переходом зависимости на 1.17.0.
 import type {
   EngineEvent,
-  SlotAction,
-  SlotCoin,
-  SlotSpinResult,
+  SlotCoinAction,
+  SlotCoinBoardCoin,
+  SlotCoinSpinResult,
   WebGameBridge,
   WebHostBridge,
 } from '@omega/webbridge-protocol';
-import { SLOT_ACTIONS } from '@omega/webbridge-protocol';
+import { SLOT_COIN_ACTIONS } from '@omega/webbridge-protocol';
 
 /**
  * Алфавит доски — коды платформы. Символ здесь это КЛЮЧ, а не число: коды
@@ -157,7 +155,7 @@ export class SlotCoinMockHost implements WebHostBridge {
     const rounds = rolled.map((board, i) => (
       i === rolled.length - 1
         ? this.makeCollect(board, { force: true })
-        : { board, actions: [] as SlotAction[] }
+        : { board, actions: [] as SlotCoinAction[] }
     ));
     this.deliver(rounds.map(r => r.board), rounds.map(r => r.actions));
   }
@@ -220,11 +218,11 @@ export class SlotCoinMockHost implements WebHostBridge {
   private makeCollect(
     board: string,
     opts: { force?: boolean } = {},
-  ): { board: string; actions: SlotAction[] } {
+  ): { board: string; actions: SlotCoinAction[] } {
     const { rows, reels } = this.options;
     const cells = board.split('');
 
-    const coins: SlotCoin[] = [];
+    const coins: SlotCoinBoardCoin[] = [];
     cells.forEach((symbol, index) => {
       const coeff = COIN_COEFFS[symbol] ?? JACKPOT_COEFFS[symbol];
       if (coeff === undefined) return;
@@ -247,7 +245,7 @@ export class SlotCoinMockHost implements WebHostBridge {
     return {
       board: cells.join(''),
       actions: [{
-        action: SLOT_ACTIONS.strikeCoinsCollection,
+        action: SLOT_COIN_ACTIONS.strikeCoinsCollection,
         triggerIndex,
         coins,
       }],
@@ -259,17 +257,17 @@ export class SlotCoinMockHost implements WebHostBridge {
    * ИЛЛЮСТРАТИВНЫЕ — считаются из коэффициентов собранных монет. Мок не
    * является вторым источником истины по выплатам: на бою их считает сервер.
    */
-  private deliver(boards: string[], actions: SlotAction[][]): void {
+  private deliver(boards: string[], actions: SlotCoinAction[][]): void {
     this.isBusy = true;
 
     const totalCoeff = actions
       .flat()
-      .flatMap((a) => (Array.isArray(a.coins) ? (a.coins as SlotCoin[]) : []))
+      .flatMap((a) => (Array.isArray(a.coins) ? (a.coins as SlotCoinBoardCoin[]) : []))
       .reduce((sum, c) => sum + Number(c.coeff ?? 0), 0);
 
     const winAmount = totalCoeff * this.options.betAmount;
 
-    const result: SlotSpinResult = {
+    const result: SlotCoinSpinResult = {
       betAmount: this.options.betAmount.toFixed(9),
       coeff: String(totalCoeff),
       currency: this.options.currency,

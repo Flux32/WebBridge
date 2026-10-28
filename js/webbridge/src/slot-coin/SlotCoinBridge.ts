@@ -8,12 +8,10 @@
  * `notifySpinReady()`: пока это событие не придёт, React держит бет-бар
  * заблокированным.
  */
-// Имена протокола до 1.17.0: пакет зависит от релиза protocol-v1.16.0, где `SlotCoin…`
-// ещё нет. Типы те же; на новые имена — вместе с переходом зависимости на 1.17.0.
 import type {
   CoreCommand,
   EngineCommand,
-  SlotSpinResult,
+  SlotCoinSpinResult,
 } from '@omega/webbridge-protocol';
 import { BridgeBase } from '../core/BridgeBase';
 import { BridgeLogger } from '../core/BridgeLogger';
@@ -21,11 +19,11 @@ import type { BridgeTransport } from '../core/BridgeTransport';
 import { Signal } from '../core/Signal';
 
 export class SlotCoinBridge extends BridgeBase {
-  public readonly spinResultReceived = new Signal<SlotSpinResult>();
+  public readonly spinResultReceived = new Signal<SlotCoinSpinResult>();
   public readonly gameConfigReceived = new Signal<unknown>();
   public readonly gameStateReceived = new Signal<unknown>();
 
-  public lastSpinResult: SlotSpinResult | null = null;
+  public lastSpinResult: SlotCoinSpinResult | null = null;
   public lastGameConfig: unknown = null;
   public lastGameState: unknown = null;
 
@@ -69,7 +67,7 @@ export class SlotCoinBridge extends BridgeBase {
   protected override handleGameCommand(command: Exclude<EngineCommand, CoreCommand>): void {
     switch (command.type) {
       case 'ApplySpinResult': {
-        const result = JSON.parse(command.payload) as SlotSpinResult;
+        const result = JSON.parse(command.payload) as SlotCoinSpinResult;
         this.lastSpinResult = result;
         this.spinResultReceived.invoke(result);
         return;
