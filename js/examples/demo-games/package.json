@@ -9,7 +9,7 @@
     "dev": "npm run prepare-bridge && vite",
     "build": "npm run typecheck && node scripts/build-all.ts",
     "typecheck": "npm run prepare-bridge && tsc -p tsconfig.json",
-    "test": "vitest run",
+    "test": "npm run prepare-bridge && vitest run",
     "covers": "node scripts/render-covers.ts",
     "export": "npm run build && npm run covers && node scripts/export-to-configurator.ts"
   },
