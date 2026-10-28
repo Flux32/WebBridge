@@ -185,7 +185,7 @@ sequenceDiagram
 | `WhiteLabelReceived` | `bool` | `ApplyWhiteLabel(int)` | ответ на `RequestWhiteLabel`: `true` — без брендинга |
 | `FastGameChanged` | `bool` | `SetFastGame(int)` | хост переключил ускоренную игру или игра сама (`NotifyFastGameChanged`); то же значение повторно не поднимает |
 | `DisabledPlayPressed` | — | `OnDisabledPlayPressed()` | игрок нажал Play, пока бет-бар держит её неактивной; ставки нет — повод показать причину |
-| `CashoutPressed` | — | `OnCashoutPressed()` | игрок нажал Cashout: до payout-запроса и окна результата, примерно за полсекунды до рестарта раунда. Суммы ещё нет — она придёт с `RestartRound` |
+| `CashoutPressed` | — | `OnCashoutPressed()` | сервер выплатил полный кэшаут: в такте открытия окна результата, раньше рестарта раунда; при отказе payout не приходит. Суммы в команде нет — она придёт с payout-командой режима или `RestartRound` |
 | `WinWindowSignalReceived` | `WebWinWindowSignalPayload` | `OnWinWindowSignal(string)` | сценарий окна результата дошёл до именованной отметки ([payload](#webwinwindowsignalpayload)) |
 
 `SetLoggingEnabled(int)` события не поднимает: `1` включает, `0` выключает `WebBridgeLogger.IsEnabled`
