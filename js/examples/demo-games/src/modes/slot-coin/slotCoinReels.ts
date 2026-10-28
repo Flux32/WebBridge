@@ -5,8 +5,8 @@
  */
 import { easeOutBack, lerp } from '../../kit/easing';
 import type { Rect } from '../../kit/paint';
-import { SLOT_REELS, SLOT_ROWS } from './slotRound';
-import { FILLER_SYMBOLS, type SlotSymbol } from './slotSymbols';
+import { SLOT_COIN_REELS, SLOT_COIN_ROWS } from './slotCoinRound';
+import { FILLER_SYMBOLS, type SlotCoinSymbol } from './slotCoinSymbols';
 
 const FIRST_STOP_MS = 820;
 const STOP_STAGGER_MS = 240;
@@ -14,20 +14,20 @@ const LAND_MS = 280;
 /** Cells a reel scrolls per millisecond before it lands. */
 const SPIN_SPEED = 0.024;
 
-export const SPIN_MS = FIRST_STOP_MS + STOP_STAGGER_MS * (SLOT_REELS - 1);
+export const SPIN_MS = FIRST_STOP_MS + STOP_STAGGER_MS * (SLOT_COIN_REELS - 1);
 
 interface Reel {
-  strip: SlotSymbol[];
+  strip: SlotCoinSymbol[];
   /** The strip index at the window's top row; it falls to 0 as the reel spins. */
   offset: number;
   start: number;
   isBlurred: boolean;
 }
 
-const randomFiller = (): SlotSymbol =>
+const randomFiller = (): SlotCoinSymbol =>
   FILLER_SYMBOLS[Math.floor(Math.random() * FILLER_SYMBOLS.length)] ?? { kind: 'empty' };
 
-const fillers = (count: number): SlotSymbol[] => Array.from({ length: count }, randomFiller);
+const fillers = (count: number): SlotCoinSymbol[] => Array.from({ length: count }, randomFiller);
 
 /** A symbol's place on screen; `boardIndex` is -1 for a filler passing by. */
 export interface ReelCell {
@@ -43,23 +43,23 @@ export interface ReelGrid {
   readonly frame: Rect;
 }
 
-export class SlotReels {
-  private readonly reels: Reel[] = Array.from({ length: SLOT_REELS }, () => ({
-    strip: fillers(SLOT_ROWS),
+export class SlotCoinReels {
+  private readonly reels: Reel[] = Array.from({ length: SLOT_COIN_REELS }, () => ({
+    strip: fillers(SLOT_COIN_ROWS),
     offset: 0,
     start: 0,
     isBlurred: false,
   }));
 
   /** Sets every reel up to land on `cells`, column-major as the board string. */
-  public prepare(cells: readonly SlotSymbol[]): void {
+  public prepare(cells: readonly SlotCoinSymbol[]): void {
     this.reels.forEach((reel, index) => {
-      const shown = reel.strip.slice(0, SLOT_ROWS);
-      const target = cells.slice(index * SLOT_ROWS, (index + 1) * SLOT_ROWS);
+      const shown = reel.strip.slice(0, SLOT_COIN_ROWS);
+      const target = cells.slice(index * SLOT_COIN_ROWS, (index + 1) * SLOT_COIN_ROWS);
       const travelMs = FIRST_STOP_MS + STOP_STAGGER_MS * index - LAND_MS;
-      const fillerCount = Math.max(SLOT_ROWS, Math.round(travelMs * SPIN_SPEED) - SLOT_ROWS);
+      const fillerCount = Math.max(SLOT_COIN_ROWS, Math.round(travelMs * SPIN_SPEED) - SLOT_COIN_ROWS);
       reel.strip = [...target, ...fillers(fillerCount), ...shown];
-      reel.start = SLOT_ROWS + fillerCount;
+      reel.start = SLOT_COIN_ROWS + fillerCount;
       reel.offset = reel.start;
     });
   }
@@ -78,7 +78,7 @@ export class SlotReels {
   /** Drops the travelled part of the strips once landed: the window shows only the board. */
   public settle(): void {
     for (const reel of this.reels) {
-      reel.strip = reel.strip.slice(0, SLOT_ROWS);
+      reel.strip = reel.strip.slice(0, SLOT_COIN_ROWS);
       reel.offset = 0;
       reel.isBlurred = false;
     }
@@ -87,17 +87,17 @@ export class SlotReels {
   public draw(
     context: CanvasRenderingContext2D,
     grid: ReelGrid,
-    drawCell: (symbol: SlotSymbol, cell: ReelCell) => void,
+    drawCell: (symbol: SlotCoinSymbol, cell: ReelCell) => void,
   ): void {
     const pitch = grid.cell + grid.gap;
     this.reels.forEach((reel, index) => {
       const x = grid.frame.x + grid.gap + index * pitch + grid.cell / 2;
       const first = Math.floor(reel.offset) - 1;
-      for (let stripIndex = Math.max(0, first); stripIndex <= first + SLOT_ROWS + 1; stripIndex += 1) {
+      for (let stripIndex = Math.max(0, first); stripIndex <= first + SLOT_COIN_ROWS + 1; stripIndex += 1) {
         const symbol = reel.strip[stripIndex];
         if (symbol === undefined) continue;
         const y = grid.frame.y + grid.gap + (stripIndex - reel.offset) * pitch + grid.cell / 2;
-        const boardIndex = stripIndex < SLOT_ROWS ? index * SLOT_ROWS + stripIndex : -1;
+        const boardIndex = stripIndex < SLOT_COIN_ROWS ? index * SLOT_COIN_ROWS + stripIndex : -1;
         drawCell(symbol, { x, y, boardIndex, isBlurred: reel.isBlurred });
       }
     });
@@ -107,16 +107,16 @@ export class SlotReels {
 /** The reel window inside `area`: square cells, as big as the area allows. */
 export const reelGridOf = (area: Rect): ReelGrid => {
   const gap = 8;
-  const cell = Math.max(40, Math.min(112, (area.width - gap * (SLOT_REELS + 1)) / SLOT_REELS, (area.height - gap * (SLOT_ROWS + 1)) / SLOT_ROWS));
-  const width = cell * SLOT_REELS + gap * (SLOT_REELS + 1);
-  const height = cell * SLOT_ROWS + gap * (SLOT_ROWS + 1);
+  const cell = Math.max(40, Math.min(112, (area.width - gap * (SLOT_COIN_REELS + 1)) / SLOT_COIN_REELS, (area.height - gap * (SLOT_COIN_ROWS + 1)) / SLOT_COIN_ROWS));
+  const width = cell * SLOT_COIN_REELS + gap * (SLOT_COIN_REELS + 1);
+  const height = cell * SLOT_COIN_ROWS + gap * (SLOT_COIN_ROWS + 1);
   return { cell, gap, frame: { x: area.x + (area.width - width) / 2, y: area.y + (area.height - height) / 2, width, height } };
 };
 
 /** The centre of a board cell (`reel * rows + row`) in the grid. */
 export const cellCenter = (grid: ReelGrid, index: number): { x: number; y: number } => {
-  const reel = Math.floor(index / SLOT_ROWS);
-  const row = index % SLOT_ROWS;
+  const reel = Math.floor(index / SLOT_COIN_ROWS);
+  const row = index % SLOT_COIN_ROWS;
   const pitch = grid.cell + grid.gap;
   return { x: grid.frame.x + grid.gap + reel * pitch + grid.cell / 2, y: grid.frame.y + grid.gap + row * pitch + grid.cell / 2 };
 };

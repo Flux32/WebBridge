@@ -1,28 +1,28 @@
 /**
- * Slot drawn: three reels four symbols tall under the round's multiplier. Coins of a collection light up,
+ * Slot Coin drawn: three reels four symbols tall under the round's multiplier. Coins of a collection light up,
  * fly into the trigger cell, and the cells that paid stay lit until the next spin.
  */
 import { easeInOutCubic, lerp } from '../../kit/easing';
 import { fillRoundRect, roundRectPath, strokeRoundRect, withAlpha, type Rect } from '../../kit/paint';
 import { PALETTE } from '../../kit/palette';
 import type { Frame, SceneRenderer, Stage } from '../../kit/Stage';
-import type { SlotMotions } from './SlotController';
-import { coinLabel, drawCoin, drawSymbol, drawWinCell } from './slotGlyphs';
-import { cellCenter, reelGridOf, SlotReels, SPIN_MS, type ReelCell, type ReelGrid } from './slotReels';
-import type { SlotBoardPlan, SlotCollection } from './slotRound';
-import { drawReadout, type SlotViewModel } from './slotReadout';
-import type { SlotSymbol } from './slotSymbols';
+import type { SlotCoinMotions } from './SlotCoinController';
+import { coinLabel, drawCoin, drawSymbol, drawWinCell } from './slotCoinGlyphs';
+import { cellCenter, reelGridOf, SlotCoinReels, SPIN_MS, type ReelCell, type ReelGrid } from './slotCoinReels';
+import type { SlotCoinBoardPlan, SlotCoinCollection } from './slotCoinRound';
+import { drawReadout, type SlotCoinViewModel } from './slotCoinReadout';
+import type { SlotCoinSymbol } from './slotCoinSymbols';
 
 const GLOW_MS = 360;
 const FLIGHT_MS = 560;
 const POP_MS = 220;
 const READOUT_HEIGHT = 128;
 
-export class SlotView implements SceneRenderer, SlotMotions {
-  private readonly reels = new SlotReels();
+export class SlotCoinView implements SceneRenderer, SlotCoinMotions {
+  private readonly reels = new SlotCoinReels();
   private grid: ReelGrid = reelGridOf({ x: 0, y: 0, width: 0, height: 0 });
   private litCells = new Set<number>();
-  private collection: SlotCollection | null = null;
+  private collection: SlotCoinCollection | null = null;
   private trigger = -1;
   private glow = 0;
   private flight = 0;
@@ -30,10 +30,10 @@ export class SlotView implements SceneRenderer, SlotMotions {
 
   public constructor(
     private readonly stage: Stage,
-    private readonly model: () => SlotViewModel,
+    private readonly model: () => SlotCoinViewModel,
   ) {}
 
-  public async spin(board: SlotBoardPlan): Promise<boolean> {
+  public async spin(board: SlotCoinBoardPlan): Promise<boolean> {
     this.litCells = new Set();
     this.collection = null;
     this.trigger = -1;
@@ -43,7 +43,7 @@ export class SlotView implements SceneRenderer, SlotMotions {
     return isPlayed;
   }
 
-  public async collect(collection: SlotCollection): Promise<boolean> {
+  public async collect(collection: SlotCoinCollection): Promise<boolean> {
     this.collection = collection;
     this.trigger = collection.triggerIndex;
     this.litCells = new Set([collection.triggerIndex, ...collection.coins.map((coin) => coin.index)]);
@@ -89,7 +89,7 @@ export class SlotView implements SceneRenderer, SlotMotions {
     }
   }
 
-  private drawCell(context: CanvasRenderingContext2D, symbol: SlotSymbol, { x, y, boardIndex, isBlurred }: ReelCell): void {
+  private drawCell(context: CanvasRenderingContext2D, symbol: SlotCoinSymbol, { x, y, boardIndex, isBlurred }: ReelCell): void {
     const { cell } = this.grid;
     fillRoundRect(context, { x: x - cell / 2, y: y - cell / 2, width: cell, height: cell }, PALETTE.panel, 12);
     const isLit = this.litCells.has(boardIndex);

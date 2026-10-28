@@ -1,28 +1,28 @@
 /**
- * Slot on the bridge: one `ApplySpinResult` is the whole round. Its boards play in order — reels stop, the
+ * Slot Coin on the bridge: one `ApplySpinResult` is the whole round. Its boards play in order — reels stop, the
  * coins fly to the trigger — and only after the last one does the host hear the single `SpinReady`.
  */
-import { BridgeLogger, type SlotBridge } from '@omega/webbridge-js';
-import type { SlotSpinResult } from '@omega/webbridge-protocol';
+import { BridgeLogger, type SlotCoinBridge } from '@omega/webbridge-js';
+import type { SlotCoinSpinResult } from '@omega/webbridge-protocol';
 import { MoveQueue } from '../../kit/MoveQueue';
 import {
-  planSlotRound,
-  SlotRoundError,
-  type SlotBoardPlan,
-  type SlotCollection,
-  type SlotRoundPlan,
-} from './slotRound';
+  planSlotCoinRound,
+  SlotCoinRoundError,
+  type SlotCoinBoardPlan,
+  type SlotCoinCollection,
+  type SlotCoinRoundPlan,
+} from './slotCoinRound';
 
-export interface SlotMotions {
-  spin(board: SlotBoardPlan): Promise<boolean>;
-  collect(collection: SlotCollection): Promise<boolean>;
+export interface SlotCoinMotions {
+  spin(board: SlotCoinBoardPlan): Promise<boolean>;
+  collect(collection: SlotCoinCollection): Promise<boolean>;
   celebrate(): void;
 }
 
-export type SlotPhase = 'idle' | 'spinning' | 'collecting' | 'broken';
+export type SlotCoinPhase = 'idle' | 'spinning' | 'collecting' | 'broken';
 
-export class SlotController {
-  public phase: SlotPhase = 'idle';
+export class SlotCoinController {
+  public phase: SlotCoinPhase = 'idle';
   public lastResult = '';
   /** The round's multiplier so far: collected coins add up as they land. */
   public multiplier = 0;
@@ -32,8 +32,8 @@ export class SlotController {
   private readonly unsubscribe: () => void;
 
   public constructor(
-    private readonly bridge: SlotBridge,
-    private readonly motions: SlotMotions,
+    private readonly bridge: SlotCoinBridge,
+    private readonly motions: SlotCoinMotions,
   ) {
     this.unsubscribe = bridge.spinResultReceived.add((result) => this.queue.enqueue(() => this.playRound(result)));
   }
@@ -43,7 +43,7 @@ export class SlotController {
     this.unsubscribe();
   }
 
-  private async playRound(result: SlotSpinResult): Promise<boolean> {
+  private async playRound(result: SlotCoinSpinResult): Promise<boolean> {
     const plan = this.plan(result);
     if (plan === null) return true;
     this.multiplier = 0;
@@ -57,7 +57,7 @@ export class SlotController {
     return true;
   }
 
-  private async playBoard(board: SlotBoardPlan): Promise<boolean> {
+  private async playBoard(board: SlotCoinBoardPlan): Promise<boolean> {
     this.phase = 'spinning';
     if (!(await this.motions.spin(board))) return false;
     if (board.collection === null) return true;
@@ -67,7 +67,7 @@ export class SlotController {
     return true;
   }
 
-  private finish(plan: SlotRoundPlan): void {
+  private finish(plan: SlotCoinRoundPlan): void {
     this.phase = 'idle';
     this.multiplier = plan.coeff;
     this.lastResult = plan.isWin ? `Won ${plan.winText}` : 'No win';
@@ -78,12 +78,12 @@ export class SlotController {
    * The boundary of a round: a payload the scene cannot draw truthfully becomes a visible broken state.
    * No `SpinReady` follows — the round was not shown, so the bar stays locked and the fault stays in sight.
    */
-  private plan(result: SlotSpinResult): SlotRoundPlan | null {
+  private plan(result: SlotCoinSpinResult): SlotCoinRoundPlan | null {
     try {
-      return planSlotRound(result);
+      return planSlotCoinRound(result);
     } catch (error) {
-      if (!(error instanceof SlotRoundError)) throw error;
-      BridgeLogger.error(`[demo slot] ApplySpinResult rejected: ${error.message}`);
+      if (!(error instanceof SlotCoinRoundError)) throw error;
+      BridgeLogger.error(`[demo slot-coin] ApplySpinResult rejected: ${error.message}`);
       this.phase = 'broken';
       this.lastResult = error.message;
       return null;

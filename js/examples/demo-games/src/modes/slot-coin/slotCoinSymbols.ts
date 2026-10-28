@@ -1,10 +1,10 @@
 /**
- * The board alphabet of the slot backend. A symbol is a key, not a number: codes run `0`…`9`, then
- * `a`…`m`, so they are looked up, never folded by arithmetic (see `SlotMockHost` of the bridge package).
+ * The board alphabet of the slot-coin backend. A symbol is a key, not a number: codes run `0`…`9`, then
+ * `a`…`m`, so they are looked up, never folded by arithmetic (see `SlotCoinMockHost` of the bridge package).
  */
 export type JackpotTier = 'MINI' | 'MINOR' | 'MAJOR' | 'GRAND';
 
-export type SlotSymbol =
+export type SlotCoinSymbol =
   | { readonly kind: 'empty' }
   | { readonly kind: 'base'; readonly rank: number }
   | { readonly kind: 'coin'; readonly coeff: number }
@@ -20,7 +20,7 @@ const JACKPOTS: Readonly<Record<string, { tier: JackpotTier; coeff: number }>> =
   k: { tier: 'GRAND', coeff: 1000 },
 };
 
-const describeCode = (code: string): SlotSymbol | null => {
+const describeCode = (code: string): SlotCoinSymbol | null => {
   if (code === '0') return { kind: 'empty' };
   if (code === 'l') return { kind: 'trigger' };
   if (code === 'm') return { kind: 'special' };
@@ -32,7 +32,7 @@ const describeCode = (code: string): SlotSymbol | null => {
 };
 
 /** One frozen object per code: the reels draw them every frame without allocating. */
-const SYMBOLS: ReadonlyMap<string, SlotSymbol> = new Map(
+const SYMBOLS: ReadonlyMap<string, SlotCoinSymbol> = new Map(
   [...'0123456789abcdefghijklm'].flatMap((code) => {
     const symbol = describeCode(code);
     return symbol === null ? [] : [[code, Object.freeze(symbol)] as const];
@@ -40,14 +40,14 @@ const SYMBOLS: ReadonlyMap<string, SlotSymbol> = new Map(
 );
 
 /** `null` for a code outside the alphabet: the caller decides how loud to fail. */
-export const symbolOf = (code: string): SlotSymbol | null => SYMBOLS.get(code) ?? null;
+export const symbolOf = (code: string): SlotCoinSymbol | null => SYMBOLS.get(code) ?? null;
 
 /** What a coin or a jackpot medallion is worth by the board alone; `null` for other symbols. */
-export const symbolCoeff = (symbol: SlotSymbol): number | null =>
+export const symbolCoeff = (symbol: SlotCoinSymbol): number | null =>
   symbol.kind === 'coin' || symbol.kind === 'jackpot' ? symbol.coeff : null;
 
 /** Fillers for a spinning strip: the plain symbols, the ones a reel shows most. */
-export const FILLER_SYMBOLS: readonly SlotSymbol[] = [...'123456789ab'].flatMap((code) => {
+export const FILLER_SYMBOLS: readonly SlotCoinSymbol[] = [...'123456789ab'].flatMap((code) => {
   const symbol = SYMBOLS.get(code);
   return symbol === undefined ? [] : [symbol];
 });

@@ -1,7 +1,7 @@
-/** Slot symbols drawn with shapes in the shared palette: no textures, so the bundle stays one small file. */
+/** Slot Coin symbols drawn with shapes in the shared palette: no textures, so the bundle stays one small file. */
 import { drawGlow, drawText, fillRoundRect, roundRectPath, strokeRoundRect, withAlpha, type Rect } from '../../kit/paint';
 import { PALETTE } from '../../kit/palette';
-import type { SlotSymbol } from './slotSymbols';
+import type { SlotCoinSymbol } from './slotCoinSymbols';
 
 const BASE_COLORS = [PALETTE.sky, PALETTE.violet, PALETTE.mint, PALETTE.coral, PALETTE.lime, PALETTE.pink, PALETTE.amber] as const;
 
@@ -85,7 +85,7 @@ export const drawCoin = (context: CanvasRenderingContext2D, label: string, x: nu
 
 export const coinLabel = (coeff: number): string => `×${coeff}`;
 
-export const drawSymbol = (context: CanvasRenderingContext2D, symbol: SlotSymbol, x: number, y: number, size: number): void => {
+export const drawSymbol = (context: CanvasRenderingContext2D, symbol: SlotCoinSymbol, x: number, y: number, size: number): void => {
   switch (symbol.kind) {
     case 'empty':
       return;

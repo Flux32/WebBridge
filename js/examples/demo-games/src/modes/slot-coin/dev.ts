@@ -1,13 +1,13 @@
-/** The dev page's slot: the bridge package's `SlotMockHost` plays the host. */
-import { SlotMockHost } from '@omega/webbridge-js';
+/** The dev page's slot-coin mode: the bridge package's `SlotCoinMockHost` plays the host. */
+import { SlotCoinMockHost } from '@omega/webbridge-js';
 import type { DevMode } from '../../dev/devMode';
 import { createDemoBoot } from '../../kit/demoBoot';
-import { slotMode } from '.';
+import { slotCoinMode } from '.';
 
 export const devMode: DevMode = {
-  boot: createDemoBoot(slotMode),
+  boot: createDemoBoot(slotCoinMode),
   createMockHost: () => {
-    const host = new SlotMockHost();
+    const host = new SlotCoinMockHost();
     return { host, bindKeys: () => void host.bindKeys() };
   },
   hint: 'Space — spin · C — spin with a coin collection · B — bonus round of boards',

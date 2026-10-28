@@ -1,7 +1,7 @@
-import { SlotBridge } from '@omega/webbridge-js';
-import type { SlotSpinResult } from '@omega/webbridge-protocol';
+import { SlotCoinBridge } from '@omega/webbridge-js';
+import type { SlotCoinSpinResult } from '@omega/webbridge-protocol';
 import { describe, expect, it } from 'vitest';
-import { SlotController, type SlotMotions } from '../src/modes/slot/SlotController';
+import { SlotCoinController, type SlotCoinMotions } from '../src/modes/slot-coin/SlotCoinController';
 import { eventTypes, manualMotions, recordingTransport, settle } from './recording';
 
 const PLAIN = '123456789123';
@@ -12,18 +12,18 @@ const COLLECTION = {
   coins: [{ index: 0, coeff: '3' }, { index: 11, coeff: '2' }],
 };
 
-const spin = (boards: string[], actions: SlotSpinResult['actions']): string =>
+const spin = (boards: string[], actions: SlotCoinSpinResult['actions']): string =>
   JSON.stringify({
     betAmount: '1', coeff: '5', currency: 'USD', isFinished: true, isWin: true, winAmount: '5.00',
     rounds: boards.length, boards, actions,
-  } satisfies SlotSpinResult);
+  } satisfies SlotCoinSpinResult);
 
-const setup = (overrides: Partial<SlotMotions> = {}) => {
+const setup = (overrides: Partial<SlotCoinMotions> = {}) => {
   const transport = recordingTransport();
-  const bridge = new SlotBridge(transport);
+  const bridge = new SlotCoinBridge(transport);
   const motions = manualMotions();
   let celebrations = 0;
-  const controller = new SlotController(bridge, {
+  const controller = new SlotCoinController(bridge, {
     spin: () => motions.play('spin'),
     collect: () => motions.play('collect'),
     celebrate: () => void (celebrations += 1),
@@ -32,7 +32,7 @@ const setup = (overrides: Partial<SlotMotions> = {}) => {
   return { transport, bridge, motions, controller, celebrations: () => celebrations };
 };
 
-describe('SlotController', () => {
+describe('SlotCoinController', () => {
   it('reports the round only once the reels have stopped', async () => {
     const { transport, bridge, motions } = setup();
 

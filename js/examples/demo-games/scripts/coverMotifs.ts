@@ -69,13 +69,13 @@ const twist: Motif = (accent) => {
     .join('') + `<rect x="-190" y="125" width="380" height="16" rx="8" fill="${accent}55"/><rect x="-190" y="125" width="230" height="16" rx="8" fill="${accent}"/>`;
 };
 
-const slotSymbol = (x: number, y: number, kind: number, color: string): string => {
+const slotCoinSymbol = (x: number, y: number, kind: number, color: string): string => {
   if (kind === 0) return disc(x, y, 28, color);
   if (kind === 1) return `<polygon points="${x},${y - 32} ${x + 30},${y + 24} ${x - 30},${y + 24}" fill="${color}"/>`;
   return `<polygon points="${x},${y - 32} ${x + 28},${y} ${x},${y + 32} ${x - 28},${y}" fill="${color}"/>`;
 };
 
-const slot: Motif = (accent) => {
+const slotCoin: Motif = (accent) => {
   const cells: string[] = [];
   for (let column = 0; column < 3; column += 1) {
     for (let row = 0; row < 3; row += 1) {
@@ -83,7 +83,7 @@ const slot: Motif = (accent) => {
       const x = (column - 1) * 120;
       const y = (row - 1) * 110 - 20;
       cells.push(tile(x, y, 100, isWin ? `${accent}30` : PALETTE.panel, isWin ? accent : 'none'));
-      cells.push(slotSymbol(x, y, isWin ? 2 : (column + row) % 3, isWin ? accent : `${PALETTE.ink}88`));
+      cells.push(slotCoinSymbol(x, y, isWin ? 2 : (column + row) % 3, isWin ? accent : `${PALETTE.ink}88`));
     }
   }
   return cells.join('');
@@ -125,7 +125,7 @@ export const MOTIFS: Record<DemoModeId, Motif> = {
   'plinko-aztec': plinkoAztec,
   crush,
   twist,
-  slot,
+  'slot-coin': slotCoin,
   wheel,
   jumper,
 };

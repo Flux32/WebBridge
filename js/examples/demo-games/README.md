@@ -21,7 +21,7 @@ DEMO_MODE=crush npm run dev -w js/examples/demo-games         # http://localhost
 | `plinko-aztec` | 5191 | `PlinkoAztecBridge` | `PlinkoAztecMockHost` |
 | `crush` | 5192 | `CrushBridge` | `MockHost` |
 | `twist` | 5193 | `TwistBridge` | — (свой в `modes/twist/dev.ts`) |
-| `slot` | 5194 | `SlotBridge` | `SlotMockHost` |
+| `slot-coin` | 5194 | `SlotCoinBridge` | `SlotCoinMockHost` |
 | `wheel` | 5195 | `WheelBridge` | — (свой в `modes/wheel/dev.ts`) |
 | `jumper` | 5196 | `JumperBridge` | `JumperMockHost` |
 
@@ -59,7 +59,7 @@ test/<mode>*.test.ts
 - **Фон, шапка, лента бэкенда и конфетти — у сцены (`kit/Stage`).** Режим рисует только своё
   игровое поле в `frame.playfield`: это область под шапкой, без бет-бара хоста.
 - **Цвета** — только из `kit/palette` (`PALETTE`), у режима свой акцент (`accent`). Акценты:
-  crush — coral, twist — mint, slot — amber, wheel — violet, plinko — sky, plinko-aztec — lime,
+  crush — coral, twist — mint, slot-coin — amber, wheel — violet, plinko — sky, plinko-aztec — lime,
   jumper — pink. Поверхности — `panel` / `dusk`, текст — `ink` / `inkSoft` / `inkFaint`.
 - **Шрифт** — `font()` / `drawText()` из кита: скруглённый системный, цифры 800, подписи 600–700.
   Большое число режима (множитель, выигрыш) — по центру сверху поля, над ним подпись капсом 12px

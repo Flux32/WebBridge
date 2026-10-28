@@ -21,7 +21,7 @@ const COVER_STYLES: Record<DemoModeId, CoverStyle> = {
   'plinko-aztec': { title: 'Plinko Aztec', accent: PALETTE.lime },
   crush: { title: 'Crush', accent: PALETTE.coral },
   twist: { title: 'Twist', accent: PALETTE.mint },
-  slot: { title: 'Slot', accent: PALETTE.amber },
+  'slot-coin': { title: 'Slot Coin', accent: PALETTE.amber },
   wheel: { title: 'Wheel', accent: PALETTE.violet },
   jumper: { title: 'Jumper', accent: PALETTE.pink },
 };
