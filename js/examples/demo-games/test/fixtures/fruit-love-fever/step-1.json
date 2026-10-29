@@ -1,0 +1,155 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 5,
+  "currency": "USD",
+  "isFinished": false,
+  "isWin": true,
+  "winAmount": "6.80",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 13,
+      "2": 36,
+      "3": 72,
+      "4": 37,
+      "5": 13
+    },
+    "winLines": [
+      {
+        "line": 1,
+        "coeff": "0.50",
+        "inclusionIndexes": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 3,
+        "coeff": "0.10",
+        "inclusionIndexes": [
+          2,
+          2,
+          2
+        ]
+      },
+      {
+        "line": 8,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "line": 9,
+        "coeff": "0.20",
+        "inclusionIndexes": [
+          2,
+          2,
+          1
+        ]
+      }
+    ]
+  },
+  "bonusGame": {
+    "currentGameNumber": 1,
+    "totalFreeSpinsAmount": 10,
+    "coeff": "1.800000000000",
+    "winAmount": "1.80"
+  }
+}

@@ -4,6 +4,7 @@
  */
 import { PALETTE } from '../src/kit/palette.ts';
 import type { DemoModeId } from '../src/modes/modeIds.ts';
+import { fruitLoveFeverMotif } from './fruitLoveFeverMotif.ts';
 import { mineSlotMotif } from './mineSlotMotif.ts';
 
 type Motif = (accent: string) => string;
@@ -130,4 +131,5 @@ export const MOTIFS: Record<DemoModeId, Motif> = {
   wheel,
   jumper,
   'mine-slot': mineSlotMotif,
+  'fruit-love-fever': fruitLoveFeverMotif,
 };

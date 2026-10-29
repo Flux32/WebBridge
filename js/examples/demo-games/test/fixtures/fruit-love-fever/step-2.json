@@ -1,0 +1,184 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 5,
+  "currency": "USD",
+  "isFinished": false,
+  "isWin": true,
+  "winAmount": "14.80",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 6,
+          "outcome": "chicken",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 6,
+          "outcome": "chicken",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 2,
+          "outcome": "police",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 55,
+      "2": 69,
+      "3": 33,
+      "4": 15,
+      "5": 10
+    },
+    "winLines": [
+      {
+        "line": 1,
+        "coeff": "1.60",
+        "inclusionIndexes": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 5,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          2,
+          1,
+          0
+        ]
+      },
+      {
+        "line": 12,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          0,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 13,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          2,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 14,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "line": 16,
+        "coeff": "1.60",
+        "inclusionIndexes": [
+          1,
+          1,
+          0
+        ]
+      },
+      {
+        "line": 17,
+        "coeff": "0.80",
+        "inclusionIndexes": [
+          1,
+          1,
+          2
+        ]
+      }
+    ]
+  },
+  "bonusGame": {
+    "currentGameNumber": 2,
+    "totalFreeSpinsAmount": 10,
+    "coeff": "8.000000000000",
+    "winAmount": "8.00"
+  }
+}

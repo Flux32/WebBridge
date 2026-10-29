@@ -1,0 +1,112 @@
+{
+  "status": "lose",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 0,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": false,
+  "winAmount": "0.00",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 29,
+      "2": 71,
+      "3": 62,
+      "4": 60,
+      "5": 63
+    },
+    "winLines": []
+  }
+}
