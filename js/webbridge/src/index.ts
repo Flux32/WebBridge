@@ -39,6 +39,10 @@ export { MineSlotBridge } from './mine-slot/MineSlotBridge';
 export { MineSlotMockHost } from './mine-slot/MineSlotMockHost';
 export type { MineSlotMockHostOptions } from './mine-slot/MineSlotMockHost';
 
+export { FruitLoveFeverBridge } from './fruit-love-fever/FruitLoveFeverBridge';
+export { FruitLoveFeverMockHost } from './fruit-love-fever/FruitLoveFeverMockHost';
+export type { FruitLoveFeverMockHostOptions } from './fruit-love-fever/FruitLoveFeverMockHost';
+
 export { SlotCoinBridge } from './slot-coin/SlotCoinBridge';
 export { SlotCoinMockHost } from './slot-coin/SlotCoinMockHost';
 export type { SlotCoinMockHostOptions } from './slot-coin/SlotCoinMockHost';
