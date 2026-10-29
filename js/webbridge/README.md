@@ -6,8 +6,8 @@ React-шелла и шлёт ему события. Зеркало Unity-пак�
 
 ```bash
 npm install \
-  https://github.com/Flux32/WebBridge/releases/download/js-v1.16.0/omega-webbridge-js-1.16.0.tgz \
-  https://github.com/Flux32/WebBridge/releases/download/protocol-v1.18.0/omega-webbridge-protocol-1.18.0.tgz
+  https://github.com/Flux32/WebBridge/releases/download/js-v1.17.0/omega-webbridge-js-1.17.0.tgz \
+  https://github.com/Flux32/WebBridge/releases/download/protocol-v1.19.0/omega-webbridge-protocol-1.19.0.tgz
 ```
 
 ```ts

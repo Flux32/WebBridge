@@ -11,7 +11,7 @@
 | **Unity-мост** | [`JumperWebBridge`](unity.md) (namespace `Modules.Jumper`) · префаб `JumperWebBridge.prefab` · mock: `JumperMockHost` (C#) |
 | **Демо** | `js/examples/demo-games/src/modes/jumper` (порт 5196) · заглушка для шелла `js/examples/jumper-stub` (порт 5181) |
 | **Хост** | RoadFrontent `src/modes/jumper/` · ADR-0008 · протокол бэка `src/modes/jumper/PROTOCOL.md` |
-| **С версии** | protocol `1.16.0` · js `1.14.0` · Unity-пакет `1.0.0` (сейчас 1.18.0 / 1.16.0 / 1.1.0) |
+| **С версии** | protocol `1.16.0` · js `1.14.0` · Unity-пакет `1.0.0` (сейчас 1.19.0 / 1.17.0 / 1.1.0) |
 
 Продового движка jumper пока нет. Мосты готовы на обеих платформах, а режим в шелле проверяют демо-игрой и
 заглушкой `jumper-stub`.

@@ -498,10 +498,10 @@ new MockPanel(host, [
 
 | Пакет | В репозитории | Последний релиз |
 |---|---|---|
-| `@omega/webbridge-js` | 1.16.0 (`MineSlotBridge`, `MineSlotMockHost`) | `js-v1.16.0` |
-| `@omega/webbridge-protocol` | 1.18.0 (канал `mineSlot`) | `protocol-v1.18.0` |
+| `@omega/webbridge-js` | 1.17.0 (`FruitLoveFeverBridge`, `FruitLoveFeverMockHost`) | `js-v1.17.0` |
+| `@omega/webbridge-protocol` | 1.19.0 (канал `fruitLoveFever`) | `protocol-v1.19.0` |
 
-`js-v1.16.0` собран на `protocol-v1.18.0`. Ставится tarball'ом из GitHub Releases — как, в
+`js-v1.17.0` собран на `protocol-v1.19.0`. Ставится tarball'ом из GitHub Releases — как, в
 [старте на JS](../guides/getting-started-js.md#1-поставить-пакеты); выпуск — в [релизах](../guides/releasing.md).
 
 ## Смотрите также

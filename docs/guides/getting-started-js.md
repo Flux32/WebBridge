@@ -34,8 +34,8 @@ my-game/
 npm create vite@latest my-game -- --template vanilla-ts
 cd my-game
 npm install \
-  https://github.com/Flux32/WebBridge/releases/download/js-v1.16.0/omega-webbridge-js-1.16.0.tgz \
-  https://github.com/Flux32/WebBridge/releases/download/protocol-v1.18.0/omega-webbridge-protocol-1.18.0.tgz
+  https://github.com/Flux32/WebBridge/releases/download/js-v1.17.0/omega-webbridge-js-1.17.0.tgz \
+  https://github.com/Flux32/WebBridge/releases/download/protocol-v1.19.0/omega-webbridge-protocol-1.19.0.tgz
 ```
 
 В `package.json` окажутся точные ссылки на tarball'ы — semver-диапазонов нет:
@@ -43,13 +43,13 @@ npm install \
 ```json
 {
   "dependencies": {
-    "@omega/webbridge-js": "https://github.com/Flux32/WebBridge/releases/download/js-v1.16.0/omega-webbridge-js-1.16.0.tgz",
-    "@omega/webbridge-protocol": "https://github.com/Flux32/WebBridge/releases/download/protocol-v1.18.0/omega-webbridge-protocol-1.18.0.tgz"
+    "@omega/webbridge-js": "https://github.com/Flux32/WebBridge/releases/download/js-v1.17.0/omega-webbridge-js-1.17.0.tgz",
+    "@omega/webbridge-protocol": "https://github.com/Flux32/WebBridge/releases/download/protocol-v1.19.0/omega-webbridge-protocol-1.19.0.tgz"
   }
 }
 ```
 
-1. **Протокол — той же версии, на которой собран мост.** `js-v1.16.0` зависит от `protocol-v1.18.0`.
+1. **Протокол — той же версии, на которой собран мост.** `js-v1.17.0` зависит от `protocol-v1.19.0`.
    Другая версия поставит вторую копию протокола, и типы команд разъедутся.
 2. **Протокол ставится явно**, потому что игра импортирует из него типы payload'ов
    (`StepResultPayload`, `GameConfigPayload`…).
