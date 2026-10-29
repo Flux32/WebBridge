@@ -102,8 +102,8 @@ const pickWeighted = (random: () => number): FruitLoveFeverSymbol => {
 
 const dealCell = (random: () => number, reel: number, { wildChance, scatterChance }: DealOptions): MockCell => {
   const roll = random();
-  if (roll < wildChance && WILD_REELS.has(reel)) return { symbol: WILD, coeff: WILD_COEFFS[Math.floor(random() * WILD_COEFFS.length)]! };
-  if (roll < wildChance + scatterChance) return { symbol: SCATTER };
+  if (WILD_REELS.has(reel) && roll < wildChance) return { symbol: WILD, coeff: WILD_COEFFS[Math.floor(random() * WILD_COEFFS.length)]! };
+  if (roll >= 1 - scatterChance) return { symbol: SCATTER };
   return { symbol: pickWeighted(random) };
 };
 

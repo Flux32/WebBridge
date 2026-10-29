@@ -109,6 +109,18 @@ describe('FruitLoveFeverMockRound', () => {
     expect(round.lastReply.bonusGame?.currentGameNumber).toBeNull();
   });
 
+  it('deals wilds on reels 2-4 only and no scatter in a free spin', () => {
+    const round = new FruitLoveFeverMockRound({ amount: 1, currency: 'USD', bonusBuy: 'x200', random: seeded(6) });
+
+    const cells = playToTheEnd(round).flatMap((step) =>
+      Object.entries(step.slot.reelsCells).flatMap(([reel, reelCells]) => reelCells.map((cell) => ({ reel, code: cell.outcomeNumber }))),
+    );
+
+    expect(cells.filter((cell) => cell.code === 12)).toEqual([]);
+    expect(new Set(cells.filter((cell) => cell.code === 0).map((cell) => cell.reel))).not.toContain('1');
+    expect(new Set(cells.filter((cell) => cell.code === 0).map((cell) => cell.reel))).not.toContain('5');
+  });
+
   it('refuses a free spin once the bonus is over', () => {
     const round = new FruitLoveFeverMockRound({ amount: 1, currency: 'USD', random: () => 0.5 });
 
