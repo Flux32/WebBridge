@@ -73,6 +73,7 @@ npm install \
 | `plinko-aztec` | `PlinkoAztecBridge` | `PlinkoAztecMockHost` | [modes/plinko-aztec/js.md](../modes/plinko-aztec/js.md) |
 | `jumper` | `JumperBridge` | `JumperMockHost` | [modes/jumper/js.md](../modes/jumper/js.md) |
 | `mine-slot` | `MineSlotBridge` | `MineSlotMockHost` | [modes/mine-slot/js.md](../modes/mine-slot/js.md) |
+| `fruit-love-fever` | `FruitLoveFeverBridge` | `FruitLoveFeverMockHost` | [modes/fruit-love-fever/js.md](../modes/fruit-love-fever/js.md) |
 
 Дальше всё одинаково для любого режима: меняются только мост, его сигналы и событие конца хода.
 
