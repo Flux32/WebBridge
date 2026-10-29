@@ -34,6 +34,7 @@ export class FruitLoveFeverMockHost implements WebHostBridge {
   private round: FruitLoveFeverMockRound | null = null;
   /** Busy from the play until the game's `SpinReady`, free spins included. */
   private isBusy = false;
+  private isFastGame = false;
 
   public constructor(options: Partial<FruitLoveFeverMockHostOptions> = {}) {
     this.options = { ...DEFAULTS, ...options };
@@ -55,6 +56,9 @@ export class FruitLoveFeverMockHost implements WebHostBridge {
         return;
       case 'RequestGameState':
         this.resync();
+        return;
+      case 'RequestFastGame':
+        this.send({ type: 'SetFastGame', payload: this.isFastGame });
         return;
       case 'RequestStep':
         this.step();
@@ -90,13 +94,20 @@ export class FruitLoveFeverMockHost implements WebHostBridge {
     this.send({ type: 'ApplyGameState', payload: JSON.stringify(this.gameState()) });
   }
 
-  /** Space — spin, B — buy x75, H — buy x200, G — re-send the game state (a reconnect). */
+  /** The bet bar's fast-game switch. */
+  public toggleFastGame(): void {
+    this.isFastGame = !this.isFastGame;
+    this.send({ type: 'SetFastGame', payload: this.isFastGame });
+  }
+
+  /** Space — spin, B — buy x75, H — buy x200, G — re-send the game state (a reconnect), F — fast game. */
   public bindKeys(target: EventTarget = window): () => void {
     const actions: Record<string, () => void> = {
       Space: () => this.emit({ type: 'RequestPlay' }),
       KeyB: () => this.buyBonus('x75'),
       KeyH: () => this.buyBonus('x200'),
       KeyG: () => this.resync(),
+      KeyF: () => this.toggleFastGame(),
     };
     const onKey = (event: Event): void => actions[(event as KeyboardEvent).code]?.();
     target.addEventListener('keydown', onKey);

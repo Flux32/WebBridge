@@ -77,6 +77,18 @@ describe('FruitLoveFeverMockHost', () => {
     expect(lastPayload(game, 'ApplyGameState')).toEqual({ status: 'none' });
   });
 
+  it('switches the fast game as the bet bar does and reports it when asked', () => {
+    const { host, game } = createHost();
+
+    host.toggleFastGame();
+    host.emit({ type: 'RequestFastGame' });
+
+    expect(game.received.filter((command) => command.type === 'SetFastGame')).toEqual([
+      { type: 'SetFastGame', payload: true },
+      { type: 'SetFastGame', payload: true },
+    ]);
+  });
+
   it('has no free spin to give outside a bonus', () => {
     const { host, game } = createHost();
 
