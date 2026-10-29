@@ -134,6 +134,51 @@ describe('FruitLoveFeverController', () => {
     expect(context.placed).toEqual([3]);
   });
 
+  it('plays a game state ahead of the last free spin as the step reply it missed, then asks for the next', async () => {
+    const context = setup();
+    const bonus = twoSpinBonus();
+    send(context.bridge, 'ApplySpinResult', bonus.play);
+    await context.motions.finishAll();
+
+    // The reply to the first RequestStep was lost; the reconnect state is that free spin.
+    send(context.bridge, 'ApplyGameState', bonus.first);
+    const played = await playOneByOne(context);
+
+    expect(played).toEqual(['spin:1 [RequestStep]', 'lines:4 [RequestStep]']);
+    expect(context.controller.bonus).toEqual({ played: 1, total: 2 });
+    expect(eventTypes(context.transport)).toEqual(['RequestStep', 'RequestStep']);
+  });
+
+  it('ends the round with a missed step that finishes the bonus', async () => {
+    const context = setup();
+    const bonus = twoSpinBonus();
+    send(context.bridge, 'ApplySpinResult', bonus.play);
+    await context.motions.finishAll();
+    send(context.bridge, 'ApplyBonusStepResult', bonus.first);
+    await context.motions.finishAll();
+
+    send(context.bridge, 'ApplyGameState', bonus.last);
+    await context.motions.finishAll();
+
+    expect(eventTypes(context.transport)).toEqual(['RequestStep', 'RequestStep', 'SpinReady']);
+    expect(context.controller.phase).toBe('idle');
+  });
+
+  it('closes the bonus with one SpinReady when the round ended on the server while the step reply was lost', async () => {
+    const context = setup();
+    send(context.bridge, 'ApplySpinResult', twoSpinBonus().play);
+    await context.motions.finishAll();
+
+    send(context.bridge, 'ApplyGameState', { status: 'none' });
+    await context.motions.finishAll();
+    send(context.bridge, 'ApplyGameState', { status: 'none' });
+    await settle();
+
+    expect(eventTypes(context.transport)).toEqual(['RequestStep', 'SpinReady']);
+    expect(context.controller.phase).toBe('idle');
+    expect(context.motions.pending).toEqual([]);
+  });
+
   it('has nothing to resume from a session without a round', async () => {
     const context = setup();
     send(context.bridge, 'ApplyGameState', { status: 'none' });

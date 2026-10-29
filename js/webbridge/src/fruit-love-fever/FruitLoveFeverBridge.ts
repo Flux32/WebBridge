@@ -6,8 +6,10 @@
  * until that the host keeps the bet bar locked and the win parked.
  *
  * `ApplyGameState` with `isFinished: false` is a bonus in progress after a reload: the game shows that board
- * and continues with `requestStep()`. One that arrives while the game waits for a step (a reconnect) means
- * the request may be lost: the game asks again.
+ * and continues with `requestStep()`. One that arrives while the game waits for a step is a reconnect: a
+ * state ahead of the free spin last played is the lost step reply and plays as it; the same free spin means
+ * the request was lost and the game asks again; `{status: 'none'}` means the round ended on the server —
+ * the game closes the bonus and calls `notifySpinReady()`.
  */
 import type {
   CoreCommand,

@@ -10,9 +10,14 @@
  *    free spin sends `RequestStep` and waits for the host's `ApplyBonusStepResult` (the server's step reply,
  *    JSON string), plays it, and asks again until it has played a reply with `isFinished: true`. Only then
  *    does it send the round's one `SpinReady`.
- * 4. Reload / reconnect: `ApplyGameState` with `isFinished: false` is a bonus in progress — the engine shows
- *    that board and continues with `RequestStep`. An `ApplyGameState` that arrives while the engine waits for
- *    a step makes it send `RequestStep` again.
+ * 4. Reload: `ApplyGameState` with `isFinished: false` is a bonus in progress — the engine shows that board
+ *    and continues with `RequestStep`.
+ * 5. Reconnect while the engine waits for a step: the step reply may be lost, so `ApplyGameState` decides.
+ *    A state whose `bonusGame.currentGameNumber` is ahead of the free spin last played is that lost reply:
+ *    the engine plays it as the step (and goes on, or ends with `SpinReady` if it is finished). The same
+ *    free spin means the request was lost: the engine sends `RequestStep` again. `{status: 'none'}` means
+ *    the round ended on the server: the engine closes the bonus without the spins it missed and sends the
+ *    round's one `SpinReady`.
  *
  * Money fields are decimal strings of the platform. The server is loose about the rest: `coeff` comes as a
  * number on the top level and as a decimal string elsewhere, `line` as a number or a string; read both.

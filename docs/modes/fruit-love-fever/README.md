@@ -73,7 +73,7 @@ sequenceDiagram
 | `ApplySpinResult` | ответ сервера на `play` — спин или покупка бонуса | JSON-строка [`FruitLoveFeverSpinResult`](#fruitlovefeverspinresult) | играет базовый спин; без бонуса — `SpinReady`, с бонусом — интро и `RequestStep` |
 | `ApplyBonusStepResult` | ответ сервера на `step` после `RequestStep` | JSON-строка `FruitLoveFeverStepResult` (та же форма, `bonusGame` есть всегда) | играет фри-спин; дальше `RequestStep` или, если `isFinished`, итог и `SpinReady` |
 | `ApplyGameConfig` | на старте сцены (в ответ на `RequestGameConfig`) | JSON-строка конфига платформы ([пример](#конфиг-get-game-config)) | берёт валюту, если показывает суммы |
-| `ApplyGameState` | на старте сцены (в ответ на `RequestGameState`) и после переподключения | JSON-строка `get-game-state`: последний ответ незавершённого раунда или `{"status":"none"}` | `isFinished: false` — продолжает бонус ([восстановление](#восстановление-и-ошибки)) |
+| `ApplyGameState` | на старте сцены (в ответ на `RequestGameState`) и после переподключения | JSON-строка `get-game-state`: последний ответ незавершённого раунда или `{"status":"none"}` | `isFinished: false` — продолжает бонус; во время ожидания шага — решает, что потерялось ([восстановление](#восстановление-и-ошибки)) |
 
 Остальное — общие команды: `SetFastGame`, `ApplyWhiteLabel`, `ApplyTranslations`, `DisabledPlayPressed`
 и прочие ([общий протокол](../../concepts/core-protocol.md)). Имена `ApplyBonusStepResult` и `RequestStep`
@@ -83,7 +83,7 @@ sequenceDiagram
 
 | Событие | Когда слать | Что делает хост |
 |---|---|---|
-| `RequestStep` | бонус: один раз на фри-спин, когда предыдущий доигран; повторно — если пришёл `ApplyGameState`, пока игра ждёт шаг | зовёт `step`, присылает `ApplyBonusStepResult` |
+| `RequestStep` | бонус: один раз на фри-спин, когда предыдущий доигран; повторно — если во время ожидания шага пришёл `ApplyGameState` с тем же фри-спином | зовёт `step`, присылает `ApplyBonusStepResult` |
 | `SpinReady` | один раз на раунд: после базового спина без бонуса или после последнего фри-спина | показывает выигрыш, снимает лок бета, запускает следующий автоспин |
 | `RequestGameConfig`, `RequestGameState` | на старте сцены, повторяя до ответа | отвечает `ApplyGameConfig` / `ApplyGameState` |
 | `RequestPlay` | игрок тапнул по сцене вместо кнопки Play | делает спин как с кнопки, а если Play сейчас неактивна — шлёт `DisabledPlayPressed` |
@@ -239,7 +239,7 @@ interface FruitLoveFeverBonusGame {
    Лишний `SpinReady` откроет бар посреди бонуса, пропущенный — заблокирует игру. Таймаута на стороне
    хоста нет.
 2. **Один `RequestStep` на фри-спин.** Следующий — только когда предыдущий доигран. Повтор — только в ответ
-   на `ApplyGameState`, пришедший во время ожидания шага: после переподключения запрос мог потеряться.
+   на `ApplyGameState` с тем же фри-спином, пришедший во время ожидания шага: потерялся сам запрос.
 3. **Символ — по `outcomeNumber`.** Строки `outcome` на стенде — остатки chicken-road (`hydrant`,
    `police`, `taxi`…); строить по ним сцену нельзя.
 4. **Прилипший вайлд стоит до конца бонуса.** Клетка вайлда из фри-спина в следующих шагах не крутится.
@@ -259,7 +259,13 @@ interface FruitLoveFeverBonusGame {
   `RequestStep`. Вайлды состояния считаются прилипшими, если `currentGameNumber` не `null`. После последнего
   шага `get-game-state` отвечает `{"status":"none"}`.
 - **Переподключение во время ожидания шага.** `ApplyGameState`, пришедший, пока игра ждёт
-  `ApplyBonusStepResult`, — сигнал, что запрос мог потеряться: игра шлёт `RequestStep` ещё раз.
+  `ApplyBonusStepResult`, говорит, что потерялось. Хост ведёт себя как обычно; решает игра:
+
+  | Состояние | Что потерялось | Что делает игра |
+  |---|---|---|
+  | `isFinished: false`, `bonusGame.currentGameNumber` больше последнего сыгранного фри-спина | ответ на шаг: сервер его сыграл | играет состояние как этот шаг и идёт дальше `RequestStep`; если оно `isFinished: true` — итог и `SpinReady` |
+  | `isFinished: false`, тот же фри-спин | сам запрос | шлёт `RequestStep` ещё раз |
+  | `{"status":"none"}` | ответ на последний шаг: раунд на сервере закончен | закрывает бонус без пропущенных спинов и шлёт один `SpinReady`; итог показывает хост |
 - **Отказ сервера.** `{"error": "Active round already exist"}` — `play` во время живого бонуса;
   `{"error": "Active round not found"}` — `step` без раунда; `{"error": {"message": "Something went wrong
   while creating bet"}}` — не хватает баланса или ставка ниже минимума. До игры доходит только принятый

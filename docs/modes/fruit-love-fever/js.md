@@ -42,7 +42,7 @@ registerWebBoot(
 );
 ```
 
-Восстановление после перезагрузки и повтор `RequestStep` при переподключении — в
+Восстановление после перезагрузки и переподключение во время ожидания шага — в
 [полном примере](#полный-пример).
 
 ## Установка и точка входа
@@ -79,7 +79,7 @@ registerWebBoot(
 | Метод | Что отправляет | Когда звать |
 |---|---|---|
 | `start()` | `RequestGameConfig` + `RequestGameState`, с повтором до ответа | один раз, когда сцена готова |
-| `requestStep()` | `RequestStep` | бонус: когда предыдущий фри-спин доигран; ещё раз — на `ApplyGameState` во время ожидания |
+| `requestStep()` | `RequestStep` | бонус: когда предыдущий фри-спин доигран; ещё раз — на `ApplyGameState` с тем же фри-спином во время ожидания |
 | `notifySpinReady()` | `SpinReady` | после базового спина без бонуса или после последнего фри-спина — ровно один раз |
 | `requestPlay()` | `RequestPlay` | игрок тапнул по сцене вместо кнопки Play (из `BridgeBase`) |
 
@@ -103,7 +103,7 @@ registerWebBoot(
 ## Полный пример
 
 Контроллер раунда без движка: очередь ответов, базовый спин, бонус шаг за шагом с прилипшими вайлдами,
-восстановление и повтор `RequestStep`. Отрисовку подставляет движок через `motions`. Это сокращённый
+восстановление и [переподключение во время ожидания шага](README.md#восстановление-и-ошибки). Отрисовку подставляет движок через `motions`. Это сокращённый
 `FruitLoveFeverController` демо-игры: в нём ещё проверка ответа и сломанное состояние вместо
 `SpinReady` на битом ответе ([правило](README.md#восстановление-и-ошибки)).
 
@@ -124,9 +124,13 @@ const wildsOf = (reply: FruitLoveFeverSpinResult): string[] =>
     cells.filter((cell) => cell.outcomeNumber === 0).map((cell) => `${reel}:${cell.index}`),
   );
 
+/** Ответ на ожидание шага: шаг (или состояние, которое и есть потерянный шаг) либо раунд, закрытый сервером. */
+type StepAnswer = FruitLoveFeverSpinResult | 'ended';
+
 export class FruitRound {
   private queue: Promise<void> = Promise.resolve();
-  private stepWaiter: ((step: FruitLoveFeverStepResult) => void) | null = null;
+  private stepWaiter: ((answer: StepAnswer) => void) | null = null;
+  private played = 0;                                             // последний сыгранный фри-спин
   private isRoundInHand = false;
   private sticky = new Set<string>();
 
@@ -143,6 +147,7 @@ export class FruitRound {
 
   private async play(reply: FruitLoveFeverSpinResult): Promise<void> {
     this.sticky = new Set();
+    this.played = 0;
     await this.motions.spin(reply, this.sticky);
     if (!reply.isFinished) {
       await this.motions.bonusIntro(reply);
@@ -155,6 +160,7 @@ export class FruitRound {
   private async resume(state: FruitLoveFeverSpinResult): Promise<void> {
     const played = state.bonusGame?.currentGameNumber ?? null;     // null — фри-спинов ещё не было
     this.sticky = new Set(played === null ? [] : wildsOf(state));
+    this.played = played ?? 0;
     this.motions.place(state);
     await this.playBonus();
     this.finish();
@@ -163,6 +169,8 @@ export class FruitRound {
   private async playBonus(): Promise<void> {
     for (;;) {
       const step = await this.nextStep();
+      if (step === 'ended') return;                               // сервер закрыл раунд, ответ потерян
+      this.played = step.bonusGame?.currentGameNumber ?? this.played;
       await this.motions.spin(step, this.sticky);
       wildsOf(step).forEach((cell) => this.sticky.add(cell));     // вайлд фри-спина прилипает
       if (step.isFinished) return this.motions.bonusOutro(step);
@@ -174,22 +182,24 @@ export class FruitRound {
     this.bridge.notifySpinReady();                                 // один раз на раунд
   }
 
-  private nextStep(): Promise<FruitLoveFeverStepResult> {
+  private nextStep(): Promise<StepAnswer> {
     return new Promise((resolve) => {
       this.stepWaiter = resolve;                                   // до запроса: хост может ответить сразу
       this.bridge.requestStep();
     });
   }
 
-  private takeStep(step: FruitLoveFeverStepResult): void {
+  private takeStep(answer: StepAnswer): void {
     const waiter = this.stepWaiter;
     this.stepWaiter = null;
-    waiter?.(step);
+    waiter?.(answer);
   }
 
   private onGameState(state: FruitLoveFeverGameState): void {
-    if (this.stepWaiter !== null) {
-      this.bridge.requestStep();                                   // переподключение: запрос мог потеряться
+    if (this.stepWaiter !== null) {                                // переподключение во время ожидания шага
+      if (state.status === 'none') this.takeStep('ended');        // раунд закончен на сервере
+      else if ((state.bonusGame?.currentGameNumber ?? 0) > this.played) this.takeStep(state);  // потерян ответ
+      else this.bridge.requestStep();                              // потерян запрос
       return;
     }
     if (state.status === 'none' || state.isFinished || this.isRoundInHand) return;
@@ -262,7 +272,7 @@ DEMO_MODE=fruit-love-fever npm run dev -w js/examples/demo-games
 |---|---|---|
 | Бет-бар не оживает после бонуса | не пришёл `SpinReady`: исключение в анимации, `return` до вызова или битый ответ | найти ошибку в логе моста; таймером или `finally` её не закрывать |
 | Бар ожил посреди бонуса | `SpinReady` после каждого фри-спина или после базового спина бонуса | один вызов после ответа с `isFinished: true` |
-| Бонус встал после переподключения | игра ждёт шаг, а `RequestStep` потерялся | на `ApplyGameState` во время ожидания — `requestStep()` ещё раз |
+| Бонус встал после переподключения | игра ждёт шаг, а потерялся запрос или ответ | на `ApplyGameState` во время ожидания: фри-спин впереди — сыграть состояние как шаг; тот же — `requestStep()`; `{"status":"none"}` — закрыть бонус и `notifySpinReady()` |
 | Первый шаг «пропал» | ответ хоста пришёл внутри `requestStep()`, до подписки ожидания | ставить ожидание до вызова `requestStep()` |
 | На барабанах «hydrant» и «police» | символ взят из `outcome` | брать `outcomeNumber` |
 | Итог бонуса меньше, чем выиграно | показан `bonusGame.winAmount` | итог — верхний `winAmount` |

@@ -2,11 +2,15 @@
  * Fruit Love Fever on the bridge. `ApplySpinResult` plays the base spin; an unfinished reply opens a bonus:
  * the intro, then per free spin a `RequestStep` and the host's `ApplyBonusStepResult`, with every wild that
  * lands locked in its cell until the bonus ends. The host hears `SpinReady` once per round — after the base
- * spin, or after the last free spin and the bonus total. An unfinished `ApplyGameState` resumes the bonus;
- * one that arrives while a step is awaited re-sends `RequestStep`.
+ * spin, or after the last free spin and the bonus total. An unfinished `ApplyGameState` resumes the bonus.
+ *
+ * An `ApplyGameState` that arrives while a step is awaited is a reconnect, and the step reply may be lost:
+ * a state ahead of the last free spin played is that reply and plays as it; the same free spin means the
+ * request may be lost and goes again; no round at all means the bonus ended on the server — it closes
+ * without the spins it missed, with the round's one `SpinReady`.
  */
 import { BridgeLogger, type FruitLoveFeverBridge } from '@omega/webbridge-js';
-import type { FruitLoveFeverGameState, FruitLoveFeverStepResult } from '@omega/webbridge-protocol';
+import type { FruitLoveFeverGameState } from '@omega/webbridge-protocol';
 import { MoveQueue } from '../../kit/MoveQueue';
 import { FruitLoveFeverRoundError } from './fruitLoveFeverRead';
 import { assertStickyWilds, planFruitSpin, wildCellsOf, type BonusProgress, type FruitSpinPlan } from './fruitLoveFeverRound';
@@ -24,6 +28,14 @@ export interface FruitLoveFeverMotions {
 
 export type FruitLoveFeverPhase = 'idle' | 'spinning' | 'paying' | 'intro' | 'waiting' | 'outro' | 'broken';
 
+/** What ends the wait for a free spin. */
+type StepAnswer =
+  /** The step reply, or the reconnect state that is the reply that was lost. */
+  | { readonly kind: 'step'; readonly reply: unknown }
+  /** The round ended on the server while the reply was lost. */
+  | { readonly kind: 'ended' }
+  | { readonly kind: 'destroyed' };
+
 export class FruitLoveFeverController {
   public phase: FruitLoveFeverPhase = 'idle';
   public lastResult = '';
@@ -33,7 +45,7 @@ export class FruitLoveFeverController {
   public bonus: BonusProgress | null = null;
   public stickyCells = new Set<number>();
   private isRoundInHand = false;
-  private stepWaiter: ((step: FruitLoveFeverStepResult | null) => void) | null = null;
+  private stepWaiter: ((answer: StepAnswer) => void) | null = null;
   private readonly queue = new MoveQueue();
   private readonly unsubscribers: (() => void)[];
 
@@ -54,7 +66,7 @@ export class FruitLoveFeverController {
 
   public destroy(): void {
     this.queue.close();
-    this.stepWaiter?.(null);
+    this.answerStep({ kind: 'destroyed' });
     this.unsubscribers.forEach((unsubscribe) => unsubscribe());
   }
 
@@ -93,9 +105,10 @@ export class FruitLoveFeverController {
   private async playBonus(): Promise<boolean> {
     for (;;) {
       this.phase = 'waiting';
-      const step = await this.nextStep();
-      if (step === null) return false;
-      const plan = this.plan(step, this.stickyCells);
+      const answer = await this.nextStep();
+      if (answer.kind === 'destroyed') return false;
+      if (answer.kind === 'ended') return this.closeUnseen();
+      const plan = this.plan(answer.reply, this.stickyCells);
       if (plan === null) return true;
       if (!(await this.playSpin(plan))) return false;
       wildCellsOf(plan).forEach((cell) => this.stickyCells.add(cell));
@@ -131,8 +144,18 @@ export class FruitLoveFeverController {
     return true;
   }
 
-  /** Waits for the host's answer to `RequestStep`; `null` once the game is destroyed. */
-  private nextStep(): Promise<FruitLoveFeverStepResult | null> {
+  /** The bonus ended on the server with replies the scene never got: no spin to show, the round still ends. */
+  private closeUnseen(): boolean {
+    BridgeLogger.warn('[demo fruit-love-fever] the bonus ended on the server while a step reply was lost');
+    this.phase = 'idle';
+    this.isRoundInHand = false;
+    this.lastResult = 'Bonus ended on the server';
+    this.bridge.notifySpinReady();
+    return true;
+  }
+
+  /** Waits for the host's answer to `RequestStep`. */
+  private nextStep(): Promise<StepAnswer> {
     return new Promise((resolve) => {
       // Set before the request: a host may answer inside `requestStep()` itself.
       this.stepWaiter = resolve;
@@ -140,24 +163,41 @@ export class FruitLoveFeverController {
     });
   }
 
-  private deliverStep(step: FruitLoveFeverStepResult): void {
-    const waiter = this.stepWaiter;
-    if (waiter === null) {
+  private deliverStep(step: unknown): void {
+    if (this.stepWaiter === null) {
       BridgeLogger.warn('[demo fruit-love-fever] ApplyBonusStepResult without a RequestStep: not played');
       return;
     }
+    this.answerStep({ kind: 'step', reply: step });
+  }
+
+  private answerStep(answer: StepAnswer): void {
+    const waiter = this.stepWaiter;
     this.stepWaiter = null;
-    waiter(step);
+    waiter?.(answer);
   }
 
   private onGameState(state: FruitLoveFeverGameState): void {
-    // A reconnect while a free spin is awaited: the request may be lost, so it goes again.
     if (this.stepWaiter !== null) {
-      this.bridge.requestStep();
+      this.answerStepFromState(state);
       return;
     }
     if (state.status === 'none' || state.isFinished || this.isRoundInHand) return;
     this.enqueueRound(() => this.resume(state));
+  }
+
+  /** A reconnect while a free spin is awaited: the state tells whether its reply was lost or the request. */
+  private answerStepFromState(state: FruitLoveFeverGameState): void {
+    if (state.status === 'none') {
+      this.answerStep({ kind: 'ended' });
+      return;
+    }
+    const freeSpin = state.bonusGame?.currentGameNumber;
+    if (typeof freeSpin === 'number' && freeSpin > (this.bonus?.played ?? 0)) {
+      this.answerStep({ kind: 'step', reply: state });
+      return;
+    }
+    this.bridge.requestStep();
   }
 
   /**
