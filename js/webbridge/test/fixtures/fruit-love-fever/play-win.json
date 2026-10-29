@@ -1,0 +1,131 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 1.25,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "1.25",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 2,
+          "outcome": "police",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 6,
+          "outcome": "chicken",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 6,
+          "outcome": "chicken",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 1,
+          "outcome": "fireCar",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 52,
+      "2": 15,
+      "3": 18,
+      "4": 68,
+      "5": 57
+    },
+    "winLines": [
+      {
+        "line": 4,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "line": 11,
+        "coeff": "0.25",
+        "inclusionIndexes": [
+          1,
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

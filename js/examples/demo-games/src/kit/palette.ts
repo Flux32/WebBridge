@@ -18,6 +18,7 @@ export const PALETTE = {
   lime: '#b8ef6a',
   pink: '#ff8ad8',
   copper: '#ff9a52',
+  rose: '#ff4f8b',
 } as const;
 
 export type PaletteColor = (typeof PALETTE)[keyof typeof PALETTE];

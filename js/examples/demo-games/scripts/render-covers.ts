@@ -25,6 +25,7 @@ const COVER_STYLES: Record<DemoModeId, CoverStyle> = {
   wheel: { title: 'Wheel', accent: PALETTE.violet },
   jumper: { title: 'Jumper', accent: PALETTE.pink },
   'mine-slot': { title: 'Mine Slot', accent: PALETTE.copper },
+  'fruit-love-fever': { title: 'Fruit Love Fever', accent: PALETTE.rose },
 };
 
 const backdrop = (accent: string): string => `

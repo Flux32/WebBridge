@@ -1,0 +1,118 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "7.50",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "7.50",
+  "coeff": 0,
+  "currency": "USD",
+  "isFinished": false,
+  "isWin": true,
+  "winAmount": "0.00",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 1,
+          "outcome": "fireCar",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 4,
+          "outcome": "iceCar",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 5,
+      "2": 13,
+      "3": 11,
+      "4": 33,
+      "5": 29
+    },
+    "winLines": []
+  },
+  "bonusBuy": "x75",
+  "bonusGame": {
+    "currentGameNumber": null,
+    "totalFreeSpinsAmount": 10,
+    "coeff": "0",
+    "winAmount": "0"
+  }
+}

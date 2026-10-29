@@ -62,6 +62,14 @@ export interface ModeProtocols {
   readonly jumper: ModeChannel<JumperCommand | SharedRoundCommand, SeriesBonusEventChannel>;
   /** One spin reply plays the whole round, free spins included, and is answered with one SpinReady. */
   readonly mineSlot: ModeChannel<SpinCommand, RoundEvent>;
+  /**
+   * The play reply plays the base spin; a bonus game then goes free spin by free spin — RequestStep from the
+   * engine, ApplyBonusStepResult from the host — and the round ends with one SpinReady after the last one.
+   */
+  readonly fruitLoveFever: ModeChannel<
+    SpinCommand | Extract<PlinkoCommand, { type: 'ApplyBonusStepResult' }>,
+    RoundEvent | Extract<PlinkoEvent, { type: 'RequestStep' }>
+  >;
 }
 
 export type ModeProtocolId = keyof ModeProtocols;

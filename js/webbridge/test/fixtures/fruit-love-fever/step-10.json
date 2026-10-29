@@ -1,0 +1,205 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 118.9,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "118.90",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 10,
+          "outcome": "j",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 7,
+          "outcome": "a",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 4,
+          "outcome": "iceCar",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 0,
+          "outcome": "wild",
+          "coeff": "2",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 1,
+          "outcome": "fireCar",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 11,
+          "outcome": "ten",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 4,
+          "outcome": "iceCar",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 74,
+      "2": 71,
+      "3": 17,
+      "4": 33,
+      "5": 57
+    },
+    "winLines": [
+      {
+        "line": 1,
+        "coeff": "0.40",
+        "inclusionIndexes": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 5,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          2,
+          1,
+          0
+        ]
+      },
+      {
+        "line": 9,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          2,
+          2,
+          1
+        ]
+      },
+      {
+        "line": 10,
+        "coeff": "0.40",
+        "inclusionIndexes": [
+          1,
+          2,
+          1
+        ]
+      },
+      {
+        "line": 12,
+        "coeff": "4.00",
+        "inclusionIndexes": [
+          0,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 13,
+        "coeff": "1.00",
+        "inclusionIndexes": [
+          2,
+          1,
+          1
+        ]
+      },
+      {
+        "line": 14,
+        "coeff": "4.00",
+        "inclusionIndexes": [
+          0,
+          1,
+          0
+        ]
+      },
+      {
+        "line": 16,
+        "coeff": "0.40",
+        "inclusionIndexes": [
+          1,
+          1,
+          0
+        ]
+      },
+      {
+        "line": 19,
+        "coeff": "3.00",
+        "inclusionIndexes": [
+          2,
+          2,
+          0,
+          2
+        ]
+      }
+    ]
+  },
+  "bonusGame": {
+    "currentGameNumber": 10,
+    "totalFreeSpinsAmount": 10,
+    "coeff": "15.200000000000",
+    "winAmount": "15.20"
+  }
+}

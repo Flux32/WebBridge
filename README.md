@@ -39,6 +39,7 @@ flowchart LR
 | **plinko-aztec** | серия шаров, колесо фри-спинов, бонус-игра | [контракт](docs/modes/plinko-aztec/README.md) | [`PlinkoAztecBridge`](docs/modes/plinko-aztec/js.md) | [`PlinkoAztecWebBridge`](docs/modes/plinko-aztec/unity.md) |
 | **jumper** | прыжки по ступеням с ускорителями, кэшаут | [контракт](docs/modes/jumper/README.md) | [`JumperBridge`](docs/modes/jumper/js.md) | [`JumperWebBridge`](docs/modes/jumper/unity.md) |
 | **mine-slot** | слот, кирки ломают поле блоков, сундуки множат | [контракт](docs/modes/mine-slot/README.md) | [`MineSlotBridge`](docs/modes/mine-slot/js.md) | [`MineSlotWebBridge`](docs/modes/mine-slot/unity.md) |
+| **fruit-love-fever** | линейный слот 5 × 3, фри-спины шагами, прилипающие вайлды | [контракт](docs/modes/fruit-love-fever/README.md) | [`FruitLoveFeverBridge`](docs/modes/fruit-love-fever/js.md) | [нет моста — рецепт](docs/modes/fruit-love-fever/unity.md) |
 
 У каждого режима, где есть mock-хост, игру можно запустить без шелла и сервера:
 [mock-режим](docs/concepts/mock-mode.md).

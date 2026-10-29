@@ -1,0 +1,117 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 5,
+  "currency": "USD",
+  "isFinished": false,
+  "isWin": true,
+  "winAmount": "5.00",
+  "slot": {
+    "reelsCells": {
+      "1": [
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 2
+        }
+      ],
+      "2": [
+        {
+          "outcomeNumber": 3,
+          "outcome": "taxi",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 5,
+          "outcome": "hydrant",
+          "index": 2
+        }
+      ],
+      "3": [
+        {
+          "outcomeNumber": 2,
+          "outcome": "police",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 2
+        }
+      ],
+      "4": [
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 8,
+          "outcome": "k",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 6,
+          "outcome": "chicken",
+          "index": 2
+        }
+      ],
+      "5": [
+        {
+          "outcomeNumber": 4,
+          "outcome": "iceCar",
+          "index": 0
+        },
+        {
+          "outcomeNumber": 9,
+          "outcome": "q",
+          "index": 1
+        },
+        {
+          "outcomeNumber": 12,
+          "outcome": "scatter",
+          "index": 2
+        }
+      ]
+    },
+    "reelsPosition": {
+      "1": 12,
+      "2": 69,
+      "3": 45,
+      "4": 65,
+      "5": 61
+    },
+    "winLines": []
+  },
+  "bonusGame": {
+    "currentGameNumber": null,
+    "totalFreeSpinsAmount": 10,
+    "coeff": "0",
+    "winAmount": "0"
+  }
+}

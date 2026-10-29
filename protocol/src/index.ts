@@ -118,3 +118,22 @@ export {
   MINE_SLOT_REELS,
   MINE_SLOT_SYMBOLS,
 } from './mineSlot.js';
+
+export type {
+  FruitLoveFeverBonusBuy,
+  FruitLoveFeverBonusGame,
+  FruitLoveFeverCell,
+  FruitLoveFeverGameState,
+  FruitLoveFeverReel,
+  FruitLoveFeverSlot,
+  FruitLoveFeverSpinResult,
+  FruitLoveFeverStepResult,
+  FruitLoveFeverSymbol,
+  FruitLoveFeverWinLine,
+} from './fruitLoveFever.js';
+export {
+  FRUIT_LOVE_FEVER_BONUS_BUYS,
+  FRUIT_LOVE_FEVER_REELS,
+  FRUIT_LOVE_FEVER_SYMBOL_NAMES,
+  FRUIT_LOVE_FEVER_SYMBOLS,
+} from './fruitLoveFever.js';

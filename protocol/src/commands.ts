@@ -94,7 +94,8 @@ export type PlinkoCommand =
   // Ставка за шар — десятичная строка как `betPerBall` бэкенда ("0.2", "2"): деньги не идут через number.
   | { type: 'SetBetPerBall'; payload: string }
   | { type: 'ApplyDropResult'; payload: string }
-  // Ответ сервера на шаг бонусной игры plinko-aztec (после `RequestStep`): сырой GameState-JSON.
+  // Ответ сервера на шаг бонусной игры plinko-aztec и фри-спин fruit-love-fever (после `RequestStep`):
+  // сырой GameState-JSON.
   | { type: 'ApplyBonusStepResult'; payload: string };
 
 /** Команды колеса. */
