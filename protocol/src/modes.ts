@@ -70,6 +70,11 @@ export interface ModeProtocols {
     SpinCommand | Extract<PlinkoCommand, { type: 'ApplyBonusStepResult' }>,
     RoundEvent | Extract<PlinkoEvent, { type: 'RequestStep' }>
   >;
+  /**
+   * One spin reply plays the whole round — base spin, pots, jackpot pick, Hold & Win — and is answered with
+   * one SpinReady; there are no steps.
+   */
+  readonly dragonPots: ModeChannel<SpinCommand, RoundEvent>;
 }
 
 export type ModeProtocolId = keyof ModeProtocols;

@@ -28,6 +28,7 @@ export type {
   CoreCommand,
   CrushCommand,
   CrushDifficulty,
+  DragonPotsCommand,
   EngineCommand,
   EngineCommandType,
   JumperCommand,
@@ -137,3 +138,35 @@ export {
   FRUIT_LOVE_FEVER_SYMBOL_NAMES,
   FRUIT_LOVE_FEVER_SYMBOLS,
 } from './fruitLoveFever.js';
+
+export type {
+  DragonPotsBoardSize,
+  DragonPotsBonusBuy,
+  DragonPotsBonusTypeName,
+  DragonPotsCell,
+  DragonPotsCoin,
+  DragonPotsGameState,
+  DragonPotsHoldAndWinCoin,
+  DragonPotsHoldAndWinResult,
+  DragonPotsHoldAndWinSpin,
+  DragonPotsHoldAndWinTry,
+  DragonPotsJackpotResult,
+  DragonPotsJackpotTile,
+  DragonPotsMainGameResult,
+  DragonPotsPotColor,
+  DragonPotsRoundResult,
+  DragonPotsSpinResult,
+  DragonPotsSymbol,
+  DragonPotsWin,
+  DragonPotsWinHighlight,
+} from './dragonPots.js';
+export {
+  DRAGON_POTS_BOARD_SIZES,
+  DRAGON_POTS_BONUS_BUYS,
+  DRAGON_POTS_BONUS_TYPES,
+  DRAGON_POTS_JACKPOT_MATCH,
+  DRAGON_POTS_JACKPOT_TIERS,
+  DRAGON_POTS_POT_COLORS,
+  DRAGON_POTS_REELS,
+  DRAGON_POTS_SYMBOLS,
+} from './dragonPots.js';
