@@ -1,4 +1,4 @@
-import type { DragonPotsBonusBuy, DragonPotsSpinResult } from '@omega/webbridge-protocol';
+import { DRAGON_POTS_BONUS_TYPES, type DragonPotsBonusBuy, type DragonPotsSpinResult } from '@omega/webbridge-protocol';
 import { describe, expect, it } from 'vitest';
 import { evaluateWays, highlightOf } from '../src/dragon-pots/dragonPotsMockBoard';
 import { dealDragonPotsRound, type DragonPotsMockOutcome } from '../src/dragon-pots/dragonPotsMockRound';
@@ -45,6 +45,17 @@ describe('the recorded replies', () => {
   it.each(RECORDED_PLAYS.filter((name) => !name.startsWith('play-buy')))('keep the round rules: %s', (name) => {
     expectRules(recorded(name));
   });
+
+  it.each(['play-mighty', 'play-mega', 'play-super', 'play-jackpot', 'play-ultra', 'play-supreme', 'play-ultimate'] as const)(
+    'name the index and the board the protocol gives their outcome: %s',
+    (name) => {
+      const { bonusTypeName, bonusTypeIndex, holdAndWinResult } = recorded(name).roundResult;
+      const outcome = DRAGON_POTS_BONUS_TYPES[bonusTypeName as keyof typeof DRAGON_POTS_BONUS_TYPES];
+
+      expect(bonusTypeIndex).toBe(outcome.index);
+      expect(holdAndWinResult?.boardSize ?? null).toBe(outcome.boardSize);
+    },
+  );
 
   it.each(['Mighty', 'Mega', 'Super'] as const)('keep the round rules of a bought %s', (buy) => {
     expectRules(recorded(`play-buy-${buy.toLowerCase()}` as 'play-buy-mighty'), PRICES[buy]);
@@ -120,6 +131,7 @@ describe('dealDragonPotsRound', () => {
 
   it('answers in the shape of the recorded replies', () => {
     expect(keysOf(dealDragonPotsRound({ bet: 0.1, currency: 'USD', random: seeded(1), outcome: 'Supreme' }))).toEqual(keysOf(recorded('play-supreme')));
+    expect(keysOf(dealDragonPotsRound({ bet: 0.1, currency: 'USD', random: seeded(1), outcome: 'Ultra' }))).toEqual(keysOf(recorded('play-ultra')));
     expect(keysOf(dealDragonPotsRound({ bet: 0.1, currency: 'USD', random: seeded(1) }))).toEqual(
       keysOf(recorded('play-lose')).filter((key) => !key.includes('jackpot') && !key.includes('holdAndWin')),
     );

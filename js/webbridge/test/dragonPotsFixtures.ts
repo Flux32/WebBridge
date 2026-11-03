@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { DragonPotsSpinResult } from '@omega/webbridge-protocol';
 
-/** Play replies the stage backend sent (2026-11-03), verbatim. */
+/** Play replies the stage backend sent (2026-11-03; Ultra 2026-11-04), verbatim. */
 export const RECORDED_PLAYS = [
   'play-lose',
   'play-lose-coins',
@@ -11,6 +11,7 @@ export const RECORDED_PLAYS = [
   'play-mega',
   'play-super',
   'play-jackpot',
+  'play-ultra',
   'play-supreme',
   'play-ultimate',
   'play-buy-mighty',
