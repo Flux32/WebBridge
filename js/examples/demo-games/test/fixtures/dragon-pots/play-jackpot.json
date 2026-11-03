@@ -1,0 +1,78 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "0.10",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "0.10",
+  "coeff": 20,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "2.00",
+  "roundResult": {
+    "totalCoeff": 20,
+    "winAmount": "2",
+    "totalWinAmount": "2",
+    "mainGameResult": {
+      "matrix": [
+        [
+          "Dr",
+          "Dr",
+          "J",
+          "M",
+          "3C"
+        ],
+        [
+          "9",
+          "10",
+          "Fl",
+          "K",
+          "3C"
+        ],
+        [
+          "Fl",
+          "M",
+          "Fl",
+          "J",
+          "9"
+        ]
+      ],
+      "wins": [],
+      "winsHighlight": [],
+      "coeff": 0,
+      "winAmount": "0"
+    },
+    "isJackpot": true,
+    "jackpotResult": {
+      "scenario": [
+        1,
+        1,
+        2,
+        5,
+        2,
+        1
+      ],
+      "coeff": 20,
+      "winAmount": "2",
+      "isDouble": false
+    },
+    "bonusTypeIndex": 3,
+    "bonusTypeName": "Jackpot",
+    "coins": [
+      {
+        "reelIndex": 3,
+        "rowIndex": 0,
+        "color": "Blue",
+        "isGold": false
+      },
+      {
+        "reelIndex": 1,
+        "rowIndex": 2,
+        "color": "Red",
+        "isGold": false
+      }
+    ]
+  }
+}

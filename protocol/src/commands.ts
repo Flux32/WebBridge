@@ -150,6 +150,12 @@ export type SlotCoinCommand = SpinCommand;
  */
 export type MineSlotCommand = SpinCommand;
 
+/**
+ * Команды Dragon Pots. Раунд атомарный: ответ сервера на play — базовый спин, монеты в котлы, джекпот и
+ * Hold & Win — приходит целиком одним `ApplySpinResult`, поэтому своих команд у механики нет.
+ */
+export type DragonPotsCommand = SpinCommand;
+
 export type EngineCommand =
   | CoreCommand
   | CrushCommand
@@ -158,5 +164,6 @@ export type EngineCommand =
   | JumperCommand
   | TwistCommand
   | SlotCoinCommand
-  | MineSlotCommand;
+  | MineSlotCommand
+  | DragonPotsCommand;
 export type EngineCommandType = EngineCommand['type'];

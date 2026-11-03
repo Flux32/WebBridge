@@ -1,0 +1,131 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "0.10",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "0.10",
+  "coeff": 0.5,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "0.05",
+  "roundResult": {
+    "totalCoeff": 0.5,
+    "winAmount": "0.05",
+    "totalWinAmount": "0.05",
+    "mainGameResult": {
+      "matrix": [
+        [
+          "Q",
+          "Fl",
+          "10",
+          "10",
+          "K"
+        ],
+        [
+          "3C",
+          "Ln",
+          "9",
+          "Dr",
+          "10"
+        ],
+        [
+          "10",
+          "10",
+          "M",
+          "Dr",
+          "Dr"
+        ]
+      ],
+      "wins": [
+        {
+          "symbol": "10",
+          "matches": 5,
+          "ways": 1,
+          "coeff": 0.5,
+          "payout": 0.5,
+          "paths": [
+            [
+              {
+                "reelIndex": 0,
+                "rowIndex": 2,
+                "symbol": "10"
+              },
+              {
+                "reelIndex": 1,
+                "rowIndex": 2,
+                "symbol": "10"
+              },
+              {
+                "reelIndex": 2,
+                "rowIndex": 0,
+                "symbol": "10"
+              },
+              {
+                "reelIndex": 3,
+                "rowIndex": 0,
+                "symbol": "10"
+              },
+              {
+                "reelIndex": 4,
+                "rowIndex": 1,
+                "symbol": "10"
+              }
+            ]
+          ]
+        }
+      ],
+      "winsHighlight": [
+        {
+          "symbol": "10",
+          "matches": 5,
+          "ways": 1,
+          "coeff": 0.5,
+          "payout": 0.5,
+          "path": [
+            {
+              "reelIndex": 0,
+              "rowIndex": 2,
+              "symbol": "10"
+            },
+            {
+              "reelIndex": 1,
+              "rowIndex": 2,
+              "symbol": "10"
+            },
+            {
+              "reelIndex": 2,
+              "rowIndex": 0,
+              "symbol": "10"
+            },
+            {
+              "reelIndex": 3,
+              "rowIndex": 0,
+              "symbol": "10"
+            },
+            {
+              "reelIndex": 4,
+              "rowIndex": 1,
+              "symbol": "10"
+            }
+          ]
+        }
+      ],
+      "coeff": 0.5,
+      "winAmount": "0.05"
+    },
+    "isJackpot": false,
+    "bonusTypeIndex": 7,
+    "bonusTypeName": "Lose",
+    "coins": [
+      {
+        "reelIndex": 2,
+        "rowIndex": 2,
+        "color": "Blue",
+        "isGold": false
+      }
+    ]
+  }
+}

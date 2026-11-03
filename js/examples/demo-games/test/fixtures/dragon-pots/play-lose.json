@@ -1,0 +1,52 @@
+{
+  "status": "lose",
+  "bet": {
+    "amount": "0.10",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "0.10",
+  "coeff": 0,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": false,
+  "winAmount": "0.00",
+  "roundResult": {
+    "totalCoeff": 0,
+    "winAmount": "0",
+    "totalWinAmount": "0",
+    "mainGameResult": {
+      "matrix": [
+        [
+          "K",
+          "9",
+          "3C",
+          "3C",
+          "Q"
+        ],
+        [
+          "Dr",
+          "Fl",
+          "Q",
+          "3C",
+          "J"
+        ],
+        [
+          "Dr",
+          "K",
+          "Q",
+          "10",
+          "Fi"
+        ]
+      ],
+      "wins": [],
+      "winsHighlight": [],
+      "coeff": 0,
+      "winAmount": "0"
+    },
+    "isJackpot": false,
+    "bonusTypeIndex": null,
+    "bonusTypeName": "",
+    "coins": []
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "0.10",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "0.10",
+  "coeff": 0.25,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "0.02",
+  "roundResult": {
+    "totalCoeff": 0.25,
+    "winAmount": "0.025",
+    "totalWinAmount": "0.025",
+    "mainGameResult": {
+      "matrix": [
+        [
+          "J",
+          "10",
+          "Fi",
+          "Fl",
+          "Dr"
+        ],
+        [
+          "K",
+          "Ln",
+          "9",
+          "Fi",
+          "Dr"
+        ],
+        [
+          "Fi",
+          "J",
+          "Wi",
+          "Fi",
+          "K"
+        ]
+      ],
+      "wins": [
+        {
+          "symbol": "J",
+          "matches": 3,
+          "ways": 1,
+          "coeff": 0.25,
+          "payout": 0.25,
+          "paths": [
+            [
+              {
+                "reelIndex": 0,
+                "rowIndex": 0,
+                "symbol": "J"
+              },
+              {
+                "reelIndex": 1,
+                "rowIndex": 2,
+                "symbol": "J"
+              },
+              {
+                "reelIndex": 2,
+                "rowIndex": 2,
+                "symbol": "Wi"
+              }
+            ]
+          ]
+        }
+      ],
+      "winsHighlight": [
+        {
+          "symbol": "J",
+          "matches": 3,
+          "ways": 1,
+          "coeff": 0.25,
+          "payout": 0.25,
+          "path": [
+            {
+              "reelIndex": 0,
+              "rowIndex": 0,
+              "symbol": "J"
+            },
+            {
+              "reelIndex": 1,
+              "rowIndex": 2,
+              "symbol": "J"
+            },
+            {
+              "reelIndex": 2,
+              "rowIndex": 2,
+              "symbol": "Wi"
+            }
+          ]
+        }
+      ],
+      "coeff": 0.25,
+      "winAmount": "0.025"
+    },
+    "isJackpot": false,
+    "bonusTypeIndex": null,
+    "bonusTypeName": "",
+    "coins": []
+  }
+}

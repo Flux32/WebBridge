@@ -4,6 +4,7 @@
  */
 import { PALETTE } from '../src/kit/palette.ts';
 import type { DemoModeId } from '../src/modes/modeIds.ts';
+import { dragonPotsMotif } from './dragonPotsMotif.ts';
 import { fruitLoveFeverMotif } from './fruitLoveFeverMotif.ts';
 import { mineSlotMotif } from './mineSlotMotif.ts';
 
@@ -132,4 +133,5 @@ export const MOTIFS: Record<DemoModeId, Motif> = {
   jumper,
   'mine-slot': mineSlotMotif,
   'fruit-love-fever': fruitLoveFeverMotif,
+  'dragon-pots': dragonPotsMotif,
 };

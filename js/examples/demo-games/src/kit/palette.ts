@@ -19,6 +19,7 @@ export const PALETTE = {
   pink: '#ff8ad8',
   copper: '#ff9a52',
   rose: '#ff4f8b',
+  vermilion: '#ff5a36',
 } as const;
 
 export type PaletteColor = (typeof PALETTE)[keyof typeof PALETTE];
