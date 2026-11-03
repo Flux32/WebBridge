@@ -58,8 +58,8 @@ export type DragonPotsBoardSize = keyof typeof DRAGON_POTS_BOARD_SIZES;
 
 /**
  * What the pots triggered: `roundResult.bonusTypeName` and its `bonusTypeIndex`, with the pots that burst
- * and the features they start. `Lose` — coins landed, no pot triggered. Ultra (index 4) has not been seen
- * on the stage backend yet; its index follows the original game's order.
+ * and the features they start. `Lose` — coins landed, no pot triggered. All eight were recorded on the stage
+ * backend.
  */
 export const DRAGON_POTS_BONUS_TYPES = {
   Mighty: { index: 0, pots: ['Blue'], boardSize: '3x5', hasJackpot: false },
