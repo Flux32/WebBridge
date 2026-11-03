@@ -1,0 +1,385 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "0.10",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "0.10",
+  "coeff": 158.25,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "15.82",
+  "roundResult": {
+    "totalCoeff": 158.25,
+    "winAmount": "15.825",
+    "totalWinAmount": "15.825",
+    "mainGameResult": {
+      "matrix": [
+        [
+          "A",
+          "9",
+          "9",
+          "3C",
+          "Fl"
+        ],
+        [
+          "M",
+          "Fl",
+          "M",
+          "3C",
+          "9"
+        ],
+        [
+          "Q",
+          "K",
+          "3C",
+          "J",
+          "M"
+        ]
+      ],
+      "wins": [],
+      "winsHighlight": [],
+      "coeff": 0,
+      "winAmount": "0"
+    },
+    "isJackpot": false,
+    "holdAndWinResult": {
+      "boardSize": "5x5",
+      "coeff": 158.25,
+      "winAmount": "15.825",
+      "finalCoinsCount": 22,
+      "initial": {
+        "currentCoeff": 0,
+        "coins": [
+          {
+            "rowIndex": 3,
+            "colIndex": 3,
+            "coinCoeff": 0.5,
+            "coinWinAmount": "0.05",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 1,
+            "colIndex": 0,
+            "coinCoeff": 0.25,
+            "coinWinAmount": "0.025",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 2,
+            "colIndex": 4,
+            "coinCoeff": 0.25,
+            "coinWinAmount": "0.025",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 2,
+            "colIndex": 0,
+            "coinCoeff": 0.25,
+            "coinWinAmount": "0.025",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 0,
+            "colIndex": 1,
+            "coinCoeff": 0.25,
+            "coinWinAmount": "0.025",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 4,
+            "colIndex": 3,
+            "coinCoeff": 0.5,
+            "coinWinAmount": "0.05",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 1,
+            "colIndex": 2,
+            "coinCoeff": 0.25,
+            "coinWinAmount": "0.025",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 4,
+            "colIndex": 0,
+            "coinCoeff": 0.5,
+            "coinWinAmount": "0.05",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 0,
+            "colIndex": 3,
+            "coinCoeff": 0.25,
+            "coinWinAmount": "0.025",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          },
+          {
+            "rowIndex": 4,
+            "colIndex": 1,
+            "coinCoeff": 1.25,
+            "coinWinAmount": "0.125",
+            "currentCoeff": 0,
+            "currentWinAmount": "0"
+          }
+        ]
+      },
+      "spins": [
+        {
+          "spinIndex": 0,
+          "currentCoeff": 4.25,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": []
+            },
+            {
+              "tryIndex": 1,
+              "openedCoins": [
+                {
+                  "rowIndex": 3,
+                  "colIndex": 2,
+                  "coinCoeff": 0.25,
+                  "coinWinAmount": "0.025",
+                  "currentCoeff": 4.25,
+                  "currentWinAmount": "0.425"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 1,
+          "currentCoeff": 8.75,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": []
+            },
+            {
+              "tryIndex": 1,
+              "openedCoins": [
+                {
+                  "rowIndex": 2,
+                  "colIndex": 3,
+                  "coinCoeff": 0.5,
+                  "coinWinAmount": "0.05",
+                  "currentCoeff": 8.75,
+                  "currentWinAmount": "0.875"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 2,
+          "currentCoeff": 26.75,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 2,
+                  "colIndex": 2,
+                  "coinCoeff": 0.5,
+                  "coinWinAmount": "0.05",
+                  "currentCoeff": 13.75,
+                  "currentWinAmount": "1.375"
+                },
+                {
+                  "rowIndex": 4,
+                  "colIndex": 4,
+                  "coinCoeff": 2,
+                  "coinWinAmount": "0.2",
+                  "currentCoeff": 19.25,
+                  "currentWinAmount": "1.925"
+                },
+                {
+                  "rowIndex": 0,
+                  "colIndex": 0,
+                  "coinCoeff": 0.5,
+                  "coinWinAmount": "0.05",
+                  "currentCoeff": 26.75,
+                  "currentWinAmount": "2.675"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 3,
+          "currentCoeff": 34.75,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 1,
+                  "colIndex": 1,
+                  "coinCoeff": 10,
+                  "coinWinAmount": "1",
+                  "currentCoeff": 34.75,
+                  "currentWinAmount": "3.475"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 4,
+          "currentCoeff": 52.75,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 3,
+                  "colIndex": 1,
+                  "coinCoeff": 1.25,
+                  "coinWinAmount": "0.125",
+                  "currentCoeff": 52.75,
+                  "currentWinAmount": "5.275"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 5,
+          "currentCoeff": 72,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 0,
+                  "colIndex": 2,
+                  "coinCoeff": 0.5,
+                  "coinWinAmount": "0.05",
+                  "currentCoeff": 72,
+                  "currentWinAmount": "7.2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 6,
+          "currentCoeff": 112.5,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 1,
+                  "colIndex": 4,
+                  "coinCoeff": 1,
+                  "coinWinAmount": "0.1",
+                  "currentCoeff": 91.75,
+                  "currentWinAmount": "9.175"
+                },
+                {
+                  "rowIndex": 3,
+                  "colIndex": 0,
+                  "coinCoeff": 2,
+                  "coinWinAmount": "0.2",
+                  "currentCoeff": 112.5,
+                  "currentWinAmount": "11.25"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 7,
+          "currentCoeff": 135.25,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 3,
+                  "colIndex": 4,
+                  "coinCoeff": 0.25,
+                  "coinWinAmount": "0.025",
+                  "currentCoeff": 135.25,
+                  "currentWinAmount": "13.525"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 8,
+          "currentCoeff": 158.25,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": [
+                {
+                  "rowIndex": 2,
+                  "colIndex": 1,
+                  "coinCoeff": 0.25,
+                  "coinWinAmount": "0.025",
+                  "currentCoeff": 158.25,
+                  "currentWinAmount": "15.825"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "spinIndex": 9,
+          "currentCoeff": 158.25,
+          "tries": [
+            {
+              "tryIndex": 0,
+              "openedCoins": []
+            },
+            {
+              "tryIndex": 1,
+              "openedCoins": []
+            },
+            {
+              "tryIndex": 2,
+              "openedCoins": []
+            }
+          ]
+        }
+      ]
+    },
+    "bonusTypeIndex": 2,
+    "bonusTypeName": "Super",
+    "coins": [
+      {
+        "reelIndex": 0,
+        "rowIndex": 1,
+        "color": "Red",
+        "isGold": false
+      },
+      {
+        "reelIndex": 2,
+        "rowIndex": 1,
+        "color": "Blue",
+        "isGold": false
+      },
+      {
+        "reelIndex": 4,
+        "rowIndex": 2,
+        "color": "Green",
+        "isGold": true
+      }
+    ]
+  }
+}

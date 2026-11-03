@@ -43,6 +43,11 @@ export { FruitLoveFeverBridge } from './fruit-love-fever/FruitLoveFeverBridge';
 export { FruitLoveFeverMockHost } from './fruit-love-fever/FruitLoveFeverMockHost';
 export type { FruitLoveFeverMockHostOptions } from './fruit-love-fever/FruitLoveFeverMockHost';
 
+export { DragonPotsBridge } from './dragon-pots/DragonPotsBridge';
+export { DragonPotsMockHost } from './dragon-pots/DragonPotsMockHost';
+export type { DragonPotsMockHostOptions } from './dragon-pots/DragonPotsMockHost';
+export type { DragonPotsMockOutcome } from './dragon-pots/dragonPotsMockRound';
+
 export { SlotCoinBridge } from './slot-coin/SlotCoinBridge';
 export { SlotCoinMockHost } from './slot-coin/SlotCoinMockHost';
 export type { SlotCoinMockHostOptions } from './slot-coin/SlotCoinMockHost';
