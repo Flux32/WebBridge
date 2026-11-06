@@ -48,6 +48,11 @@ export { DragonPotsMockHost } from './dragon-pots/DragonPotsMockHost';
 export type { DragonPotsMockHostOptions } from './dragon-pots/DragonPotsMockHost';
 export type { DragonPotsMockOutcome } from './dragon-pots/dragonPotsMockRound';
 
+export { JokerSlotBridge } from './joker-slot/JokerSlotBridge';
+export { JokerSlotMockHost } from './joker-slot/JokerSlotMockHost';
+export type { JokerSlotMockHostOptions } from './joker-slot/JokerSlotMockHost';
+export type { JokerSlotMockOutcome } from './joker-slot/jokerSlotMockRound';
+
 export { SlotCoinBridge } from './slot-coin/SlotCoinBridge';
 export { SlotCoinMockHost } from './slot-coin/SlotCoinMockHost';
 export type { SlotCoinMockHostOptions } from './slot-coin/SlotCoinMockHost';

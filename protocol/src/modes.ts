@@ -75,6 +75,11 @@ export interface ModeProtocols {
    * one SpinReady; there are no steps.
    */
   readonly dragonPots: ModeChannel<SpinCommand, RoundEvent>;
+  /**
+   * One spin reply plays the whole round — the base board and every bonus board, landed or bought — and is
+   * answered with one SpinReady; there are no steps.
+   */
+  readonly jokerSlot: ModeChannel<SpinCommand, RoundEvent>;
 }
 
 export type ModeProtocolId = keyof ModeProtocols;

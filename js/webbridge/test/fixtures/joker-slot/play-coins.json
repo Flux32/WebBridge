@@ -1,0 +1,42 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 3,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "3.00",
+  "rounds": 1,
+  "boards": [
+    "55ab444l8866"
+  ],
+  "actions": [
+    [
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "a",
+            "index": 2,
+            "coeff": "1.00",
+            "payout": "1.000000000000"
+          },
+          {
+            "symbol": "b",
+            "index": 3,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "3.00",
+        "totalPayout": "3.000000000000"
+      }
+    ]
+  ]
+}

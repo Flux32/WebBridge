@@ -28,7 +28,7 @@ registerWebBoot(
 |---|---|
 | `BridgeBase`, `Signal`, `BridgeTransport`, `BridgeStorage`, `BridgeLogger`, `isMockEnabled` | ядро моста |
 | `createWebBoot`, `registerWebBoot` | точка входа бандла: `window.__WEB_GAME_BOOT__` |
-| `CrushBridge`, `TwistBridge`, `SlotCoinBridge`, `WheelBridge`, `PlinkoBridge`, `PlinkoAztecBridge`, `JumperBridge`, `MineSlotBridge`, `FruitLoveFeverBridge`, `DragonPotsBridge` | мосты режимов |
+| `CrushBridge`, `TwistBridge`, `SlotCoinBridge`, `WheelBridge`, `PlinkoBridge`, `PlinkoAztecBridge`, `JumperBridge`, `MineSlotBridge`, `FruitLoveFeverBridge`, `DragonPotsBridge`, `JokerSlotBridge` | мосты режимов |
 | `MockHost`, `MockPanel`, `<Mode>MockHost` | mock-хосты: игра без шелла (`?mock=1`) |
 | `@omega/webbridge-js/vite` | vite-плагин: `localBuild` для шелла, связка с конфигуратором |
 
@@ -47,7 +47,8 @@ registerWebBoot(
   [slot-coin](../../docs/modes/slot-coin/js.md) · [wheel](../../docs/modes/wheel/js.md) ·
   [plinko](../../docs/modes/plinko/js.md) · [plinko-aztec](../../docs/modes/plinko-aztec/js.md) ·
   [jumper](../../docs/modes/jumper/js.md) · [mine-slot](../../docs/modes/mine-slot/js.md) ·
-  [fruit-love-fever](../../docs/modes/fruit-love-fever/js.md) · [dragon-pots](../../docs/modes/dragon-pots/js.md)
+  [fruit-love-fever](../../docs/modes/fruit-love-fever/js.md) · [dragon-pots](../../docs/modes/dragon-pots/js.md) ·
+  [joker-slot](../../docs/modes/joker-slot/js.md)
 - [Вся документация WebBridge](../../README.md)
 
 ```bash

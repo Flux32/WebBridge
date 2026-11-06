@@ -1,0 +1,68 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 6,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "6.00",
+  "rounds": 1,
+  "boards": [
+    "11356m333339"
+  ],
+  "actions": [
+    [
+      {
+        "action": "WIN_LINES",
+        "winLines": [
+          {
+            "winLineNumber": 2,
+            "payout": "1.000000000000",
+            "coeff": "1.00"
+          }
+        ],
+        "totalPayout": "1.000000000000",
+        "totalCoeff": "1.00"
+      },
+      {
+        "action": "SUPER_STRIKE_COINS_ADDED",
+        "triggerIndex": 5,
+        "coins": [
+          {
+            "symbol": "b",
+            "index": 1
+          },
+          {
+            "symbol": "c",
+            "index": 2
+          }
+        ]
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 5,
+        "coins": [
+          {
+            "symbol": "b",
+            "index": 1,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          },
+          {
+            "symbol": "c",
+            "index": 2,
+            "coeff": "3.00",
+            "payout": "3.000000000000"
+          }
+        ],
+        "totalCoeff": "5.00",
+        "totalPayout": "5.000000000000"
+      }
+    ]
+  ]
+}

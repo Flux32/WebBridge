@@ -1,0 +1,274 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "75.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "75.00",
+  "coeff": 0.41333333333333333,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "30.99",
+  "rounds": 9,
+  "boards": [
+    "113333395adb",
+    "0000000lb000",
+    "b00c000la000",
+    "0000l00l0000",
+    "0000l00l00cb",
+    "0000l00l000b",
+    "0000l00l0000",
+    "0000l00l0000",
+    "0000l00l0000"
+  ],
+  "actions": [
+    [
+      {
+        "action": "BONUS_BUY",
+        "coins": [
+          {
+            "symbol": "a",
+            "index": 1
+          }
+        ],
+        "strikes": [
+          {
+            "symbol": "l",
+            "index": 7
+          }
+        ]
+      },
+      {
+        "action": "BONUS_RUN",
+        "board": [
+          [
+            "0"
+          ],
+          [
+            "a"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "l"
+          ],
+          [
+            "0"
+          ],
+          [
+            "a"
+          ],
+          [
+            "d"
+          ],
+          [
+            "b"
+          ]
+        ]
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "a",
+            "index": 1,
+            "coeff": "1.00",
+            "payout": "1.000000000000"
+          },
+          {
+            "symbol": "a",
+            "index": 9,
+            "coeff": "1.00",
+            "payout": "1.000000000000"
+          },
+          {
+            "symbol": "d",
+            "index": 10,
+            "coeff": "5.00",
+            "payout": "5.000000000000"
+          },
+          {
+            "symbol": "b",
+            "index": 11,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "9.00",
+        "totalPayout": "9.000000000000"
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 3
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "b",
+            "index": 8,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "2.00",
+        "totalPayout": "2.000000000000"
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 3
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "b",
+            "index": 0,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          },
+          {
+            "symbol": "c",
+            "index": 3,
+            "coeff": "3.00",
+            "payout": "3.000000000000"
+          },
+          {
+            "symbol": "a",
+            "index": 8,
+            "coeff": "1.00",
+            "payout": "1.000000000000"
+          }
+        ],
+        "totalCoeff": "6.00",
+        "totalPayout": "6.000000000000"
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 3
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 3
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 4,
+        "coins": [
+          {
+            "symbol": "c",
+            "index": 10,
+            "coeff": "3.00",
+            "payout": "3.000000000000"
+          },
+          {
+            "symbol": "b",
+            "index": 11,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "5.00",
+        "totalPayout": "5.000000000000"
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "c",
+            "index": 10,
+            "coeff": "3.00",
+            "payout": "3.000000000000"
+          },
+          {
+            "symbol": "b",
+            "index": 11,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "5.00",
+        "totalPayout": "5.000000000000"
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 3
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 4,
+        "coins": [
+          {
+            "symbol": "b",
+            "index": 11,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "2.00",
+        "totalPayout": "2.000000000000"
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "b",
+            "index": 11,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "2.00",
+        "totalPayout": "2.000000000000"
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 2
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 1
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 0
+      }
+    ]
+  ]
+}

@@ -75,6 +75,15 @@ export class SlotCoinReels {
     });
   }
 
+  /** Shows `cells` at once, without a spin: a board that changes in place, as a bonus board appearing. */
+  public show(cells: readonly SlotCoinSymbol[]): void {
+    this.reels.forEach((reel, index) => {
+      reel.strip = cells.slice(index * SLOT_COIN_ROWS, (index + 1) * SLOT_COIN_ROWS);
+      reel.offset = 0;
+      reel.isBlurred = false;
+    });
+  }
+
   /** Drops the travelled part of the strips once landed: the window shows only the board. */
   public settle(): void {
     for (const reel of this.reels) {
