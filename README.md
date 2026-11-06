@@ -41,6 +41,7 @@ flowchart LR
 | **mine-slot** | слот, кирки ломают поле блоков, сундуки множат | [контракт](docs/modes/mine-slot/README.md) | [`MineSlotBridge`](docs/modes/mine-slot/js.md) | [`MineSlotWebBridge`](docs/modes/mine-slot/unity.md) |
 | **fruit-love-fever** | линейный слот 5 × 3, фри-спины шагами, прилипающие вайлды | [контракт](docs/modes/fruit-love-fever/README.md) | [`FruitLoveFeverBridge`](docs/modes/fruit-love-fever/js.md) | [нет моста — рецепт](docs/modes/fruit-love-fever/unity.md) |
 | **dragon-pots** | слот 243 способа, монеты в три котла, джекпот-пик и Hold & Win одним ответом | [контракт](docs/modes/dragon-pots/README.md) | [`DragonPotsBridge`](docs/modes/dragon-pots/js.md) | [нет моста — рецепт](docs/modes/dragon-pots/unity.md) |
+| **joker-slot** | монетный слот 3 × 4 (chicken-coin), джокеры собирают монеты, бонус выпадает или покупается x75 / x200, всё одним ответом | [контракт](docs/modes/joker-slot/README.md) | [`JokerSlotBridge`](docs/modes/joker-slot/js.md) | [нет моста — рецепт](docs/modes/joker-slot/unity.md) |
 
 У каждого режима, где есть mock-хост, игру можно запустить без шелла и сервера:
 [mock-режим](docs/concepts/mock-mode.md).

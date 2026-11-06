@@ -75,6 +75,7 @@ npm install \
 | `mine-slot` | `MineSlotBridge` | `MineSlotMockHost` | [modes/mine-slot/js.md](../modes/mine-slot/js.md) |
 | `fruit-love-fever` | `FruitLoveFeverBridge` | `FruitLoveFeverMockHost` | [modes/fruit-love-fever/js.md](../modes/fruit-love-fever/js.md) |
 | `dragon-pots` | `DragonPotsBridge` | `DragonPotsMockHost` | [modes/dragon-pots/js.md](../modes/dragon-pots/js.md) |
+| `joker-slot` | `JokerSlotBridge` | `JokerSlotMockHost` | [modes/joker-slot/js.md](../modes/joker-slot/js.md) |
 
 Дальше всё одинаково для любого режима: меняются только мост, его сигналы и событие конца хода.
 
