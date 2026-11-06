@@ -156,6 +156,12 @@ export type MineSlotCommand = SpinCommand;
  */
 export type DragonPotsCommand = SpinCommand;
 
+/**
+ * Команды Joker Slot. Раунд атомарный: ответ сервера на play — базовая доска и все доски бонуса, выпавшего
+ * или купленного, — приходит целиком одним `ApplySpinResult`, поэтому своих команд у механики нет.
+ */
+export type JokerSlotCommand = SpinCommand;
+
 export type EngineCommand =
   | CoreCommand
   | CrushCommand
@@ -165,5 +171,6 @@ export type EngineCommand =
   | TwistCommand
   | SlotCoinCommand
   | MineSlotCommand
-  | DragonPotsCommand;
+  | DragonPotsCommand
+  | JokerSlotCommand;
 export type EngineCommandType = EngineCommand['type'];

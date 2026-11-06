@@ -31,6 +31,7 @@ export type {
   DragonPotsCommand,
   EngineCommand,
   EngineCommandType,
+  JokerSlotCommand,
   JumperCommand,
   MineSlotCommand,
   PlinkoCommand,
@@ -170,3 +171,32 @@ export {
   DRAGON_POTS_REELS,
   DRAGON_POTS_SYMBOLS,
 } from './dragonPots.js';
+
+export type {
+  JokerSlotAction,
+  JokerSlotActionName,
+  JokerSlotBonusBuy,
+  JokerSlotBonusRunAction,
+  JokerSlotBonusSpinsCountAction,
+  JokerSlotBonusStartAction,
+  JokerSlotCell,
+  JokerSlotCoinsCollectionAction,
+  JokerSlotEnhancedSuperJokerAction,
+  JokerSlotGameState,
+  JokerSlotOtherAction,
+  JokerSlotPaidCell,
+  JokerSlotSpinResult,
+  JokerSlotSuperJokerCoinsAddedAction,
+  JokerSlotSuperJokerMultiplierAddedAction,
+  JokerSlotSymbol,
+  JokerSlotWinLine,
+  JokerSlotWinLinesAction,
+} from './jokerSlot.js';
+export {
+  JOKER_SLOT_ACTIONS,
+  JOKER_SLOT_BONUS_BUYS,
+  JOKER_SLOT_COIN_COEFFS,
+  JOKER_SLOT_REELS,
+  JOKER_SLOT_SYMBOLS,
+  JOKER_SLOT_WIN_LINES,
+} from './jokerSlot.js';
