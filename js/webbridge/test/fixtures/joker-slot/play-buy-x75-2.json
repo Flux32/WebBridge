@@ -1,0 +1,125 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "75.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "75.00",
+  "coeff": 0.05333333333333334,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "4.00",
+  "rounds": 4,
+  "boards": [
+    "1188555955ab",
+    "0000000l0000",
+    "0000000l0000",
+    "0000000l0000"
+  ],
+  "actions": [
+    [
+      {
+        "action": "BONUS_BUY",
+        "coins": [
+          {
+            "symbol": "a",
+            "index": 2
+          }
+        ],
+        "strikes": [
+          {
+            "symbol": "l",
+            "index": 7
+          }
+        ]
+      },
+      {
+        "action": "BONUS_RUN",
+        "board": [
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "a"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "l"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0"
+          ],
+          [
+            "a"
+          ],
+          [
+            "b"
+          ]
+        ]
+      },
+      {
+        "action": "STRIKE_COINS_COLLECTION",
+        "triggerIndex": 7,
+        "coins": [
+          {
+            "symbol": "a",
+            "index": 2,
+            "coeff": "1.00",
+            "payout": "1.000000000000"
+          },
+          {
+            "symbol": "a",
+            "index": 10,
+            "coeff": "1.00",
+            "payout": "1.000000000000"
+          },
+          {
+            "symbol": "b",
+            "index": 11,
+            "coeff": "2.00",
+            "payout": "2.000000000000"
+          }
+        ],
+        "totalCoeff": "4.00",
+        "totalPayout": "4.000000000000"
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 2
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 1
+      }
+    ],
+    [
+      {
+        "action": "BONUS_SPINS_COUNT",
+        "count": 0
+      }
+    ]
+  ]
+}
