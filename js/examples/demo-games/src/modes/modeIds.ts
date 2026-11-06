@@ -2,7 +2,7 @@
  * Every demo game, by the game mode — one bundle each. The order fixes the dev ports (`5190 + index`), so a
  * new mode goes at the end.
  */
-export const DEMO_MODE_IDS = ['plinko', 'plinko-aztec', 'crush', 'twist', 'slot-coin', 'wheel', 'jumper', 'mine-slot', 'fruit-love-fever', 'dragon-pots'] as const;
+export const DEMO_MODE_IDS = ['plinko', 'plinko-aztec', 'crush', 'twist', 'slot-coin', 'wheel', 'jumper', 'mine-slot', 'fruit-love-fever', 'dragon-pots', 'joker-slot'] as const;
 
 export type DemoModeId = (typeof DEMO_MODE_IDS)[number];
 

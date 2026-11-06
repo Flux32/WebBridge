@@ -20,6 +20,7 @@ export const PALETTE = {
   copper: '#ff9a52',
   rose: '#ff4f8b',
   vermilion: '#ff5a36',
+  magenta: '#d64dff',
 } as const;
 
 export type PaletteColor = (typeof PALETTE)[keyof typeof PALETTE];

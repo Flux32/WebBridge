@@ -27,6 +27,7 @@ DEMO_MODE=crush npm run dev -w js/examples/demo-games         # http://localhost
 | `mine-slot` | 5197 | `MineSlotBridge` | `MineSlotMockHost` |
 | `fruit-love-fever` | 5198 | `FruitLoveFeverBridge` | `FruitLoveFeverMockHost` |
 | `dragon-pots` | 5199 | `DragonPotsBridge` | `DragonPotsMockHost` |
+| `joker-slot` | 5200 | `JokerSlotBridge` | `JokerSlotMockHost` |
 
 - `?mock=1` — вместо шелла mock-хост режима.
 - Без `mock` dev-сервер отдаёт `/game.js` для шелла: `?localBuild=http://localhost:<порт>`.
@@ -63,7 +64,7 @@ test/<mode>*.test.ts
   игровое поле в `frame.playfield`: это область под шапкой, без бет-бара хоста.
 - **Цвета** — только из `kit/palette` (`PALETTE`), у режима свой акцент (`accent`). Акценты:
   crush — coral, twist — mint, slot-coin — amber, wheel — violet, plinko — sky, plinko-aztec — lime,
-  jumper — pink, mine-slot — copper, fruit-love-fever — rose, dragon-pots — vermilion. Поверхности — `panel` / `dusk`, текст — `ink` / `inkSoft` / `inkFaint`.
+  jumper — pink, mine-slot — copper, fruit-love-fever — rose, dragon-pots — vermilion, joker-slot — magenta. Поверхности — `panel` / `dusk`, текст — `ink` / `inkSoft` / `inkFaint`.
 - **Шрифт** — `font()` / `drawText()` из кита: скруглённый системный, цифры 800, подписи 600–700.
   Большое число режима (множитель, выигрыш) — по центру сверху поля, над ним подпись капсом 12px
   `inkFaint`, под ним строка статуса 14px `inkSoft`.

@@ -1,0 +1,39 @@
+{
+  "status": "win",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 2,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": true,
+  "winAmount": "2.00",
+  "rounds": 1,
+  "boards": [
+    "333933653555"
+  ],
+  "actions": [
+    [
+      {
+        "action": "WIN_LINES",
+        "winLines": [
+          {
+            "winLineNumber": 0,
+            "payout": "1.000000000000",
+            "coeff": "1.00"
+          },
+          {
+            "winLineNumber": 6,
+            "payout": "1.000000000000",
+            "coeff": "1.00"
+          }
+        ],
+        "totalPayout": "2.000000000000",
+        "totalCoeff": "2.00"
+      }
+    ]
+  ]
+}

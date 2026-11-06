@@ -1,0 +1,21 @@
+{
+  "status": "lose",
+  "bet": {
+    "amount": "1.00",
+    "currency": "USD",
+    "decimalPlaces": 2
+  },
+  "betAmount": "1.00",
+  "coeff": 0,
+  "currency": "USD",
+  "isFinished": true,
+  "isWin": false,
+  "winAmount": "0.00",
+  "rounds": 1,
+  "boards": [
+    "699888333888"
+  ],
+  "actions": [
+    []
+  ]
+}
