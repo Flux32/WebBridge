@@ -498,10 +498,10 @@ new MockPanel(host, [
 
 | Пакет | В репозитории | Последний релиз |
 |---|---|---|
-| `@omega/webbridge-js` | 1.18.0 (`DragonPotsBridge`, `DragonPotsMockHost`) | `js-v1.18.0` |
-| `@omega/webbridge-protocol` | 1.20.0 (канал `dragonPots`) | `protocol-v1.20.0` |
+| `@omega/webbridge-js` | 1.19.0 (`JokerSlotBridge`, `JokerSlotMockHost`) | `js-v1.19.0` |
+| `@omega/webbridge-protocol` | 1.21.0 (канал `jokerSlot`) | `protocol-v1.21.0` |
 
-`js-v1.18.0` собран на `protocol-v1.20.0`. Ставится tarball'ом из GitHub Releases — как, в
+`js-v1.19.0` собран на `protocol-v1.21.0`. Ставится tarball'ом из GitHub Releases — как, в
 [старте на JS](../guides/getting-started-js.md#1-поставить-пакеты); выпуск — в [релизах](../guides/releasing.md).
 
 ## Смотрите также

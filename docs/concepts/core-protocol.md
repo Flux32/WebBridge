@@ -406,8 +406,8 @@ type WebBootFn = (host: WebHostBridge, container: HTMLElement, options?: WebBoot
 | 1.15.0 | `RequestPlay` |
 | 1.17.0 | `slot` → `slot-coin` (псевдонимы оставлены) |
 
-Остальное ядро — с первой версии пакета. Последний выпущенный протокол — `protocol-v1.20.0` (канал
-`dragonPots`).
+Остальное ядро — с первой версии пакета. Последний выпущенный протокол — `protocol-v1.21.0` (канал
+`jokerSlot`).
 
 ## Правила и инварианты
 
