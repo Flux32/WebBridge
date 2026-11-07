@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { evaluateLines } from '../src/joker-slot/jokerSlotMockBoards';
 import { dealJokerSlotRound, type JokerSlotMockOutcome } from '../src/joker-slot/jokerSlotMockRound';
 import { RECORDED_PLAYS, priceOf, recorded } from './jokerSlotFixtures';
-import { expectRules } from './jokerSlotRoundRules';
+import { expectRules, fieldOf } from './jokerSlotRoundRules';
 
 /** A seeded generator: the same rounds on every run. */
 const seeded = (seed: number) => {
@@ -40,7 +40,7 @@ describe('evaluateLines', () => {
     const lines = evaluateLines([...reply.boards[0]!], 1);
 
     expect(lines?.winLines.map((line) => line.winLineNumber)).toEqual(
-      (recordedLines?.winLines as { winLineNumber: number }[]).map((line) => line.winLineNumber),
+      (fieldOf(recordedLines, 'winLines') as { winLineNumber: number }[]).map((line) => line.winLineNumber),
     );
   });
 });
@@ -66,8 +66,8 @@ describe('dealJokerSlotRound', () => {
   });
 
   it('starts an x75 bonus with Joker Coins and an x200 one with one Super Joker Coin', () => {
-    const x75 = SEEDS.map((seed) => openingOf(deal(seed, { bonusBuy: 'x75' }))!.strikes as { symbol: string }[]);
-    const x200 = SEEDS.map((seed) => openingOf(deal(seed, { bonusBuy: 'x200' }))!.strikes as { symbol: string }[]);
+    const x75 = SEEDS.map((seed) => fieldOf(openingOf(deal(seed, { bonusBuy: 'x75' }))!, 'strikes') as { symbol: string }[]);
+    const x200 = SEEDS.map((seed) => fieldOf(openingOf(deal(seed, { bonusBuy: 'x200' }))!, 'strikes') as { symbol: string }[]);
 
     expect(x75.flat().every((strike) => strike.symbol === 'l')).toBe(true);
     expect(x200.every((strikes) => strikes.length === 1 && strikes[0]!.symbol === 'm')).toBe(true);
