@@ -5,7 +5,8 @@
  * adds the plinko-aztec bet-per-ball pair, 1.10.0 only crush's difficulty
  * command, 1.15.0 only the game's own play request and 1.16.0 only jumper's
  * two commands and its `StartBonus` payload, 1.17.0 only renames slot's types to
- * slot-coin (same shapes, old names kept as aliases): every older member keeps its shape.
+ * slot-coin (same shapes, old names kept as aliases) and 1.22.0 only the game's
+ * request to open the host's bonus shop: every older member keeps its shape.
  */
 import type {
   BonusPurchaseRequestPayload,
@@ -116,4 +117,8 @@ type BetPerBallEvent190 = { type: 'RequestBetPerBall' };
 
 type PlayRequestEvent1150 = { type: 'RequestPlay' };
 
-type _engineEventUnchanged = Expect<Equal<EngineEvent, EngineEvent170 | BetPerBallEvent190 | PlayRequestEvent1150>>;
+type OpenBonusShopEvent1220 = { type: 'OpenBonusShop' };
+
+type _engineEventUnchanged = Expect<
+  Equal<EngineEvent, EngineEvent170 | BetPerBallEvent190 | PlayRequestEvent1150 | OpenBonusShopEvent1220>
+>;
