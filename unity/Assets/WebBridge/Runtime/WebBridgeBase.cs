@@ -189,6 +189,15 @@ namespace WebBridge
             WebBridgeUtils.Send("RequestPlay");
         }
 
+        // Unity -> React: the player pressed the game's own bonus-shop button (BUY BONUS) in the
+        // scene. React opens its bonus shop the same way its own shop button does, and silently
+        // ignores the request when the mode has no shop or the shop is disabled or locked (round,
+        // autoplay, bonus). There is no reply: a purchase arrives through the mode's usual commands.
+        public void OpenBonusShop()
+        {
+            WebBridgeUtils.Send("OpenBonusShop");
+        }
+
         // Asks React for the current fast-game status; it replies by calling SetFastGame. React
         // also pushes the value on load, so this is only for game code that wires up later and
         // needs the state it may have missed.
