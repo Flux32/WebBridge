@@ -198,6 +198,7 @@ sequenceDiagram
 |---|---|---|
 | `virtual RequestWhiteLabel()` | `RequestWhiteLabel` | `ApplyWhiteLabel(1 \| 0)` — по рантайм-манифесту |
 | `virtual RequestPlay()` | `RequestPlay` | ход как от кнопки Play (команда режима) либо `OnDisabledPlayPressed`, если Play сейчас недоступна (раунд идёт, автоплей, баланс, лимиты). Игра ставку не делает |
+| `OpenBonusShop()` | `OpenBonusShop` | ничего: хост открывает свой магазин бонусов, как по кнопке шелла, а без магазина у режима, при выключенном или заблокированном магазине игнорирует. Купленный бонус приходит командами режима. В редакторе (mock) — только лог |
 | `virtual RequestFastGame()` | `RequestFastGame` | `SetFastGame(1 \| 0)`. Хост и так пушит значение после загрузки — нужен тому, кто подписался позже |
 | `NotifyFastGameChanged(bool)` | `FastGame_1` / `FastGame_0` | хост зеркалит значение в тумблер. Молчит, если значение не поменялось |
 
@@ -770,7 +771,7 @@ does not have receiver for function …» — это не ошибка; нужн
 | Сообщение | Откуда |
 |---|---|
 | `RequestGameConfig`, `RequestGameState` | стартовая синхронизация моста режима |
-| `RequestWhiteLabel`, `RequestPlay`, `RequestFastGame` | `WebBridgeBase<T>` |
+| `RequestWhiteLabel`, `RequestPlay`, `OpenBonusShop`, `RequestFastGame` | `WebBridgeBase<T>` |
 | `FastGame_1`, `FastGame_0` | `NotifyFastGameChanged` |
 | `UiVisibility_{json}`, `RequestBetBarViewportMetrics` | `LayoutWebBridge` |
 | `PlaySound_…`, `PlayLoop_…`, `StopLoop_…`, `SetVolume_…`, `PlayMusic_…` | `AudioWebBridge` |

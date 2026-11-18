@@ -164,6 +164,7 @@ Payload нарочно строка: хост сериализует его од
 | `RequestTranslations` | — | — | **не отвечает**: переводы и так приходят на загрузке и смене языка | нет метода |
 | `RequestBetBarViewportMetrics` | — | движок мог пропустить метрики на старте | заново шлёт `Set*BetBarViewportMetrics` и `SetCanvasSize` | нет метода |
 | `RequestPlay` | — | игрок сделал ход в самой сцене (тап по полю, своя кнопка) | отвечает как на Play бара: ход идёт обычной командой режима, а при неактивной Play — `DisabledPlayPressed` | `requestPlay()` |
+| `OpenBonusShop` | — | игрок нажал в сцене свою кнопку бонусного магазина (BUY BONUS) | открывает свой магазин бонусов, как по кнопке шелла; без магазина у режима, при выключенном или заблокированном магазине — игнорирует | `openBonusShop()` |
 | `UiVisibility` | `payload: UiVisibilityPayload` | игра прячет или показывает элементы хоста; в ответ на `SyncUiVisibility` | применяет видимость; первое такое событие — «мост готов» | `setUiVisibility(patch)` |
 | `PlaySound` | `key`, `volume?` | разовый звук | играет звук из звуковой библиотеки хоста | `playSound(key, volume?)` |
 | `PlayLoop` | `key`, `volume?` | зацикленный звук | играет по кругу | `playLoop(key, volume?)` |
@@ -175,6 +176,12 @@ Payload нарочно строка: хост сериализует его од
 
 `RequestPlay` автоплей не переключает: пока автоплей идёт, ответ — тот же `DisabledPlayPressed`. Ставку
 игра не делает и не решает, можно ли её делать.
+
+`OpenBonusShop` общий для всех режимов: кнопку магазина в сцене может нарисовать любая игра, у которой есть
+бонусный магазин. Ответа нет — игра не узнаёт, открылся ли магазин, и свою кнопку не блокирует: можно ли
+сейчас покупать, знает хост. Купленный бонус приходит обычными командами режима, как при покупке из шелла.
+Это не `BonusPurchaseRequest` (crush): там игра сама выбирает и покупает бонус, а здесь выбирает игрок в
+магазине хоста.
 
 Телеметрия кадров `UnityFrameSample` (`payload: UnityFrameSamplePayload`) — отдельный союз
 `UnityOnlyEvent`: её умеет только Unity-сборка, веб-игра её не шлёт. Ни Unity-пакет, ни шелл (master) её
@@ -191,6 +198,7 @@ Payload нарочно строка: хост сериализует его од
 | `RequestBetBarViewportMetrics` | `SetDesktopBetBarViewportMetrics` / `SetMobileBetBarViewportMetrics` (последние, что прислал бар) и `SetCanvasSize` | да, на каждую перекладку |
 | `RequestTranslations` | ничего | да, после загрузки и при смене языка |
 | `RequestPlay` | команда хода своего режима (`ApplyStepResult`, `ApplySpinResult`, `ApplyDropResult`…) или `DisabledPlayPressed` | — |
+| `OpenBonusShop` | ничего: магазин открывается в хосте, покупка — командами режима | — |
 | (хост) `SyncUiVisibility` | игра: `UiVisibility` | — |
 
 Запросы режимов (`RequestStep`, `RequestBallsAmount`, `RequestBetPerBall`, `BonusPurchaseRequest`) — в
@@ -331,7 +339,7 @@ interface UnityFrameSamplePayload {
 
 | Событие | Строка в `SendToReact` |
 |---|---|
-| `RequestGameConfig`, `RequestGameState`, `RequestWhiteLabel`, `RequestFastGame`, `RequestBetBarViewportMetrics`, `RequestPlay`, `RequestTranslations`, `OpenTransitionScreen` | имя как есть |
+| `RequestGameConfig`, `RequestGameState`, `RequestWhiteLabel`, `RequestFastGame`, `RequestBetBarViewportMetrics`, `RequestPlay`, `OpenBonusShop`, `RequestTranslations`, `OpenTransitionScreen` | имя как есть |
 | `FastGameChanged` | `FastGame_1` / `FastGame_0` |
 | `PlaySound`, `PlayMusic`, `PlayLoop` | `PlaySound_<key>`, `PlayMusic_<key>`, `PlayLoop_<key>`; громкость — суффиксом `\|<0..1>`: `PlaySound_click\|0.5` |
 | `SetVolume` | `SetVolume_<key>\|<0..1>` — без громкости хост строку отбрасывает |
@@ -405,9 +413,10 @@ type WebBootFn = (host: WebHostBridge, container: HTMLElement, options?: WebBoot
 | 1.14.0 | `SetCanvasSize` |
 | 1.15.0 | `RequestPlay` |
 | 1.17.0 | `slot` → `slot-coin` (псевдонимы оставлены) |
+| 1.22.0 | `OpenBonusShop` |
 
-Остальное ядро — с первой версии пакета. Последний выпущенный протокол — `protocol-v1.21.0` (канал
-`jokerSlot`).
+Остальное ядро — с первой версии пакета. Последний выпущенный протокол — `protocol-v1.22.0` (событие
+`OpenBonusShop`).
 
 ## Правила и инварианты
 
