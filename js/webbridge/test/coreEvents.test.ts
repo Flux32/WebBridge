@@ -37,6 +37,15 @@ describe.each(bridges)('%s core events', (_name, createBridge) => {
     ]);
   });
 
+  it('asks the host to open its bonus shop', () => {
+    const transport = recordingTransport();
+    const bridge = createBridge(transport);
+
+    bridge.openBonusShop();
+
+    expect(transport.sent).toEqual<EngineEvent[]>([{ type: 'OpenBonusShop' }]);
+  });
+
   it('merges every UI visibility patch into the state it sends', () => {
     const transport = recordingTransport();
     const bridge = createBridge(transport);

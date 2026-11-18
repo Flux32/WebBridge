@@ -190,6 +190,15 @@ export abstract class BridgeBase {
     this.transport.send({ type: 'RequestPlay' });
   }
 
+  /**
+   * Игрок нажал в сцене свою кнопку бонусного магазина (BUY BONUS): хост открывает свой магазин, как
+   * по кнопке шелла. Без магазина у режима, при выключенном или заблокированном магазине хост молчит;
+   * ответа нет — купленный бонус приходит обычными командами режима.
+   */
+  public openBonusShop(): void {
+    this.transport.send({ type: 'OpenBonusShop' });
+  }
+
   /** Спросить white-label у React; он ответит командой ApplyWhiteLabel. */
   public requestWhiteLabel(): void {
     this.transport.send({ type: 'RequestWhiteLabel' });
