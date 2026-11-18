@@ -128,6 +128,7 @@ bridge.mobileBetBarViewportMetricsReceived.add((json) => {
 | Метод | Событие | Когда звать |
 |---|---|---|
 | `requestPlay()` | `RequestPlay` | ход из самой сцены (тап по полю, своя кнопка). Хост отвечает как на Play бара |
+| `openBonusShop()` | `OpenBonusShop` | своя кнопка бонусного магазина в сцене (BUY BONUS). Хост открывает магазин или молча игнорирует, если его нет, он выключен или заблокирован; ответа нет. Mock-хосты событие игнорируют |
 | `requestWhiteLabel()` | `RequestWhiteLabel` | на старте, если у игры есть брендинг: хост сам white-label не пушит |
 | `requestFastGame()` | `RequestFastGame` | код поднялся после пуша и хочет значение |
 | `notifyFastGameChanged(isEnabled)` | `FastGameChanged` | игра сама переключила fast game; молчит, если значение не сменилось |
@@ -498,10 +499,10 @@ new MockPanel(host, [
 
 | Пакет | В репозитории | Последний релиз |
 |---|---|---|
-| `@omega/webbridge-js` | 1.19.0 (`JokerSlotBridge`, `JokerSlotMockHost`) | `js-v1.19.0` |
-| `@omega/webbridge-protocol` | 1.21.0 (канал `jokerSlot`) | `protocol-v1.21.0` |
+| `@omega/webbridge-js` | 1.20.0 (`openBonusShop()` в `BridgeBase`) | `js-v1.20.0` |
+| `@omega/webbridge-protocol` | 1.22.0 (событие `OpenBonusShop`) | `protocol-v1.22.0` |
 
-`js-v1.19.0` собран на `protocol-v1.21.0`. Ставится tarball'ом из GitHub Releases — как, в
+`js-v1.20.0` собран на `protocol-v1.22.0`. Ставится tarball'ом из GitHub Releases — как, в
 [старте на JS](../guides/getting-started-js.md#1-поставить-пакеты); выпуск — в [релизах](../guides/releasing.md).
 
 ## Смотрите также
