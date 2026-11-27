@@ -16,6 +16,7 @@ import {
   type PlinkoAztecMockScenario,
 } from './plinkoAztecMockOptions';
 import { PlinkoAztecMockSession, type PlinkoAztecBetSelection } from './PlinkoAztecMockSession';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 export type { PlinkoAztecMockHostOptions, PlinkoAztecMockScenario } from './plinkoAztecMockOptions';
 
@@ -55,6 +56,9 @@ export class PlinkoAztecMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.sendGameConfig();
         return;

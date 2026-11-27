@@ -2,6 +2,7 @@
  * События игра → React. Сырой формат движка (префиксы `PlaySound_`, JSON-строки
  * у Unity) разбирается транспортом — бизнес-логика видит только `event.type`.
  */
+import type { GameEventParams } from './gameEvents.js';
 import type {
   BonusPurchaseRequestPayload,
   UiVisibilityPayload,
@@ -38,6 +39,10 @@ export type CoreEvent =
   // игра узнаёт обычными командами своего режима, как при покупке из шелла. Это не
   // `BonusPurchaseRequest`: бонус выбирает и покупает игрок в магазине хоста, а не игра.
   | { type: 'OpenBonusShop' }
+  // Собственное событие игры для аналитики (ADR-0011): имя и плоские параметры. Игра называет только
+  // событие — игру, сессию, релиз и устройство добавляет шелл. Ответа нет; шелл проверяет событие по
+  // правилам `gameEvents.ts` и при нарушении молча отбрасывает его. Без персональных данных и денег.
+  | { type: 'TrackEvent'; name: string; params?: GameEventParams }
   | { type: 'OpenTransitionScreen' }
   | { type: 'CloseTransitionScreen' };
 

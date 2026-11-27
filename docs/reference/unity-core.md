@@ -1,6 +1,6 @@
 # Ядро Unity-моста — `com.pixi.webbridge`
 
-> Справочник UPM-пакета `com.pixi.webbridge` (версия **1.1.0**, Unity **6000.0+**): база мостов
+> Справочник UPM-пакета `com.pixi.webbridge` (версия **1.2.0**, Unity **6000.0+**): база мостов
 > `WebBridgeBase<T>`, сервисные мосты (раскладка, ориентация, звук, переводы, переходный экран), JSON,
 > утилиты, mock и читы, меню редактора. Мосты режимов описаны в `docs/modes/<id>/unity.md`
 > ([список](#мосты-режимов)). Как поставить пакет с нуля — [старт на Unity](../guides/getting-started-unity.md).
@@ -46,7 +46,7 @@ public class SharedBridgeEvents : MonoBehaviour
 unity/Assets/WebBridge/                 package.json: com.pixi.webbridge
   Runtime/                              сборка WebBridge.Runtime (autoReferenced)
     WebBridgeBase.cs                    база мостов режимов
-    WebBridgeUtils.cs  Json.cs  WebBridgeLogger.cs
+    WebBridgeUtils.cs  Json.cs  WebBridgeLogger.cs  Analytics.cs  AnalyticsParams.cs
     WebGameStateBase.cs  WebWinWindowSignalPayload.cs  WebBridgePayloads.cs
     LayoutWebBridge.cs  ScreenOrientationWebBridge.cs  AudioWebBridge.cs  AudioMessages.cs
     TranslationsWebBridge.cs  WebBridgeUI.cs  SoundKeys.cs  WebBridgeSoundAttribute.cs  EditorAudioPreview.cs
@@ -62,7 +62,7 @@ unity/Assets/WebBridge/                 package.json: com.pixi.webbridge
 
 | Namespace | Что в нём |
 |---|---|
-| `WebBridge` | ядро без привязки к режиму: `WebBridgeBase<T>`, `WebBridgeUtils`, `Json`, `JsonValue`, `JsonKind`, `JsonNameAttribute`, `WebBridgeLogger`, `WebGameStateBase`, `WebBetPayload`, `WebWinWindowSignalPayload`, `DebugPanelIMGUI` |
+| `WebBridge` | ядро без привязки к режиму: `WebBridgeBase<T>`, `WebBridgeUtils`, `Json`, `JsonValue`, `JsonKind`, `JsonNameAttribute`, `WebBridgeLogger`, `Analytics`, `AnalyticsParams`, `WebGameStateBase`, `WebBetPayload`, `WebWinWindowSignalPayload`, `DebugPanelIMGUI` |
 | `Modules.Road` | сервисные мосты и общие для всех игр типы, исторически лежащие здесь: `LayoutWebBridge`, `ScreenOrientationWebBridge`, `AudioWebBridge`, `AudioMessages`, `TranslationsWebBridge`, `WebBridgeUI`, `SoundKeys`, `WebBridgeSoundAttribute`, `RestartReason`, `RestartRoundPayload`, payload'ы раскладки; плюс мост crush (`RoadWebBridge`), его `MockConfig`, `MockDebugIMGUI`, `CheatBridge`, `CheatDebugIMGUI` |
 | `Modules.<Mode>` | мост режима и его типы: `Modules.Plinko`, `Modules.PlinkoAztec`, `Modules.Wheel`, `Modules.Jumper`, `Modules.MineSlot` |
 | `Modules.Road.Editor` | меню и окна редактора |
@@ -201,6 +201,7 @@ sequenceDiagram
 | `OpenBonusShop()` | `OpenBonusShop` | ничего: хост открывает свой магазин бонусов, как по кнопке шелла, а без магазина у режима, при выключенном или заблокированном магазине игнорирует. Купленный бонус приходит командами режима. В редакторе (mock) — только лог |
 | `virtual RequestFastGame()` | `RequestFastGame` | `SetFastGame(1 \| 0)`. Хост и так пушит значение после загрузки — нужен тому, кто подписался позже |
 | `NotifyFastGameChanged(bool)` | `FastGame_1` / `FastGame_0` | хост зеркалит значение в тумблер. Молчит, если значение не поменялось |
+| `Analytics.Track(name, params)` и помощники | `TrackEvent_{json}` | ничего: шелл проверяет событие и кладёт в пачку аналитики; см. [аналитика](#аналитика-analytics) |
 
 `virtual` — потому что мосты режимов в mock-режиме отвечают сами (мок-хост вместо `Send`).
 
@@ -210,6 +211,7 @@ sequenceDiagram
 |---|---|---|
 | `CurrentIsWhiteLabel` | `bool?` | последний ответ на `RequestWhiteLabel`; `null` — ответа не было |
 | `IsFastGameEnabled` | `bool` | текущая ускоренная игра; `false`, пока хост не прислал своё значение |
+| `Analytics` | `Analytics` | собственные события игры для аналитики ([ниже](#аналитика-analytics)) |
 | `protected static IsMockEnabled` | `bool` | то же, что `WebBridgeUtils.IsMockEnabled` |
 | `protected static IsCheatsEnabled` | `bool` | то же, что `WebBridgeUtils.IsCheatsEnabled` |
 
@@ -242,6 +244,40 @@ else
 `WebBridgeLogger.IsEnabled` по умолчанию **включён в редакторе и выключен в сборке**. В WebGL-сборке логи
 моста (включая `[Unity -> React] …` из `Send`) появляются только после `SetLoggingEnabled(1)` от хоста.
 Предупреждения и ошибки пишутся всегда.
+
+### Аналитика: `Analytics`
+
+Игра отмечает собственные события, а админ собирает из них воронки. `WebBridgeBase<T>.Analytics` есть у
+моста любого режима; контекст — игру, сессию, релиз, устройство — добавляет шелл.
+
+```csharp
+Bridge.Analytics.Track("bonus_meter_full", new AnalyticsParams().Add("stage", 2).Add("fast_game", true));
+Bridge.Analytics.LevelComplete("boss_1", new AnalyticsParams().Add("score", 1200));
+Bridge.Analytics.ResourceSource("gems", 5, "chest");
+```
+
+| Метод | Событие |
+|---|---|
+| `Track(string name, AnalyticsParams parameters = null)` | своё событие: имя `a-z0-9_` до 64 символов, плоские параметры |
+| `LevelStart(level, extra = null)` / `LevelComplete(...)` / `LevelFail(...)` | `level_start` / `level_complete` / `level_fail`; `level` — строка, `extra` — свои параметры сверх стандартных |
+| `ResourceSource(currency, amount, source, extra = null)` / `ResourceSink(currency, amount, sink, extra = null)` | `resource_source` / `resource_sink`: внутриигровой ресурс, `amount` > 0 |
+
+`AnalyticsParams` — плоский набор параметров с цепочкой `Add(key, value)`; перегрузки принимают только `string`,
+`int`/`double` и `bool`. `JsonUtility` словари не сериализует, поэтому JSON собирается вручную через
+`JsonValue`. Повторный ключ заменяет значение, `Count` — число параметров. Нецелое число должно быть
+конечным: `NaN` и бесконечность отбрасываются с предупреждением, иначе сломали бы весь JSON события.
+Так же отбрасываются `null`-значение и `null`-ключ: у них нет верной JSON-формы.
+
+- **Ответа нет.** Метод синхронный и ничего не возвращает. Вне шелла (редактор, mock) `Send` только пишет
+  сообщение в лог, поэтому событие никуда не уходит.
+- **Проводной формат.** Строка `TrackEvent_` + JSON `{"name":"…","params":{…}}`; префикс — константа
+  `TrackEventMessagePrefix`, её находит `unityWire.test.ts`.
+- **Предупреждения.** При включённых логах (`WebBridgeLogger.IsEnabled`) мост предупреждает о плохом имени
+  (`bad_name`) и о числе параметров больше 20 (`bad_params`), но событие всё равно шлёт: решение принимает
+  шелл. Остальные правила (запрещённые ключи, строки, размер, лимиты сессии) C# не копирует — их проверяет
+  шелл; правила и числа — в [общем протоколе](../concepts/core-protocol.md#собственные-события-игры-trackevent).
+- **Без персональных данных и денег.** Ключи вроде `email`, `user_id`, `bet`, `balance` и значения-почту или
+  URL шелл отклоняет; ставка, выигрыш и баланс приходят с бэкенда.
 
 ### Свой мост поверх базы
 
@@ -772,6 +808,7 @@ does not have receiver for function …» — это не ошибка; нужн
 |---|---|
 | `RequestGameConfig`, `RequestGameState` | стартовая синхронизация моста режима |
 | `RequestWhiteLabel`, `RequestPlay`, `OpenBonusShop`, `RequestFastGame` | `WebBridgeBase<T>` |
+| `TrackEvent_{json}` | `Analytics` |
 | `FastGame_1`, `FastGame_0` | `NotifyFastGameChanged` |
 | `UiVisibility_{json}`, `RequestBetBarViewportMetrics` | `LayoutWebBridge` |
 | `PlaySound_…`, `PlayLoop_…`, `StopLoop_…`, `SetVolume_…`, `PlayMusic_…` | `AudioWebBridge` |

@@ -54,6 +54,8 @@ export const UNITY_PREFIXED_MESSAGES = {
   setVolume: 'SetVolume_',
   uiVisibility: 'UiVisibility_',
   bonusProgressSave: 'BonusProgressSave_',
+  // `TrackEvent_{"name":"…","params":{…}}` — JSON с именем события и плоскими параметрами.
+  trackEvent: 'TrackEvent_',
 } as const;
 
 /**

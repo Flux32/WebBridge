@@ -1,3 +1,11 @@
+export { BridgeAnalytics } from './core/BridgeAnalytics';
+export type {
+  LevelCompleteParams,
+  LevelFailParams,
+  LevelStartParams,
+  ResourceSinkParams,
+  ResourceSourceParams,
+} from './core/BridgeAnalytics';
 export { BridgeBase } from './core/BridgeBase';
 export { BridgeLogger } from './core/BridgeLogger';
 export { BridgeStorage } from './core/BridgeStorage';

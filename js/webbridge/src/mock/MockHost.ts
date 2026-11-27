@@ -12,6 +12,7 @@ import type {
   WebGameBridge,
   WebHostBridge,
 } from '@omega/webbridge-protocol';
+import { logTrackEvent } from './logTrackEvent';
 
 export interface MockHostOptions {
   /**
@@ -114,6 +115,9 @@ export class MockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.sendGameConfig();
         return;

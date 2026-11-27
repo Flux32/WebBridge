@@ -16,6 +16,7 @@ import type {
 } from '@omega/webbridge-protocol';
 import { BridgeLogger } from '../core/BridgeLogger';
 import { FruitLoveFeverMockRound } from './fruitLoveFeverMockRound';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 /** Prices in bets of the buys; a local copy, as the round keeps it (see `fruitLoveFeverMockRound`). */
 const BONUS_PRICES: Readonly<Record<FruitLoveFeverBonusBuy, number>> = { x75: 75, x200: 200 };
@@ -51,6 +52,9 @@ export class FruitLoveFeverMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.send({ type: 'ApplyGameConfig', payload: JSON.stringify(this.gameConfig()) });
         return;

@@ -8,6 +8,7 @@
  * обходит её. Суммы в ответах ИЛЛЮСТРАТИВНЫЕ: на бою их считает сервер.
  */
 import type { EngineCommand, EngineEvent, WebGameBridge, WebHostBridge } from '@omega/webbridge-protocol';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 export type PlinkoRisk = 'LOW' | 'MEDIUM' | 'HIGH';
 
@@ -65,6 +66,9 @@ export class PlinkoMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.sendGameConfig();
         return;
