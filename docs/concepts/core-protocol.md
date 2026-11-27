@@ -29,6 +29,7 @@ type CrushGameEvent = CoreEvent | ModeProtocols['crush']['events'];
 | [`protocol/src/commands.ts`](../../protocol/src/commands.ts) | `CoreCommand` и команды режимов, союз `EngineCommand` |
 | [`protocol/src/events.ts`](../../protocol/src/events.ts) | `CoreEvent`, `RoundEvent`, события режимов, `UnityOnlyEvent`, союз `EngineEvent` |
 | [`protocol/src/payloads.ts`](../../protocol/src/payloads.ts) | формы данных: `UiVisibilityPayload`, `BetBarViewportMetricsPayload`, `CanvasSizePayload`, `WinWindowSignalPayload`… |
+| [`protocol/src/gameEvents.ts`](../../protocol/src/gameEvents.ts) | собственные события игры: лимиты, шаблоны имён, запрещённые ключи, причины отказа, `STANDARD_GAME_EVENTS` |
 | [`protocol/src/modes.ts`](../../protocol/src/modes.ts) | `ModeProtocols`: канал каждого режима сверх ядра |
 | [`protocol/src/unityWire.ts`](../../protocol/src/unityWire.ts) | имена провода Unity: объект `WebBridge`, событие `SendToReact`, префиксы строк |
 | [`protocol/src/web.ts`](../../protocol/src/web.ts) | контракт веб-игры: `__WEB_GAME_BOOT__`, `WebHostBridge`, `WebGameBridge` |
@@ -165,6 +166,7 @@ Payload нарочно строка: хост сериализует его од
 | `RequestBetBarViewportMetrics` | — | движок мог пропустить метрики на старте | заново шлёт `Set*BetBarViewportMetrics` и `SetCanvasSize` | нет метода |
 | `RequestPlay` | — | игрок сделал ход в самой сцене (тап по полю, своя кнопка) | отвечает как на Play бара: ход идёт обычной командой режима, а при неактивной Play — `DisabledPlayPressed` | `requestPlay()` |
 | `OpenBonusShop` | — | игрок нажал в сцене свою кнопку бонусного магазина (BUY BONUS) | открывает свой магазин бонусов, как по кнопке шелла; без магазина у режима, при выключенном или заблокированном магазине — игнорирует | `openBonusShop()` |
+| `TrackEvent` | `name: string`, `params?: GameEventParams` | игра отмечает своё событие для аналитики (дошёл до уровня, собрал награду) | шелл проверяет событие, применяет лимиты и кладёт в пачку аналитики с типом `game`; нарушившее правила — отбрасывает | `analytics.track(name, params?)` и помощники `analytics.levelStart` … |
 | `UiVisibility` | `payload: UiVisibilityPayload` | игра прячет или показывает элементы хоста; в ответ на `SyncUiVisibility` | применяет видимость; первое такое событие — «мост готов» | `setUiVisibility(patch)` |
 | `PlaySound` | `key`, `volume?` | разовый звук | играет звук из звуковой библиотеки хоста | `playSound(key, volume?)` |
 | `PlayLoop` | `key`, `volume?` | зацикленный звук | играет по кругу | `playLoop(key, volume?)` |
@@ -183,6 +185,39 @@ Payload нарочно строка: хост сериализует его од
 Это не `BonusPurchaseRequest` (crush): там игра сама выбирает и покупает бонус, а здесь выбирает игрок в
 магазине хоста.
 
+### Собственные события игры (`TrackEvent`)
+
+`TrackEvent` общий для всех режимов: игра называет событие и кладёт в него плоские параметры, как в
+GameAnalytics, а админ сам собирает из них воронки. Игра знает только имя и параметры: игру, сессию,
+релиз, устройство и окружение добавляет шелл. Ответа нет, игра не узнаёт, ушло ли событие. Правила лежат
+в [`gameEvents.ts`](../../protocol/src/gameEvents.ts) — мост предупреждает по ним в лог (но отправляет),
+шелл отклоняет, Vector и C# повторяют:
+
+| Что | Правило |
+|---|---|
+| имя | `GAME_EVENT_NAME_PATTERN` (`a-z`, цифры, `_`, начало с буквы), 1–64 символа, без серии из 7+ цифр |
+| зарезервировано | префиксы `shell_`, `tutorial_`, `ad_` и имена встроенных событий шелла (`RESERVED_GAME_EVENT_NAMES`) |
+| параметры | до 20; ключ — тот же шаблон, до 32 символов; значение — `string` до 128 символов, конечное `number` с \|x\| ≤ 10¹⁵ или `boolean`; вложенных объектов, массивов и `null` нет |
+| размер | `params` в JSON — не больше 1 КБ |
+| лимиты шелла | 100 событий за сессию, ведро на 20 с пополнением 1 событие в 2 с, 50 разных имён за сессию |
+
+**Без персональных данных и денег.** Игра не шлёт данные о человеке и суммы игрока: ставка, выигрыш и
+баланс приходят с бэкенда. Ловятся только очевидные нарушения, поэтому остальное — на совести игры:
+- ключи `FORBIDDEN_GAME_EVENT_KEYS.pii` (`email`, `phone`, `name`, `user_id`, `token`, `card`…) —
+  отказ `pii`; ключ сравнивается целиком, поэтому `card_kind` и `token_type` проходят;
+- ключи `FORBIDDEN_GAME_EVENT_KEYS.money` (`bet`, `stake`, `win`, `payout`, `balance`) — отказ `money`;
+- строки-значения, похожие на почту, URL, UUID или серию из 7+ цифр (`GAME_EVENT_PII_PATTERNS`) — `pii`.
+
+**Стандартные события** (`STANDARD_GAME_EVENTS`): `level_start`, `level_complete`, `level_fail`,
+`resource_source`, `resource_sink` с фиксированными именами параметров — на них строятся готовые карточки
+«Уровни» и «Ресурсы». Стандартное событие с неверными параметрами отклоняется (`standard_params`), а не
+уходит как собственное. Ресурсы — только внутриигровые: валюта игрока (`EUR`) в `currency` не проходит.
+
+Вне шелла (игра открыта сама, `?mock=1`, Unity Editor) событие никуда не уходит: мок-хост JS-моста пишет
+его в лог, Unity в Editor только логирует отправку. Старый шелл без маршрута `TrackEvent` отдаёт событие
+обработчику режима и пишет `console.error` на каждое, поэтому игры начинают слать события только в релизе,
+который играется на шелле с маршрутом.
+
 Телеметрия кадров `UnityFrameSample` (`payload: UnityFrameSamplePayload`) — отдельный союз
 `UnityOnlyEvent`: её умеет только Unity-сборка, веб-игра её не шлёт. Ни Unity-пакет, ни шелл (master) её
 сейчас не используют.
@@ -199,6 +234,7 @@ Payload нарочно строка: хост сериализует его од
 | `RequestTranslations` | ничего | да, после загрузки и при смене языка |
 | `RequestPlay` | команда хода своего режима (`ApplyStepResult`, `ApplySpinResult`, `ApplyDropResult`…) или `DisabledPlayPressed` | — |
 | `OpenBonusShop` | ничего: магазин открывается в хосте, покупка — командами режима | — |
+| `TrackEvent` | ничего: событие уходит в аналитику, ответа игре нет | — |
 | (хост) `SyncUiVisibility` | игра: `UiVisibility` | — |
 
 Запросы режимов (`RequestStep`, `RequestBallsAmount`, `RequestBetPerBall`, `BonusPurchaseRequest`) — в
@@ -340,6 +376,7 @@ interface UnityFrameSamplePayload {
 | Событие | Строка в `SendToReact` |
 |---|---|
 | `RequestGameConfig`, `RequestGameState`, `RequestWhiteLabel`, `RequestFastGame`, `RequestBetBarViewportMetrics`, `RequestPlay`, `OpenBonusShop`, `RequestTranslations`, `OpenTransitionScreen` | имя как есть |
+| `TrackEvent` | `TrackEvent_<json>`, JSON — `{"name":"…","params":{…}}` (`params` без вложенных значений) |
 | `FastGameChanged` | `FastGame_1` / `FastGame_0` |
 | `PlaySound`, `PlayMusic`, `PlayLoop` | `PlaySound_<key>`, `PlayMusic_<key>`, `PlayLoop_<key>`; громкость — суффиксом `\|<0..1>`: `PlaySound_click\|0.5` |
 | `SetVolume` | `SetVolume_<key>\|<0..1>` — без громкости хост строку отбрасывает |

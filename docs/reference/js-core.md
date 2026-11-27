@@ -33,7 +33,7 @@ registerWebBoot(
 
 | Точка входа | Для чего | Что экспортирует |
 |---|---|---|
-| `@omega/webbridge-js` | код игры, идёт в бандл | ядро: `BridgeBase`, `Signal`, `SignalHandler`, `BridgeTransport`, `BridgeStorage`, `BridgeLogger`, `isMockEnabled`, `isCheatsEnabled`; загрузка: `createWebBoot`, `registerWebBoot`, `WebBootConfig`; mock: `MockHost`, `MockHostOptions`, `MockPanel`, `MockPanelAction`; мосты и mock-хосты режимов; типы `BetBarViewportMetricsPayload`, `ViewportPoint`, `ViewportRect` |
+| `@omega/webbridge-js` | код игры, идёт в бандл | ядро: `BridgeBase`, `BridgeAnalytics` и типы параметров помощников (`LevelStartParams`…), `Signal`, `SignalHandler`, `BridgeTransport`, `BridgeStorage`, `BridgeLogger`, `isMockEnabled`, `isCheatsEnabled`; загрузка: `createWebBoot`, `registerWebBoot`, `WebBootConfig`; mock: `MockHost`, `MockHostOptions`, `MockPanel`, `MockPanelAction`; мосты и mock-хосты режимов; типы `BetBarViewportMetricsPayload`, `ViewportPoint`, `ViewportRect` |
 | `@omega/webbridge-js/vite` | `vite.config.ts`, исполняется в Node | `localBuildServer`, `LocalBuildOptions`, `mockBuildEndpoint`, `BuildEndpointOptions` |
 
 Устаревшие синонимы (живут до мажорной версии): `createPhaserBoot`, `PhaserBootConfig` (до 1.12.0),
@@ -129,6 +129,7 @@ bridge.mobileBetBarViewportMetricsReceived.add((json) => {
 |---|---|---|
 | `requestPlay()` | `RequestPlay` | ход из самой сцены (тап по полю, своя кнопка). Хост отвечает как на Play бара |
 | `openBonusShop()` | `OpenBonusShop` | своя кнопка бонусного магазина в сцене (BUY BONUS). Хост открывает магазин или молча игнорирует, если его нет, он выключен или заблокирован; ответа нет. Mock-хосты событие игнорируют |
+| `analytics.track(name, params?)` и помощники | `TrackEvent` | своё событие для аналитики; см. [ниже](#аналитика-bridgeanalytics) |
 | `requestWhiteLabel()` | `RequestWhiteLabel` | на старте, если у игры есть брендинг: хост сам white-label не пушит |
 | `requestFastGame()` | `RequestFastGame` | код поднялся после пуша и хочет значение |
 | `notifyFastGameChanged(isEnabled)` | `FastGameChanged` | игра сама переключила fast game; молчит, если значение не сменилось |
@@ -142,6 +143,40 @@ bridge.mobileBetBarViewportMetricsReceived.add((json) => {
 
 Методы мостов режимов, которыми запускается синхронизация, — `start()` (зовёт `beginInitialSync`),
 `requestGameConfig()` и `requestGameState()`. Они есть у каждого моста режима.
+
+### Аналитика (`bridge.analytics`)
+
+Игра отмечает собственные события, а админ собирает из них воронки (как в GameAnalytics). Объект
+`analytics` есть у моста любого режима; контекст — игру, сессию, релиз, устройство — добавляет шелл.
+
+```ts
+bridge.analytics.track('bonus_meter_full', { stage: 2, fast_game: true });
+
+// Стандартные события: те же сообщения, параметры типизированы.
+bridge.analytics.levelStart('boss_1', { attempt: 3 });
+bridge.analytics.levelComplete('boss_1', { duration_ms: 41_200, score: 1200 });
+bridge.analytics.levelFail('boss_1', { reason: 'timeout' });
+bridge.analytics.resourceSource({ currency: 'gems', amount: 5, source: 'chest' });
+bridge.analytics.resourceSink({ currency: 'gems', amount: 3, sink: 'reroll' });
+```
+
+| Метод | Событие |
+|---|---|
+| `track(name, params?)` | своё событие: имя `a-z0-9_` до 64 символов, плоские параметры (строки, конечные числа, флаги) |
+| `levelStart(level, params?)` / `levelComplete(level, params?)` / `levelFail(level, params?)` | `level_start` / `level_complete` / `level_fail`; `level` принимает и число, и приводит его к строке |
+| `resourceSource(params)` / `resourceSink(params)` | `resource_source` / `resource_sink`: `currency`, `amount` > 0 и `source` / `sink` |
+
+- **Ответа нет.** Методы синхронные, ничего не возвращают и не бросают: аналитика не роняет игру.
+- **`params` копируется** перед отправкой: игра может менять свой объект сразу после вызова.
+- **Предупреждения.** При включённых логах (`BridgeLogger.isEnabled`, команда `SetLoggingEnabled`) мост пишет
+  `console.warn` с причиной из `GAME_EVENT_REJECTION_REASONS`, если шелл отклонит событие: плохое имя
+  (в том числе не строка — JS-игра без типов), `undefined` в значении параметра, прочие неверные параметры,
+  неверная форма стандартного события, ПДн или деньги. Событие всё равно уходит — решение
+  принимает шелл. Лимиты сессии (100 событий, частота, 50 имён) мост не считает.
+- **Без персональных данных и денег.** Ключи вроде `email`, `user_id`, `bet`, `balance` и значения-почту или
+  URL шелл отклоняет; правила и числа — в [общем протоколе](../concepts/core-protocol.md#собственные-события-игры-trackevent).
+- **Вне шелла событие никуда не уходит.** Mock-хосты (`?mock=1`) пишут его в лог моста
+  (`[WebBridge] TrackEvent: …`, нужен `BridgeLogger.isEnabled`) и ничего не отправляют игре.
 
 ### Состояние
 
