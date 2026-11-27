@@ -47,6 +47,10 @@ namespace WebBridge
         // game subscribes to the names it knows and ignores the rest.
         public event Action<WebWinWindowSignalPayload> WinWindowSignalReceived;
 
+        // Custom game events for analytics: Analytics.Track(name, params) and the standard helpers.
+        // The shell adds the context and validates; there is no reply.
+        public Analytics Analytics { get; } = new Analytics();
+
         public bool? CurrentIsWhiteLabel { get; private set; }
 
         // Fast game speeds the round presentation up (no showcase pauses). Off until React says
