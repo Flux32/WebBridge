@@ -1,6 +1,6 @@
 {
   "name": "com.pixi.webbridge",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "displayName": "WebBridge",
   "description": "WebBridge components for React-Unity communication. Provides the game-agnostic WebBridgeBase, a bridge per mode (RoadWebBridge, PlinkoWebBridge, PlinkoAztecWebBridge, WheelWebBridge, JumperWebBridge, MineSlotWebBridge) and the LayoutWebBridge, AudioWebBridge, TranslationsWebBridge and ScreenOrientationWebBridge service bridges.",
   "unity": "6000.0",
