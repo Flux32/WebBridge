@@ -56,6 +56,26 @@ export type {
 export { isBonusEngineEvent } from './events.js';
 
 export type {
+  GameEventParams,
+  GameEventParamValue,
+  GameEventRejectionReason,
+  StandardGameEventName,
+  StandardGameEvents,
+  StandardParamFormat,
+  StandardParamSpec,
+} from './gameEvents.js';
+export {
+  FORBIDDEN_GAME_EVENT_KEYS,
+  GAME_EVENT_LIMITS,
+  GAME_EVENT_NAME_PATTERN,
+  GAME_EVENT_PII_PATTERNS,
+  GAME_EVENT_REJECTION_REASONS,
+  RESERVED_GAME_EVENT_NAMES,
+  RESERVED_GAME_EVENT_PREFIXES,
+  STANDARD_GAME_EVENTS,
+} from './gameEvents.js';
+
+export type {
   JumperAccelerator,
   JumperAcceleratorDistance,
   JumperBonusGame,
