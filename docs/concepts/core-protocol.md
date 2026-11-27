@@ -451,9 +451,10 @@ type WebBootFn = (host: WebHostBridge, container: HTMLElement, options?: WebBoot
 | 1.15.0 | `RequestPlay` |
 | 1.17.0 | `slot` → `slot-coin` (псевдонимы оставлены) |
 | 1.22.0 | `OpenBonusShop` |
+| 1.23.0 | `TrackEvent` и правила собственных событий игр (`gameEvents.ts`) |
 
-Остальное ядро — с первой версии пакета. Последний выпущенный протокол — `protocol-v1.22.0` (событие
-`OpenBonusShop`).
+Остальное ядро — с первой версии пакета. Последний выпущенный протокол — `protocol-v1.23.0` (событие
+`TrackEvent`).
 
 ## Правила и инварианты
 

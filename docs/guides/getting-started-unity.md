@@ -37,11 +37,11 @@
 | Вариант | Строка | Когда |
 |---|---|---|
 | Последний `main` | `https://github.com/Flux32/WebBridge.git?path=unity/Assets/WebBridge#main` | так подключены MegaBlockRemake и MegaGrab |
-| По тегу | `…?path=unity/Assets/WebBridge#unity-v1.1.0` | воспроизводимая сборка; теги пакета — `unity-v<x.y.z>` |
+| По тегу | `…?path=unity/Assets/WebBridge#unity-v1.2.0` | воспроизводимая сборка; теги пакета — `unity-v<x.y.z>` |
 | По коммиту | `…?path=unity/Assets/WebBridge#<sha>` | закрепить версию, на которую тега нет |
 | Локальная папка | `file:/abs/path/to/WebBridge/unity/Assets/WebBridge` | правка пакета вместе с игрой |
 
-Текущая версия пакета — **1.1.0** (в ней появился `MineSlotWebBridge`), её тег — `unity-v1.1.0`. Как
+Текущая версия пакета — **1.2.0** (в ней появился `Analytics`), её тег — `unity-v1.2.0`. Как
 выпускается тег — [релиз](releasing.md).
 
 **Зависимость** одна — `com.unity.modules.unitywebrequestaudio`, UPM ставит её сам. Newtonsoft пакет не

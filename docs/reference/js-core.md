@@ -534,10 +534,10 @@ new MockPanel(host, [
 
 | Пакет | В репозитории | Последний релиз |
 |---|---|---|
-| `@omega/webbridge-js` | 1.20.0 (`openBonusShop()` в `BridgeBase`) | `js-v1.20.0` |
-| `@omega/webbridge-protocol` | 1.22.0 (событие `OpenBonusShop`) | `protocol-v1.22.0` |
+| `@omega/webbridge-js` | 1.21.0 (`analytics` в `BridgeBase`) | `js-v1.21.0` |
+| `@omega/webbridge-protocol` | 1.23.0 (событие `TrackEvent`) | `protocol-v1.23.0` |
 
-`js-v1.20.0` собран на `protocol-v1.22.0`. Ставится tarball'ом из GitHub Releases — как, в
+`js-v1.21.0` собран на `protocol-v1.23.0`. Ставится tarball'ом из GitHub Releases — как, в
 [старте на JS](../guides/getting-started-js.md#1-поставить-пакеты); выпуск — в [релизах](../guides/releasing.md).
 
 ## Смотрите также
