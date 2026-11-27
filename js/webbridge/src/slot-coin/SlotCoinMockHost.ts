@@ -20,6 +20,7 @@ import type {
   WebHostBridge,
 } from '@omega/webbridge-protocol';
 import { SLOT_COIN_ACTIONS } from '@omega/webbridge-protocol';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 /**
  * Алфавит доски — коды платформы. Символ здесь это КЛЮЧ, а не число: коды
@@ -85,6 +86,9 @@ export class SlotCoinMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.send({
           type: 'ApplyGameConfig',

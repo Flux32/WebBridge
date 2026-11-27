@@ -8,6 +8,7 @@
 import type { DragonPotsBonusBuy, EngineCommand, EngineEvent, WebGameBridge, WebHostBridge } from '@omega/webbridge-protocol';
 import { BridgeLogger } from '../core/BridgeLogger';
 import { dealDragonPotsRound, type DragonPotsMockOutcome } from './dragonPotsMockRound';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 export interface DragonPotsMockHostOptions {
   currency: string;
@@ -47,6 +48,9 @@ export class DragonPotsMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.send({ type: 'ApplyGameConfig', payload: JSON.stringify(this.gameConfig()) });
         return;

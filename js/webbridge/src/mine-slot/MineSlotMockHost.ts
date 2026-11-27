@@ -6,6 +6,7 @@
 import type { EngineCommand, EngineEvent, MineSlotSpinResult, WebGameBridge, WebHostBridge } from '@omega/webbridge-protocol';
 import { dealBoard, dealBonusBoard, dealField, startsBonus } from './mineSlotMockBoards';
 import { playMineSlotRounds } from './mineSlotMockRound';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 const FREE_SPINS = 4;
 
@@ -32,6 +33,9 @@ export class MineSlotMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.send({ type: 'ApplyGameConfig', payload: JSON.stringify({ currency: this.options.currency }) });
         return;

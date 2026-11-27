@@ -13,6 +13,7 @@ import type {
   UiVisibilityPayload,
   WinWindowSignalPayload,
 } from '@omega/webbridge-protocol';
+import { BridgeAnalytics } from './BridgeAnalytics';
 import { BridgeLogger } from './BridgeLogger';
 import type { BridgeTransport } from './BridgeTransport';
 import { isMockEnabled } from './mockMode';
@@ -57,6 +58,9 @@ export abstract class BridgeBase {
    */
   public readonly canvasSizeReceived = new Signal<string>();
 
+  /** Собственные события игры для аналитики: `analytics.track(name, params)` и стандартные помощники. */
+  public readonly analytics: BridgeAnalytics;
+
   /** Значения кэшируются: подписчик, поднявшийся после ответа React, их не теряет. */
   public currentIsWhiteLabel: boolean | null = null;
   public isFastGameEnabled = false;
@@ -68,7 +72,9 @@ export abstract class BridgeBase {
   private initialSyncAttempts = 0;
   private uiVisibility: UiVisibilityPayload = {};
 
-  protected constructor(protected readonly transport: BridgeTransport) {}
+  protected constructor(protected readonly transport: BridgeTransport) {
+    this.analytics = new BridgeAnalytics(transport);
+  }
 
   public abstract requestGameConfig(): void;
   public abstract requestGameState(): void;

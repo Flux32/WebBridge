@@ -8,6 +8,7 @@
 import type { EngineCommand, EngineEvent, JokerSlotBonusBuy, WebGameBridge, WebHostBridge } from '@omega/webbridge-protocol';
 import { BridgeLogger } from '../core/BridgeLogger';
 import { dealJokerSlotRound, type JokerSlotMockOutcome } from './jokerSlotMockRound';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 export interface JokerSlotMockHostOptions {
   currency: string;
@@ -35,6 +36,9 @@ export class JokerSlotMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.send({ type: 'ApplyGameConfig', payload: JSON.stringify(this.gameConfig()) });
         return;

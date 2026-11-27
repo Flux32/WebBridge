@@ -23,6 +23,7 @@ import { settleJumperBonus } from './jumperMockBonus';
 import { DEFAULT_JUMPER_MOCK_OPTIONS, type JumperMockHostOptions } from './jumperMockOptions';
 import { drawCount, drawSlotLayout } from './jumperMockRandom';
 import { idleJumperState, JumperMockRound } from './JumperMockRound';
+import { logTrackEvent } from '../mock/logTrackEvent';
 
 export type { JumperMockHostOptions, JumperMockRange, JumperSlotContent } from './jumperMockOptions';
 
@@ -61,6 +62,9 @@ export class JumperMockHost implements WebHostBridge {
 
   public emit(event: EngineEvent): void {
     switch (event.type) {
+      case 'TrackEvent':
+        logTrackEvent(event);
+        return;
       case 'RequestGameConfig':
         this.sendGameConfig();
         return;
